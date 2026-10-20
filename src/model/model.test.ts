@@ -86,3 +86,12 @@ describe('outcomes', () => {
     expect(big).toBeLessThan(tiny);
   });
 });
+
+describe('inflation card', () => {
+  it('erosion is a share of public debt and costs are positive', () => {
+    const o = computeOutcomes(computeBudget(base, base));
+    expect(o.inflationErosion).toBeGreaterThan(100);
+    expect(o.inflationErosion).toBeLessThan(0.01 * 40000);
+    expect(o.inflationCost).toBeGreaterThan(50);
+  });
+});

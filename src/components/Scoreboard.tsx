@@ -5,9 +5,9 @@ import { live } from '../model/data';
 import { Dial } from './Dial';
 import { fmtB, pct } from '../format';
 
-function Badge({ ok, title, children }: { ok: boolean | null; title: string; children: React.ReactNode }) {
+function Badge({ ok, title, hint, children }: { ok: boolean | null; title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div className={`badge ${ok === null ? '' : ok ? 'ok' : 'bad'}`}>
+    <div className={`badge ${ok === null ? '' : ok ? 'ok' : 'bad'}`} title={hint}>
       <span className="badge-title">{title}</span>
       <span className="badge-body">{children}</span>
     </div>
@@ -47,6 +47,11 @@ export function Scoreboard() {
         {ceiling && <Badge ok={(o.ceilingMonths ?? 0) > 24} title="Hits the debt ceiling">{ceiling}</Badge>}
         <Badge ok={o.debtToGdp10 <= o.debtToGdpNow} title="Debt-to-GDP in 10 yrs">{pct(o.debtToGdpNow, 0)} → {pct(o.debtToGdp10, 0)}</Badge>
         <Badge ok={o.interestShareOfRevenue < 0.15} title="Interest share of revenue">{pct(o.interestShareOfRevenue, 0)}</Badge>
+        <Badge ok={null} title="Inflate it away?"
+          hint="Effect of 1 point of surprise inflation for one year. It erodes the real value of fixed-rate debt once. Meanwhile, bills (~22% of the debt) reprice within months, TIPS are inflation-protected, and Social Security and other indexed benefits rise, so the costs keep coming back every year. To halve debt-to-GDP by inflation alone, prices would roughly have to double.">
+          −{fmtB(o.inflationErosion)} real debt
+          <small>per +1pt surprise inflation, but +{fmtB(o.inflationCost)}/yr in costs</small>
+        </Badge>
         <Badge ok={null} title="National debt">{fmtB(live.totalDebtB.value)} <small>as of {live.totalDebtB.asOf}</small></Badge>
       </div>
     </header>

@@ -21,6 +21,12 @@
   },
   "netInterestB": { "value": 1000, "source": "CBO Monthly Budget Review, FY2025 net interest (approx.)", "url": "https://www.cbo.gov/topics/budget/monthly-budget-review" },
   "rateRepricingShareYear1": 0.3,
+  "debtComposition": {
+    "billsShare": 0.22,
+    "tipsShare": 0.08,
+    "indexedPrograms": ["social_security", "fed_retirement", "ssi", "veterans"],
+    "source": "Treasury Monthly Statement of the Public Debt (approx. shares of marketable debt)"
+  },
   "programs": [
     { "id": "social_security", "name": "Social Security", "category": "mandatory", "baselineB": 1580, "unit": "per retired-worker household", "source": "MTS FY2025; SSA avg retired-worker benefit ~$2,000/mo" },
     { "id": "medicare", "name": "Medicare", "category": "mandatory", "baselineB": 1000, "unit": "per enrollee (~$15k/yr federal)", "source": "MTS FY2025 (net of premiums)" },
