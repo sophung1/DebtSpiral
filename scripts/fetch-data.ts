@@ -50,7 +50,14 @@ export function parseDebtLimit(rows: Row[]): Updates {
   const out: Updates = {};
   const subj = find(/total.*subject to (the )?limit/i) ?? day.find((r) => /subject to (the )?limit/i.test(label(r)) && !/not subject|other/i.test(label(r)));
   const lim = find(/statutory debt limit/i);
-  if (!subj) console.warn(`  no subject-to-limit row; categories seen: ${day.map(label).join(' | ')}`);
+  // DTS Table III-C has no total row: subject to limit = public + intragov − not-subject items + other subject debt.
+  const sum = (re: RegExp) => day.filter((r) => re.test(label(r))).reduce((a, r) => a + Math.abs(num(r.close_today_bal)), 0);
+  const parts = find(/debt held by the public/i) && find(/intragovernmental holdings/i);
+  const derived = parts
+    ? sum(/debt held by the public/i) + sum(/intragovernmental holdings/i) - sum(/not subject to limit/i) + sum(/^other debt subject to limit/i)
+    : NaN;
+  if (!subj && Number.isFinite(derived)) out.debtSubjectToLimitB = { value: derived / 1e3, asOf: latest, source: src };
+  if (!subj && !parts) console.warn(`  no subject-to-limit row; categories seen: ${day.map(label).join(' | ')}`);
   // DTS amounts are in millions of dollars.
   if (subj) out.debtSubjectToLimitB = { value: num(subj.close_today_bal) / 1e3, asOf: latest, source: src };
   if (lim) out.debtLimitB = { value: num(lim.close_today_bal) / 1e3, asOf: latest, source: src };
