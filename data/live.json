@@ -1,0 +1,16 @@
+{
+  "updatedAt": "2025-09-30T00:00:00Z",
+  "seed": true,
+  "totalDebtB": { "value": 37640, "asOf": "2025-09-30", "source": "Seed value (Debt to the Penny, FY2025 end). Overwritten by scripts/fetch-data.ts" },
+  "debtHeldByPublicB": { "value": 30280, "asOf": "2025-09-30", "source": "Seed value (Debt to the Penny)" },
+  "intragovDebtB": { "value": 7360, "asOf": "2025-09-30", "source": "Seed value (Debt to the Penny)" },
+  "debtSubjectToLimitB": { "value": 37550, "asOf": "2025-09-30", "source": "Seed value (Daily Treasury Statement, Table III-C)" },
+  "debtLimitB": { "value": 41100, "asOf": "2025-07-04", "source": "Statutory limit raised by $5T in P.L. 119-21 (July 2025)" },
+  "avgInterestRate": { "value": 0.0337, "asOf": "2025-09-30", "source": "Seed value (Average Interest Rates on U.S. Treasury Securities)" },
+  "yield2y": { "value": 0.036, "asOf": "2025-09-30", "source": "Seed value (Treasury daily par yield curve)" },
+  "yield10y": { "value": 0.0416, "asOf": "2025-09-30", "source": "Seed value (Treasury daily par yield curve)" },
+  "yield30y": { "value": 0.0473, "asOf": "2025-09-30", "source": "Seed value (Treasury daily par yield curve)" },
+  "fytdReceiptsB": { "value": 5235, "asOf": "2025-09-30", "source": "Seed value (MTS FY2025 full year)" },
+  "fytdOutlaysB": { "value": 7010, "asOf": "2025-09-30", "source": "Seed value (MTS FY2025 full year)" },
+  "fytdDeficitB": { "value": 1775, "asOf": "2025-09-30", "source": "Seed value (MTS FY2025 full year)" }
+}

@@ -1,1 +1,57 @@
-# Deficit-Dial
+# Deficit Dial
+
+**deficitdial.io**: a dashboard game where you try to balance the U.S. federal budget using real data.
+
+- **Taxes**: a draggable 2D bracket editor. Drag a step up or down to change its rate, and drag a knob left or right to move where the bracket starts. There are also sliders for capital gains, payroll (rate and cap), corporate and estate taxes.
+- **Spending**: a slider for each major program. Each one shows the total cost to the government and what each sample household gets.
+- **Policy switches**: about 20 on/off options with rough scores, mostly from CBO.
+- **Scoreboard**: the deficit dial, plus whether the budget balances, years to pay off the debt, months until the debt ceiling, debt-to-GDP in 10 years and interest as a share of revenue.
+- **Households**: six sample households, from a minimum-wage worker to the top 1%, showing taxes, benefits and net change vs current law.
+- Scenarios are saved in the URL, so you can share them.
+
+## Develop
+
+```sh
+npm install
+npm run dev        # http://localhost:5173
+npm test           # model + parser unit tests
+npm run build
+```
+
+## Data
+
+| File | Updated | Contents |
+|---|---|---|
+| `data/live.json` | automatically (weekly GitHub Action) | debt, debt limit, average interest rate, Treasury yields, fiscal-year-to-date receipts and outlays |
+| `data/manual.json` | by hand, yearly | baseline receipts and outlays by category, tax law (brackets, deductions, CTC, EITC, payroll), IRS income distribution |
+| `data/policies.json` | by hand | policy switches: first-year $ score, source, effect on each household |
+| `data/archetypes.json` | by hand | the sample households |
+
+`npm run fetch-data` refreshes `live.json` from the Treasury Fiscal Data API and the Treasury yield curve CSV. Neither needs an API key. A source that fails keeps its previous value.
+
+**Yearly checklist:**
+- New tax-year brackets, deductions and credits (IRS Rev. Proc. each fall).
+- New fiscal-year actuals from the September MTS.
+- A newer IRS SOI table.
+- Re-check the policy scores against the latest CBO *Options for Reducing the Deficit*.
+
+## Model (static, one year)
+
+- **Baseline**: FY2025 actual receipts and outlays.
+- **Income tax**: your brackets are applied to IRS SOI income bins. Within each bin, income is spread evenly; the open top bin uses a Pareto tail. The result is scaled so current law reproduces actual receipts. An optional switch adds behavioral responses (taxable income elasticity 0.25, capital gains 0.7, corporate 0.2).
+- **Payroll cap**: the effect of the cap is estimated from the same income bins.
+- **Programs**: outlays scale with the benefit level. The EITC and CTC are scored on their full cost, including the part that reduces income tax.
+- **Net interest**: a rate shock reprices about 30% of the debt held by the public in year 1.
+- **Outcomes**: the primary balance stays fixed as a share of GDP, interest accrues on the remaining debt, and nominal GDP grows 4%/yr.
+
+All figures are rounded approximations meant for exploring trade-offs. It's not an official score.
+
+## Deploy
+
+`.github/workflows/deploy.yml` builds and deploys to GitHub Pages. It runs on every push to `main`, and weekly to refresh the data. `public/CNAME` sets the custom domain to `deficitdial.io`.
+
+To set up:
+1. In repo Settings → Pages, set the source to **GitHub Actions**.
+2. Point DNS for `deficitdial.io` at GitHub Pages: A records `185.199.108–111.153`, or an ALIAS/ANAME record to `<user>.github.io`.
+
+Cloudflare Pages also works: build command `npm run build`, output directory `dist`.
