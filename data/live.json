@@ -1,16 +1,64 @@
 {
-  "updatedAt": "2025-09-30T00:00:00Z",
-  "seed": true,
-  "totalDebtB": { "value": 37640, "asOf": "2025-09-30", "source": "Seed value (Debt to the Penny, FY2025 end). Overwritten by scripts/fetch-data.ts" },
-  "debtHeldByPublicB": { "value": 30280, "asOf": "2025-09-30", "source": "Seed value (Debt to the Penny)" },
-  "intragovDebtB": { "value": 7360, "asOf": "2025-09-30", "source": "Seed value (Debt to the Penny)" },
-  "debtSubjectToLimitB": { "value": 37550, "asOf": "2025-09-30", "source": "Seed value (Daily Treasury Statement, Table III-C)" },
-  "debtLimitB": { "value": 41100, "asOf": "2025-07-04", "source": "Statutory limit raised by $5T in P.L. 119-21 (July 2025)" },
-  "avgInterestRate": { "value": 0.0337, "asOf": "2025-09-30", "source": "Seed value (Average Interest Rates on U.S. Treasury Securities)" },
-  "yield2y": { "value": 0.036, "asOf": "2025-09-30", "source": "Seed value (Treasury daily par yield curve)" },
-  "yield10y": { "value": 0.0416, "asOf": "2025-09-30", "source": "Seed value (Treasury daily par yield curve)" },
-  "yield30y": { "value": 0.0473, "asOf": "2025-09-30", "source": "Seed value (Treasury daily par yield curve)" },
-  "fytdReceiptsB": { "value": 5235, "asOf": "2025-09-30", "source": "Seed value (MTS FY2025 full year)" },
-  "fytdOutlaysB": { "value": 7010, "asOf": "2025-09-30", "source": "Seed value (MTS FY2025 full year)" },
-  "fytdDeficitB": { "value": 1775, "asOf": "2025-09-30", "source": "Seed value (MTS FY2025 full year)" }
+  "updatedAt": "2026-10-20T21:08:32.756Z",
+  "seed": false,
+  "totalDebtB": {
+    "value": 40396.40112048505,
+    "asOf": "2026-10-19",
+    "source": "Treasury Fiscal Data: Debt to the Penny"
+  },
+  "debtHeldByPublicB": {
+    "value": 32533.474452928982,
+    "asOf": "2026-10-19",
+    "source": "Treasury Fiscal Data: Debt to the Penny"
+  },
+  "intragovDebtB": {
+    "value": 7862.92666755607,
+    "asOf": "2026-10-19",
+    "source": "Treasury Fiscal Data: Debt to the Penny"
+  },
+  "debtSubjectToLimitB": {
+    "value": 37550,
+    "asOf": "2025-09-30",
+    "source": "Seed value (Daily Treasury Statement, Table III-C)"
+  },
+  "debtLimitB": {
+    "value": 41103.996,
+    "asOf": "2026-10-19",
+    "source": "Treasury Fiscal Data: Daily Treasury Statement, Debt Subject to Limit"
+  },
+  "avgInterestRate": {
+    "value": 0.03531,
+    "asOf": "2026-09-30",
+    "source": "Treasury Fiscal Data: Average Interest Rates on U.S. Treasury Securities"
+  },
+  "yield2y": {
+    "value": 0.0479,
+    "asOf": "2026-10-20",
+    "source": "U.S. Treasury daily par yield curve rates"
+  },
+  "yield10y": {
+    "value": 0.0512,
+    "asOf": "2026-10-20",
+    "source": "U.S. Treasury daily par yield curve rates"
+  },
+  "yield30y": {
+    "value": 0.0542,
+    "asOf": "2026-10-20",
+    "source": "U.S. Treasury daily par yield curve rates"
+  },
+  "fytdReceiptsB": {
+    "value": 5403.3267589608095,
+    "asOf": "2026-09-30",
+    "source": "Treasury Fiscal Data: Monthly Treasury Statement, Table 1 (fiscal year to date)"
+  },
+  "fytdOutlaysB": {
+    "value": 7395.799983313231,
+    "asOf": "2026-09-30",
+    "source": "Treasury Fiscal Data: Monthly Treasury Statement, Table 1 (fiscal year to date)"
+  },
+  "fytdDeficitB": {
+    "value": 1992.4732243524213,
+    "asOf": "2026-09-30",
+    "source": "Treasury Fiscal Data: Monthly Treasury Statement, Table 1 (fiscal year to date)"
+  }
 }
