@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-20T21:15:24.948Z",
+  "updatedAt": "2026-10-20T21:20:38.764Z",
   "seed": false,
   "totalDebtB": {
     "value": 40396.40112048505,
@@ -17,9 +17,9 @@
     "source": "Treasury Fiscal Data: Debt to the Penny"
   },
   "debtSubjectToLimitB": {
-    "value": 40396.40112048505,
+    "value": 40199.333,
     "asOf": "2026-10-19",
-    "source": "Approximated by total public debt (DTS subject-to-limit row not found)"
+    "source": "Treasury Fiscal Data: Daily Treasury Statement, Debt Subject to Limit"
   },
   "debtLimitB": {
     "value": 41103.996,
