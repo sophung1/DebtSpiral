@@ -202,3 +202,41 @@ describe('debt, inflation & wild ideas', () => {
     expect(p[3].deficit! - p0[3].deficit!).toBeLessThan(40);
   });
 });
+
+describe('economic feedback (fiscal multiplier)', () => {
+  it('austerity with a high multiplier shrinks GDP, loses revenue and raises debt-to-GDP at first', async () => {
+    const { PRESETS } = await import('./presets');
+    const hawk = (m: number) => { const s = PRESETS.find((p) => p.id === 'hawk')!.build(); s.multiplier = m; return computeBudget(s, base); };
+    const s0 = hawk(0), s15 = hawk(1.5);
+    expect(s15.gdpGap).toBeLessThan(-0.05);
+    expect(s15.deficit).toBeGreaterThan(s0.deficit + 300);
+    expect(projection(s15)[1].debt / projection(s15)[1].gdp).toBeGreaterThan(projection(s0)[1].debt / projection(s0)[1].gdp);
+  });
+  it('a multiplier of 0 is static scoring; current law has no gap at any multiplier', () => {
+    const s = currentLaw(); s.multiplier = 1.5;
+    const b = computeBudget(s, base);
+    expect(b.gdpGap).toBeCloseTo(0, 9);
+    expect(b.deficit).toBeCloseTo(computeBudget(base, base).deficit, 6);
+  });
+  it('stimulus with a multiplier boosts GDP and claws back some revenue', () => {
+    const s = currentLaw(); s.stimulusPerAdult = 2000;
+    const st = computeBudget(s, base).deficit;
+    s.multiplier = 1;
+    const b = computeBudget(s, base);
+    expect(b.gdpGap).toBeGreaterThan(0);
+    expect(b.deficit).toBeLessThan(st);
+  });
+});
+
+describe('money flows', () => {
+  it('money in equals money out, with and without a surplus', async () => {
+    const { budgetFlows } = await import('./flows');
+    const { PRESETS } = await import('./presets');
+    for (const s of [base, ...PRESETS.map((p) => p.build())]) {
+      const f = budgetFlows(computeBudget(s, base));
+      const sum = (xs: { value: number }[]) => xs.reduce((a, x) => a + x.value, 0);
+      expect(sum(f.inflows)).toBeCloseTo(sum(f.outflows), 6);
+      expect(f.inflows.every((x) => x.value >= 0) && f.outflows.every((x) => x.value >= 0)).toBe(true);
+    }
+  });
+});

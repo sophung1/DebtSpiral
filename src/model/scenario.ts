@@ -26,6 +26,8 @@ export interface Scenario {
   inflationShock: number;
   /** real GDP growth per year for the 10-year outlook, decimal */
   realGrowth: number;
+  /** fiscal multiplier: GDP change per $1 of primary-deficit change (0 = static scoring) */
+  multiplier: number;
   /** stimulus check per adult ($) */
   stimulusPerAdult: number;
   /** repeat the check every year (UBI-style) instead of once */
@@ -81,6 +83,7 @@ export function currentLaw(): Scenario {
     rateShock: 0,
     inflationShock: 0,
     realGrowth: manual.realGdpGrowth,
+    multiplier: 0,
     stimulusPerAdult: 0,
     stimulusRecurring: false,
     behavioral: false,

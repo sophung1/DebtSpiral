@@ -562,5 +562,10 @@
   "stimulus": {
     "adultsM": 265,
     "source": "Census: ~265M U.S. adults (2025 est.)"
+  },
+  "feedback": {
+    "revenueElasticity": 1.2,
+    "persistence": 0.7,
+    "source": "Revenue moves ~1.2% per 1% change in GDP (CBO budget sensitivities). The GDP gap shrinks 30%/yr. Multiplier evidence: ~0.5 in normal times; 0.9-1.7 in Europe's 2010-13 austerity (Blanchard & Leigh, IMF 2013)."
   }
 }

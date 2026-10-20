@@ -43,15 +43,17 @@ export function projection(b: Budget, years = 10): YearPoint[] {
   const maturity = manual.debtComposition.avgMaturityYears;
   let d = live.debtHeldByPublicB.value, y = gdp0;
   const r0 = (b.netInterest - b.inflationInterest) / d;
-  const primary = b.deficit - b.netInterest - b.oneTime;
+  const primary = b.deficit - b.netInterest - b.oneTime - b.feedbackB;
+  const fade = (t: number) => Math.pow(manual.feedback.persistence, t - 1);
   const pts: YearPoint[] = [{ fy: START_FY, debt: d, gdp: y, deficit: null, interest: null }];
   for (let t = 1; t <= years; t++) {
     const k = Math.min(1, b.repricing1 + ((t - 1) * (1 - b.repricing1)) / maturity);
     const interest = d * (r0 + b.inflationShock * k);
-    const deficit = interest + primary * (y / gdp0) + (t === 1 ? b.oneTime : 0);
+    // The multiplier's GDP gap and its revenue loss fade over time.
+    const deficit = interest + (primary + b.feedbackB * fade(t)) * (y / gdp0) + (t === 1 ? b.oneTime : 0);
     d += deficit;
     y *= 1 + g;
-    pts.push({ fy: START_FY + t, debt: d, gdp: y, deficit, interest });
+    pts.push({ fy: START_FY + t, debt: d, gdp: y * (1 + b.gdpGap * fade(t)), deficit, interest });
   }
   return pts;
 }
