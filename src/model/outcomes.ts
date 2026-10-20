@@ -1,4 +1,4 @@
-import { manual, live, programs } from './data';
+import { manual, live } from './data';
 import type { Budget } from './budget';
 
 export interface Outcomes {
@@ -12,10 +12,10 @@ export interface Outcomes {
   debtToGdpNow: number;
   debtToGdp10: number;
   interestShareOfRevenue: number;
-  /** one-time real erosion of fixed-rate debt from +1pt surprise inflation ($B) */
-  inflationErosion: number;
-  /** first-year added cost of that inflation: repricing interest, TIPS accrual, indexed benefits ($B) */
-  inflationCost: number;
+  /** extra surprise inflation per year needed just to hold debt-to-GDP flat (decimal; ≤ 0 = already falling) */
+  inflationToHoldRatio: number;
+  /** real debt value that today's baseline inflation already erodes each year ($B) */
+  inflationErosionNow: number;
 }
 
 export function computeOutcomes(b: Budget): Outcomes {
@@ -52,11 +52,12 @@ export function computeOutcomes(b: Budget): Outcomes {
     ceilingMonths = Math.max(0, headroom / (b.deficit / 12));
   }
 
-  // +1 point of unexpected inflation for one year.
-  const dc = manual.debtComposition;
-  const inflationErosion = 0.01 * debt0 * (1 - dc.billsShare - dc.tipsShare);
-  const indexed = programs.filter((p) => dc.indexedPrograms.includes(p.id)).reduce((a, p) => a + p.baselineB, 0);
-  const inflationCost = 0.01 * (debt0 * (manual.rateRepricingShareYear1 + dc.tipsShare) + indexed);
+  // Debt-to-GDP holds when deficit/debt ≤ nominal growth. Surprise inflation π adds π to nominal growth but
+  // also π·debt·k to interest (k = debt repricing in year 1 + TIPS); the primary balance scales with prices.
+  // k → 1 as the debt rolls over, so this year-1 figure is the best case.
+  const k = manual.rateRepricingShareYear1 + manual.debtComposition.tipsShare;
+  const inflationToHoldRatio = (b.deficit / debt0 - g) / (1 - k);
+  const inflationErosionNow = (g - manual.realGdpGrowth) * debt0;
 
   const p10 = project(10);
   return {
@@ -68,7 +69,7 @@ export function computeOutcomes(b: Budget): Outcomes {
     debtToGdpNow: debt0 / gdp,
     debtToGdp10: p10.d / p10.y,
     interestShareOfRevenue: b.netInterest / b.totalReceipts,
-    inflationErosion,
-    inflationCost,
+    inflationToHoldRatio,
+    inflationErosionNow,
   };
 }
