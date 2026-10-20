@@ -92,9 +92,25 @@ h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: v
 .badge-body { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
 .badge small { font-weight: 400; color: var(--muted); font-size: 11px; display: block; }
 
+/* Buckets */
+.buckets { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 20px; align-items: start; }
+.bucket .panel-total.muted { color: var(--muted); font-weight: 500; }
+.split { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; }
+.policy-list { margin-top: 6px; }
+.ledger { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 6px; }
+.ledger > div { background: var(--panel-2); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; }
+.ledger span, .ledger-one span { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.ledger strong { font-size: 17px; font-variant-numeric: tabular-nums; }
+.ledger .pos strong { color: var(--good); }
+.ledger .neg strong { color: var(--bad); }
+.ledger-one { display: flex; justify-content: space-between; align-items: baseline; margin: 12px 0 0; }
+.ledger-one strong { font-size: 17px; }
+.center { text-align: center; }
+@media (min-width: 1100px) { .bucket.wide { grid-column: span 2; } }
+@media (max-width: 1099px) { .split { grid-template-columns: 1fr; } }
+
 /* Layout */
 main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-.grid { display: grid; grid-template-columns: 1.25fr 1fr 0.9fr; gap: 20px; align-items: start; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; min-width: 0; }
 .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .panel-total { font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -119,8 +135,8 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 .toggle input:focus-visible + .switch { outline: 2px solid var(--accent); outline-offset: 2px; }
 .toggle-aside { white-space: nowrap; font-size: 12px; }
 .toggle-aside .hint { white-space: normal; }
-.taxes .toggle { grid-template-columns: auto 1fr; }
-.taxes .toggle-aside { grid-column: 2; }
+.bucket-income_tax .toggle:has(.hint) { grid-template-columns: auto 1fr; }
+.bucket-income_tax .toggle:has(.hint) .toggle-aside { grid-column: 2; }
 
 /* Bracket editor */
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
@@ -172,15 +188,11 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 .sources ul { padding-left: 18px; color: var(--muted); }
 .site-foot { text-align: center; color: var(--muted); font-size: 12px; padding: 0 16px 24px; }
 
-@media (max-width: 1200px) {
-  .grid { grid-template-columns: 1fr 1fr; }
-  .grid .taxes { grid-column: 1 / -1; }
-}
 @media (max-width: 860px) {
   .scoreboard { grid-template-columns: 1fr; position: static; padding: 12px 16px; justify-items: center; text-align: center; }
   .actions { justify-content: center; }
   .badges { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; text-align: left; }
   main { padding: 16px; }
-  .grid { grid-template-columns: 1fr; }
+  .buckets { grid-template-columns: 1fr; }
   .sources table { display: block; overflow-x: auto; }
 }

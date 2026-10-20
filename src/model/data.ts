@@ -18,7 +18,7 @@ export interface Program {
 }
 
 export interface Policy {
-  id: string; group: string; label: string; deltaB: number; source: string;
+  id: string; bucket: string; label: string; deltaB: number; source: string;
   households: Record<string, number>;
 }
 

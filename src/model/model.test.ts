@@ -95,3 +95,30 @@ describe('inflation card', () => {
     expect(o.inflationCost).toBeGreaterThan(50);
   });
 });
+
+describe('buckets', () => {
+  it('bucket deltas sum to the total deficit change and cover every line once', async () => {
+    const { BUCKETS, bucketDelta } = await import('./buckets');
+    const { policies } = await import('./data');
+    const scn = currentLaw();
+    scn.brackets.rates[6] = 0.45; scn.ssWageBase = null; scn.programs.defense = 0.8; scn.rateShock = 0.01; scn.corporateRate = 0.28;
+    for (const p of policies) scn.policies[p.id] = true;
+    const b = computeBudget(scn, base);
+    const sum = BUCKETS.reduce((a, d) => a + bucketDelta(b, scn, d), 0);
+    expect(sum).toBeCloseTo(b.deficit - b.baseDeficit, 6);
+    const ids = BUCKETS.flatMap((d) => [...d.receipts, ...d.outlays]);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.length).toBe(b.receipts.length + b.outlays.length);
+    expect(policies.every((p) => BUCKETS.some((d) => d.id === p.bucket))).toBe(true);
+  });
+});
+
+describe('Social Security cash flow', () => {
+  it('SS policy switches reduce benefits out', async () => {
+    const { ssCashFlow } = await import('./buckets');
+    const scn = currentLaw();
+    const before = ssCashFlow(computeBudget(scn, base), scn).outflow;
+    scn.policies.chained_cpi = true;
+    expect(ssCashFlow(computeBudget(scn, base), scn).outflow).toBeCloseTo(before - 20, 6);
+  });
+});
