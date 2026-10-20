@@ -72,7 +72,7 @@ function PolicyList({ bucket }: { bucket: string }) {
         const by = replacedBy(p.id);
         return (
           <Toggle key={p.id} checked={!!on[p.id] || !!by} disabled={!!by} onChange={(v) => set((s) => setPolicy(s, p.id, v))}
-            label={<span title={p.source}>{p.label}{by && <em className="hint"> (included in the rollback)</em>}</span>}
+            label={<span title={p.source}>{p.label}{p.who && <em className="who"> — {p.who}</em>}{p.oneTime && <em className="tag">one-time</em>}{by && <em className="hint"> (included in the rollback)</em>}</span>}
             aside={<span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>} />
         );
       })}
@@ -81,7 +81,7 @@ function PolicyList({ bucket }: { bucket: string }) {
 }
 
 function IncomeTax() {
-  const { scn } = useResults();
+  const { scn, behavioralEffect } = useResults();
   const set = useStore((s) => s.set);
   return (
     <Bucket id="income_tax" className="wide">
@@ -96,7 +96,11 @@ function IncomeTax() {
             min={0} max={0.5} step={0.005} format={(v) => pct(v)} onChange={(v) => set((s) => { s.capGainsTopRate = v; })}
             hint="Plus the 3.8% net investment income tax" />
           <Toggle label="Include behavioral responses" checked={scn.behavioral} onChange={(v) => set((s) => { s.behavioral = v; })}
-            aside={<span className="hint">People and companies report less income when rates rise. Applies to all taxes. Taxable income elasticity 0.25, capital gains 0.7, corporate 0.2.</span>} />
+            aside={<span className="hint">
+              <strong className={Math.abs(behavioralEffect) < 0.5 ? '' : behavioralEffect > 0 ? 'neg' : 'pos'}>
+                {Math.abs(behavioralEffect) < 0.5 ? 'No effect at current-law tax rates.' : `${behavioralEffect > 0 ? 'Costs' : 'Saves'} ${fmtB(Math.abs(behavioralEffect))} at your rates${scn.behavioral ? '' : ' (if turned on)'}.`}
+              </strong>{' '}
+              People and companies report less income when rates rise (and more when they fall). It only matters once you change a tax rate. Applies to all taxes. Taxable income elasticity 0.25, capital gains 0.7, corporate 0.2.</span>} />
           <PolicyList bucket="income_tax" />
         </div>
       </div>
@@ -178,16 +182,55 @@ function Business() {
   );
 }
 
-function Interest() {
+const pts = (v: number) => `${v >= 0 ? '+' : '−'}${(Math.abs(v) * 100).toFixed(2)} pts`;
+
+function DebtInflation() {
+  const { scn, budget, outcomes: o } = useResults();
+  const set = useStore((s) => s.set);
+  const debt = live.debtHeldByPublicB.value;
+  const baseInfl = manual.nominalGdpGrowth - manual.realGdpGrowth;
+  return (
+    <Bucket id="debt">
+      <div className="ledger">
+        <div><span>Net interest</span><strong>{fmtB(budget.netInterest)}</strong></div>
+        <div><span>Debt held by public</span><strong>{fmtB(debt)}</strong></div>
+        <div className={o.inflationToHoldRatio <= 0 ? 'pos' : 'neg'}><span>Inflation to stand still</span><strong>{o.inflationToHoldRatio <= 0 ? 'none' : `+${pct(o.inflationToHoldRatio)}/yr`}</strong></div>
+      </div>
+      <p className="hint">Yields: 2-yr {pct(live.yield2y.value, 2)} · 10-yr {pct(live.yield10y.value, 2)} · 30-yr {pct(live.yield30y.value, 2)} · average on all debt {pct(live.avgInterestRate.value, 2)}</p>
+      <Slider label="Change in market interest rates" value={scn.rateShock} base={BASE.rateShock}
+        min={-0.03} max={0.05} step={0.0025} format={pts} onChange={(v) => set((s) => { s.rateShock = v; })}
+        hint={`In year 1 only about ${pct(manual.rateRepricingShareYear1, 0)} of the debt reprices (new borrowing and rollovers).`} />
+      <Slider label="Extra inflation, every year" value={scn.inflationShock} base={BASE.inflationShock}
+        min={0} max={0.1} step={0.0025} format={pts} onChange={(v) => set((s) => { s.inflationShock = v; })}
+        hint={<>On top of ~{pct(baseInfl, 1)} normal inflation, which already erodes ~{fmtB(baseInfl * debt)} of real debt a year. {scn.inflationShock > 0 && <>This year it adds {fmtB(budget.inflationInterest)} of interest ({pct(budget.repricing1, 0)} of the debt reprices or is inflation-indexed). </>} Watch the 10-year charts: debt-to-GDP dips, then climbs again as the rest of the debt reprices (average maturity ~{manual.debtComposition.avgMaturityYears} yrs).</>} />
+      <Slider label="Long-bond buybacks per year" value={scn.buybacksB} base={BASE.buybacksB}
+        min={0} max={1000} step={10} format={(v) => (v ? `${fmtB(v)}/yr` : 'none')} onChange={(v) => set((s) => { s.buybacksB = v; })}
+        hint={<>Treasury buys back 10- to 30-year bonds and sells bills instead (since Sept 2026: $4–6B per operation, about every two weeks). At today's yields {scn.buybacksB ? <>that {budget.buybackInterest <= 0 ? 'saves' : 'costs'} {fmtB(Math.abs(budget.buybackInterest))}/yr</> : <>each $100B {live.yield2y.value <= live.yield10y.value ? 'saves' : 'costs'} {fmtB(Math.abs(100 * (live.yield2y.value - live.yield10y.value)))}/yr</>}, but a shorter debt reprices faster when rates or inflation jump.</>} />
+    </Bucket>
+  );
+}
+
+function WildIdeas() {
   const { scn, budget } = useResults();
   const set = useStore((s) => s.set);
+  const cost = budget.outlays.find((x) => x.id === 'stimulus')!.value;
   return (
-    <Bucket id="interest">
-      <p className="ledger-one"><span>Net interest</span><strong>{fmtB(budget.netInterest)}</strong></p>
-      <Slider label="Change in market interest rates" value={scn.rateShock} base={BASE.rateShock}
-        min={-0.03} max={0.05} step={0.0025} format={(v) => `${v >= 0 ? '+' : '−'}${(Math.abs(v) * 100).toFixed(2)} pts`}
-        onChange={(v) => set((s) => { s.rateShock = v; })}
-        hint={<>10-yr Treasury yield {pct(live.yield10y.value, 2)}, average rate on all debt {pct(live.avgInterestRate.value, 2)}. In year 1 only about {pct(manual.rateRepricingShareYear1, 0)} of the debt reprices (new borrowing and rollovers).</>} />
+    <Bucket id="wild" className="wide">
+      <div className="split">
+        <div>
+          <h3>Checks for everyone</h3>
+          <Slider label={<>Stimulus check per adult <span className="delta">{fmtB(cost)}</span></>} value={scn.stimulusPerAdult} base={0}
+            min={0} max={12000} step={250} format={(v) => (v ? fmt$(v) : 'none')} onChange={(v) => set((s) => { s.stimulusPerAdult = v; })}
+            hint={`~${manual.stimulus.adultsM}M adults. For scale: 2008 rebates were $600, 2021 checks $1,400, and $12,000/yr is Andrew Yang's $1,000/month "Freedom Dividend".`} />
+          <Toggle label="Pay it every year (universal basic income)" checked={scn.stimulusRecurring}
+            onChange={(v) => set((s) => { s.stimulusRecurring = v; })}
+            aside={<span className="hint">Off = a one-time check, so the 10-year charts count it in year 1 only.</span>} />
+        </div>
+        <div>
+          <PolicyList bucket="wild" />
+        </div>
+      </div>
+      <p className="hint">Ideas proposed by presidents, candidates and officials from both parties, scored as written. "One-time" items count only in the first year of the 10-year outlook.</p>
     </Bucket>
   );
 }
@@ -201,7 +244,8 @@ export function Buckets() {
       <SafetyNet />
       <DefenseOther />
       <Business />
-      <Interest />
+      <DebtInflation />
+      <WildIdeas />
     </div>
   );
 }

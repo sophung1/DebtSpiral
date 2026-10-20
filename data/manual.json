@@ -558,5 +558,9 @@
         "ordinaryShare": 0.35
       }
     ]
+  },
+  "stimulus": {
+    "adultsM": 265,
+    "source": "Census: ~265M U.S. adults (2025 est.)"
   }
 }

@@ -22,6 +22,14 @@ export interface Scenario {
   policies: Record<string, boolean>;
   /** change in market interest rates, decimal (0.01 = +1pp) */
   rateShock: number;
+  /** persistent inflation above the baseline, decimal per year */
+  inflationShock: number;
+  /** long-bond buybacks per year, funded with bills ($B) */
+  buybacksB: number;
+  /** stimulus check per adult ($) */
+  stimulusPerAdult: number;
+  /** repeat the check every year (UBI-style) instead of once */
+  stimulusRecurring: boolean;
   behavioral: boolean;
 }
 
@@ -71,6 +79,10 @@ export function currentLaw(): Scenario {
     programs: Object.fromEntries(programs.map((p) => [p.id, 1])),
     policies: Object.fromEntries(policies.map((p) => [p.id, false])),
     rateShock: 0,
+    inflationShock: 0,
+    buybacksB: 0,
+    stimulusPerAdult: 0,
+    stimulusRecurring: false,
     behavioral: false,
   };
 }

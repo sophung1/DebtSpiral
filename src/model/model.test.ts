@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { archetypes, manual } from './data';
+import { archetypes, manual, live } from './data';
 import { currentLaw, lawFor, setPolicy } from './scenario';
 import { scheduleTax, cappedWages, aggregateOrdinaryTax } from './incomeTax';
 import { computeBudget } from './budget';
-import { computeOutcomes } from './outcomes';
+import { computeOutcomes, projection } from './outcomes';
 import { computeHousehold } from './household';
 
 const base = currentLaw();
@@ -166,5 +166,38 @@ describe('presets', () => {
     expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
     expect(run('socialism').b.totalOutlays).toBeGreaterThan(computeBudget(base, base).totalOutlays * 1.1);
     expect(run('libertarian').b.totalOutlays).toBeLessThan(computeBudget(base, base).totalOutlays * 0.85);
+  });
+});
+
+describe('debt, inflation & wild ideas', () => {
+  const b0 = computeBudget(base, base);
+  it('a one-time item adds to year 1 only; a recurring one every year', () => {
+    const s = currentLaw(); s.stimulusPerAdult = 5000;
+    const one = projection(computeBudget(s, base));
+    s.stimulusRecurring = true;
+    const rec = projection(computeBudget(s, base));
+    const p0 = projection(b0);
+    expect(one[1].deficit! - p0[1].deficit!).toBeCloseTo(1325, 0);
+    expect(one[5].deficit! - p0[5].deficit!).toBeLessThan(200); // only the extra interest remains
+    expect(rec[5].deficit! - p0[5].deficit!).toBeGreaterThan(1300);
+  });
+  it('inflation: debt-to-GDP dips at first, then the gain fades as interest catches up', () => {
+    const s = currentLaw(); s.inflationShock = 0.03;
+    const p = projection(computeBudget(s, base)), p0 = projection(b0);
+    const gap = (t: number) => p0[t].debt / p0[t].gdp - p[t].debt / p[t].gdp;
+    expect(gap(2)).toBeGreaterThan(0);
+    expect(p[10].interest! - p0[10].interest!).toBeGreaterThan(p[1].interest! - p0[1].interest!);
+  });
+  it('buybacks save a little interest at today\'s yield curve and raise the repricing share', () => {
+    const s = currentLaw(); s.buybacksB = 100;
+    const b = computeBudget(s, base);
+    expect(b.netInterest - b0.netInterest).toBeCloseTo(100 * (live.yield2y.value - live.yield10y.value), 6);
+    expect(b.repricing1).toBeGreaterThan(b0.repricing1);
+  });
+  it('one-time policies are flagged and excluded from later years', () => {
+    const s = currentLaw(); setPolicy(s, 'student_debt', true);
+    const p = projection(computeBudget(s, base)), p0 = projection(b0);
+    expect(p[1].deficit! - p0[1].deficit!).toBeCloseTo(400, 0);
+    expect(p[3].deficit! - p0[3].deficit!).toBeLessThan(40);
   });
 });
