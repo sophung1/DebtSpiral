@@ -31,6 +31,20 @@ describe('fetch-data parsers', () => {
     ]);
     expect(u.debtSubjectToLimitB.value).toBe(40300);
   });
+  it('derives subject-to-limit from components when there is no total row (real DTS labels)', () => {
+    const d = '2026-10-19';
+    const u = parseDebtLimit([
+      { record_date: d, debt_catg: 'Debt Held by the Public', debt_catg_desc: 'null', close_today_bal: '32500000' },
+      { record_date: d, debt_catg: 'Intragovernmental Holdings', debt_catg_desc: 'null', close_today_bal: '7900000' },
+      { record_date: d, debt_catg: 'Debt Not Subject to Limit', debt_catg_desc: 'Other Debt (-)', close_today_bal: '400' },
+      { record_date: d, debt_catg: 'Debt Not Subject to Limit', debt_catg_desc: 'Unamortized Discount (-)', close_today_bal: '30000' },
+      { record_date: d, debt_catg: 'Debt Not Subject to Limit', debt_catg_desc: 'Federal Financing Bank (-)', close_today_bal: '5000' },
+      { record_date: d, debt_catg: 'Other Debt Subject to Limit', debt_catg_desc: 'Guaranteed Debt of Government Agencies', close_today_bal: '100' },
+      { record_date: d, debt_catg: 'Statutory Debt Limit', debt_catg_desc: 'null', close_today_bal: '41100000' },
+    ]);
+    expect(u.debtSubjectToLimitB.value).toBeCloseTo(40364.7, 6);
+    expect(u.debtLimitB.value).toBe(41100);
+  });
   it('MTS year-to-date row', () => {
     const u = parseMts([
       { record_date: '2026-09-30', classification_desc: 'September', current_month_gross_rcpt_amt: '1', current_month_gross_outly_amt: '2' },
