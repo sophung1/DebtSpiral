@@ -207,6 +207,10 @@ function DebtInflation() {
       <Slider label="Real GDP growth" value={scn.realGrowth} base={BASE.realGrowth}
         min={-0.02} max={0.05} step={0.001} format={(v) => `${pct(v)}/yr`} onChange={(v) => set((s) => { s.realGrowth = v; })}
         hint={<>Affects the 10-year charts, not this year's deficit. CBO's long-run estimate is ~{pct(manual.realGdpGrowth)}; the 1990s averaged ~3.5%, and 2009 was −2.5%. Faster growth shrinks debt-to-GDP because GDP grows faster than the debt. Revenue and spending grow with the economy here.</>} />
+      <Slider label="Economic feedback (fiscal multiplier)" value={scn.multiplier} base={BASE.multiplier}
+        min={0} max={2} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.multiplier = v; })}
+        hint={<>{scn.multiplier > 0 && <strong className={budget.gdpGap < -0.0005 ? 'neg' : budget.gdpGap > 0.0005 ? 'pos' : ''}>{Math.abs(budget.gdpGap) < 0.0005 ? 'No effect: your plan doesn\'t change the deficit before interest. ' : `GDP ${budget.gdpGap > 0 ? '+' : '−'}${pct(Math.abs(budget.gdpGap))} this year; revenue ${budget.feedbackB > 0 ? '−' : '+'}${fmtB(Math.abs(budget.feedbackB))}. `}</strong>}
+          How much each $1 of spending cuts or tax hikes shrinks the economy (and each $1 of stimulus grows it). Smaller GDP means less revenue and a bigger debt-to-GDP. About 0.5 in normal times; 0.9–1.7 in Europe's 2010–13 austerity, when Greece cut its deficit and its debt-to-GDP still rose (Blanchard &amp; Leigh, IMF). The effect fades ~30%/yr. Off = static scoring, like CBO's conventional scores.</>} />
     </Bucket>
   );
 }

@@ -19,6 +19,10 @@ export interface Budget {
   inflationShock: number;
   /** nominal GDP growth for the outlook: real growth + baseline inflation + extra inflation */
   nominalGrowth: number;
+  /** GDP gap from the multiplier this year (−0.03 = GDP 3% below trend) */
+  gdpGap: number;
+  /** revenue lost (+) or gained (−) from that GDP gap ($B), already in the receipt lines */
+  feedbackB: number;
   /** one-time items in this year's deficit, which the 10-year outlook doesn't repeat ($B; + = cost) */
   oneTime: number;
   totalReceipts: number;
@@ -79,12 +83,21 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
   const policyNet = policyLines.reduce((a, p) => a + p.value, 0);
 
   const sum = (ls: Line[], k: 'value' | 'base') => ls.reduce((a, l) => a + l[k], 0);
+
+  // Economic feedback: tightening the primary (non-interest) balance shrinks GDP by multiplier × tightening,
+  // and every tax line falls with GDP. Static scoring when the multiplier is 0.
+  const primaryChange = (sum(outlays, 'value') - ni - sum(receipts, 'value') - policyNet)
+    - (sum(outlays, 'base') - manual.netInterestB.value - sum(receipts, 'base'));
+  const gdpGap = (scn.multiplier * primaryChange) / manual.gdpB.value;
+  const staticReceipts = sum(receipts, 'value');
+  for (const r of receipts) r.value *= 1 + manual.feedback.revenueElasticity * gdpGap;
   const totalReceipts = sum(receipts, 'value');
   const totalOutlays = sum(outlays, 'value');
   return {
     receipts, outlays, policyLines, netInterest: ni, totalReceipts, totalOutlays, oneTime,
     inflationInterest: inflationInterest(scn), repricing1: repricingShare(), inflationShock: scn.inflationShock,
     nominalGrowth: scn.realGrowth + baselineInflation + scn.inflationShock,
+    gdpGap, feedbackB: staticReceipts - totalReceipts,
     deficit: totalOutlays - totalReceipts - policyNet,
     baseDeficit: sum(outlays, 'base') - sum(receipts, 'base'),
   };
