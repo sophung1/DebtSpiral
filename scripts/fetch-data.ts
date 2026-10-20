@@ -44,11 +44,13 @@ export function parseDebtLimit(rows: Row[]): Updates {
   if (!rows.length) return {};
   const latest = rows[0].record_date;
   const day = rows.filter((r) => r.record_date === latest);
-  const find = (re: RegExp) => day.find((r) => re.test(r.debt_catg ?? ''));
+  const label = (r: Row) => `${r.debt_catg ?? ''} ${r.debt_catg_desc ?? ''}`;
+  const find = (re: RegExp) => day.find((r) => re.test(label(r)));
   const src = 'Treasury Fiscal Data: Daily Treasury Statement, Debt Subject to Limit';
   const out: Updates = {};
-  const subj = find(/total public debt subject to limit/i);
+  const subj = find(/total.*subject to (the )?limit/i) ?? day.find((r) => /subject to (the )?limit/i.test(label(r)) && !/not subject|other/i.test(label(r)));
   const lim = find(/statutory debt limit/i);
+  if (!subj) console.warn(`  no subject-to-limit row; categories seen: ${day.map(label).join(' | ')}`);
   // DTS amounts are in millions of dollars.
   if (subj) out.debtSubjectToLimitB = { value: num(subj.close_today_bal) / 1e3, asOf: latest, source: src };
   if (lim) out.debtLimitB = { value: num(lim.close_today_bal) / 1e3, asOf: latest, source: src };
@@ -119,6 +121,13 @@ async function main() {
       failed++;
       console.warn(`FAIL ${name}: ${(e as Error).message} (keeping previous values)`);
     }
+  }
+  // Debt subject to limit is within ~0.1% of total debt; if the DTS row wasn't found, approximate it
+  // rather than leave a stale value that would badly skew the debt-ceiling clock.
+  if (live.debtSubjectToLimitB.asOf < live.totalDebtB.asOf) {
+    live.debtSubjectToLimitB = { ...live.totalDebtB, source: 'Approximated by total public debt (DTS subject-to-limit row not found)' };
+    console.warn('  debtSubjectToLimitB approximated from total debt');
+    updated++;
   }
   if (updated) {
     live.updatedAt = new Date().toISOString();

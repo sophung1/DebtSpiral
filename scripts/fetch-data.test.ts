@@ -24,6 +24,13 @@ describe('fetch-data parsers', () => {
     expect(u.debtSubjectToLimitB.value).toBe(37900);
     expect(u.debtLimitB.value).toBe(41100);
   });
+  it('debt subject to limit matches alternate labels but not "not subject" rows', () => {
+    const u = parseDebtLimit([
+      { record_date: '2026-10-16', debt_catg: 'Less Debt Not Subject to Limit', close_today_bal: '50000' },
+      { record_date: '2026-10-16', debt_catg: 'Total Subject to Limit', close_today_bal: '40300000' },
+    ]);
+    expect(u.debtSubjectToLimitB.value).toBe(40300);
+  });
   it('MTS year-to-date row', () => {
     const u = parseMts([
       { record_date: '2026-09-30', classification_desc: 'September', current_month_gross_rcpt_amt: '1', current_month_gross_outly_amt: '2' },

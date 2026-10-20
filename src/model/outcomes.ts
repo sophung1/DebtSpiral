@@ -1,4 +1,4 @@
-import { manual, live } from './data';
+import { manual, live, programs } from './data';
 import type { Budget } from './budget';
 
 export interface Outcomes {
@@ -12,6 +12,10 @@ export interface Outcomes {
   debtToGdpNow: number;
   debtToGdp10: number;
   interestShareOfRevenue: number;
+  /** one-time real erosion of fixed-rate debt from +1pt surprise inflation ($B) */
+  inflationErosion: number;
+  /** first-year added cost of that inflation: repricing interest, TIPS accrual, indexed benefits ($B) */
+  inflationCost: number;
 }
 
 export function computeOutcomes(b: Budget): Outcomes {
@@ -48,6 +52,12 @@ export function computeOutcomes(b: Budget): Outcomes {
     ceilingMonths = Math.max(0, headroom / (b.deficit / 12));
   }
 
+  // +1 point of unexpected inflation for one year.
+  const dc = manual.debtComposition;
+  const inflationErosion = 0.01 * debt0 * (1 - dc.billsShare - dc.tipsShare);
+  const indexed = programs.filter((p) => dc.indexedPrograms.includes(p.id)).reduce((a, p) => a + p.baselineB, 0);
+  const inflationCost = 0.01 * (debt0 * (manual.rateRepricingShareYear1 + dc.tipsShare) + indexed);
+
   const p10 = project(10);
   return {
     balanced: b.deficit <= 0,
@@ -58,5 +68,7 @@ export function computeOutcomes(b: Budget): Outcomes {
     debtToGdpNow: debt0 / gdp,
     debtToGdp10: p10.d / p10.y,
     interestShareOfRevenue: b.netInterest / b.totalReceipts,
+    inflationErosion,
+    inflationCost,
   };
 }
