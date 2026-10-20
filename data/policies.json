@@ -97,6 +97,14 @@
       }
     },
     {
+      "id": "diesel_zero",
+      "bucket": "business",
+      "label": "Eliminate the federal diesel tax (24.4\u00a2/gal)",
+      "deltaB": -11,
+      "source": "Tax Policy Center: diesel excise raised ~$10.8B (FY2023). An Oct 2026 executive order defers it through Dec 31; this makes it permanent.",
+      "households": {}
+    },
+    {
       "id": "tariffs_repeal",
       "bucket": "business",
       "label": "Repeal the remaining 2025 tariffs",
@@ -226,8 +234,100 @@
       "households": {}
     },
     {
+      "id": "defense_15t",
+      "bucket": "wild",
+      "label": "Defense budget to $1.5 trillion",
+      "who": "Trump FY2027 request",
+      "deltaB": -535,
+      "source": "FY2027 request: ~$1.15T base + $350B via reconciliation. Scored as outlays rising from FY2026's $965B; real outlays would ramp up over several years.",
+      "households": {}
+    },
+    {
+      "id": "m4a",
+      "bucket": "wild",
+      "label": "Medicare for All",
+      "who": "Sanders",
+      "deltaB": -3000,
+      "source": "Urban Institute (2019): ~$34T more federal spending over 10 years. Unfunded here; households would also stop paying premiums (not shown).",
+      "households": {}
+    },
+    {
+      "id": "student_debt",
+      "bucket": "wild",
+      "label": "Forgive $10k\u2013$20k of student debt",
+      "who": "Biden 2022",
+      "deltaB": -400,
+      "source": "CBO (2022): ~$400B one-time cost. Struck down by the Supreme Court in 2023.",
+      "households": {},
+      "oneTime": true
+    },
+    {
+      "id": "homebuyer25k",
+      "bucket": "wild",
+      "label": "$25k down-payment aid for first-time buyers",
+      "who": "Harris 2024",
+      "deltaB": -25,
+      "source": "Campaign estimate ~$100B over four years.",
+      "households": {}
+    },
+    {
+      "id": "buffett_rule",
+      "bucket": "wild",
+      "label": "Buffett Rule: 30% minimum tax on $1M+ incomes",
+      "who": "Obama 2012",
+      "deltaB": 6,
+      "source": "JCT (2012): ~$47B over 10 years, scaled up for income growth.",
+      "households": {
+        "top1": -20000
+      }
+    },
+    {
+      "id": "perot_gas",
+      "bucket": "wild",
+      "label": "50\u00a2/gal gas tax increase",
+      "who": "Perot 1992",
+      "deltaB": 65,
+      "source": "Scaled from CBO's 15\u00a2 option (~$22B/yr), allowing for lower demand.",
+      "households": {
+        "min_wage": -300,
+        "working_family": -750,
+        "median": -830,
+        "retirees": -500,
+        "professional": -1000,
+        "top1": -1300
+      }
+    },
+    {
+      "id": "penny_plan",
+      "bucket": "wild",
+      "label": "'Penny Plan': cut all non-interest spending 1%",
+      "who": "Rand Paul",
+      "deltaB": 63,
+      "source": "1% of FY2026 non-interest outlays (~$6.3T). The plan repeats the cut every year.",
+      "households": {}
+    },
+    {
+      "id": "tariffs_for_income_tax",
+      "bucket": "wild",
+      "label": "Abolish the income tax, replace it with tariffs",
+      "who": "Trump 2024",
+      "deltaB": -2066,
+      "source": "Loses $2.85T of individual income tax. Clausing & Obstfeld (2024) put the revenue-maximizing tariff at ~$780B/yr. Household effects not shown.",
+      "households": {}
+    },
+    {
+      "id": "ieepa_refunds",
+      "bucket": "wild",
+      "label": "Pay the remaining IEEPA tariff refunds",
+      "who": "Court-ordered (2026)",
+      "deltaB": -25,
+      "source": "~$166B in IEEPA duties plus interest must be refunded after V.O.S. Selections v. US (Feb 2026); ~$145B was refunded in FY2026 (MTS).",
+      "households": {},
+      "oneTime": true
+    },
+    {
       "id": "doge_rollback",
-      "bucket": "defense_other",
+      "bucket": "wild",
       "label": "Roll back DOGE cuts",
       "deltaB": -5,
       "source": "Low confidence. Independent estimates of DOGE's verifiable net savings: ~$1-7B (B. Stevenson), ~$2B verified (NPR), ~$5.5B (OpenFeds); GAO-26-108615 could trace only 43% of claimed contract savings. Midpoint used. Excludes possible lost IRS revenue from staff cuts (estimates unverified).",

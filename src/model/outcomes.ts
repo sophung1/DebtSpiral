@@ -32,19 +32,23 @@ export interface YearPoint {
 export const START_FY = 2026;
 
 /**
- * Ten-year path from end-of-FY2026 debt, with the plan in force from FY2027. The primary balance is held
- * constant as a share of GDP; interest accrues on the remaining debt at the scenario's effective rate.
+ * Path from end-of-FY2026 debt, with the plan in force from FY2027.
+ * - The recurring primary balance is held constant as a share of GDP; one-time items count in year 1 only.
+ * - Extra inflation raises nominal GDP growth at once, but interest catches up as the debt reprices:
+ *   the repricing share starts at `repricing1` and reaches 100% over the debt's average maturity.
  */
 export function projection(b: Budget, years = 10): YearPoint[] {
   const gdp0 = manual.gdpB.value;
-  const g = manual.nominalGdpGrowth;
+  const g = manual.nominalGdpGrowth + b.inflationShock;
+  const maturity = manual.debtComposition.avgMaturityYears;
   let d = live.debtHeldByPublicB.value, y = gdp0;
-  const r = b.netInterest / d;
-  const primary = b.deficit - b.netInterest;
+  const r0 = (b.netInterest - b.inflationInterest) / d;
+  const primary = b.deficit - b.netInterest - b.oneTime;
   const pts: YearPoint[] = [{ fy: START_FY, debt: d, gdp: y, deficit: null, interest: null }];
   for (let t = 1; t <= years; t++) {
-    const interest = d * r;
-    const deficit = interest + primary * (y / gdp0);
+    const k = Math.min(1, b.repricing1 + ((t - 1) * (1 - b.repricing1)) / maturity);
+    const interest = d * (r0 + b.inflationShock * k);
+    const deficit = interest + primary * (y / gdp0) + (t === 1 ? b.oneTime : 0);
     d += deficit;
     y *= 1 + g;
     pts.push({ fy: START_FY + t, debt: d, gdp: y, deficit, interest });
@@ -56,19 +60,12 @@ export function computeOutcomes(b: Budget): Outcomes {
   const gdp = manual.gdpB.value;
   const g = manual.nominalGdpGrowth;
   const debt0 = live.debtHeldByPublicB.value;
-  const r = b.netInterest / debt0;
   const primary = b.deficit - b.netInterest; // primary deficit (+) / surplus (−)
-
 
   let payoffYears: number | null = null;
   if (b.deficit <= 0) {
-    let d = debt0, y = gdp, t = 0;
-    while (d > 0 && t < 200) {
-      d += d * r + primary * (y / gdp);
-      y *= 1 + g;
-      t++;
-    }
-    payoffYears = d <= 0 ? t : Infinity;
+    const t = projection(b, 200).findIndex((p) => p.debt <= 0);
+    payoffYears = t > 0 ? t : Infinity;
   }
 
   let ceilingMonths: number | null = null;
@@ -81,7 +78,7 @@ export function computeOutcomes(b: Budget): Outcomes {
   // also π·debt·k to interest (k = debt repricing in year 1 + TIPS); the primary balance scales with prices.
   // k → 1 as the debt rolls over, so this year-1 figure is the best case.
   const k = manual.rateRepricingShareYear1 + manual.debtComposition.tipsShare;
-  const inflationToHoldRatio = (b.deficit / debt0 - g) / (1 - k);
+  const inflationToHoldRatio = ((b.deficit - b.oneTime) / debt0 - g) / (1 - k);
   const inflationErosionNow = (g - manual.realGdpGrowth) * debt0;
 
   const p10 = projection(b).at(-1)!;

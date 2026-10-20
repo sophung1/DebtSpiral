@@ -12,9 +12,12 @@ export function useResults() {
   const scn = useStore((s) => s.scn);
   return useMemo(() => {
     const budget = computeBudget(scn, BASE);
+    const flipped = computeBudget({ ...scn, behavioral: !scn.behavioral }, BASE);
     return {
       scn,
       budget,
+      /** how much behavioral responses change the deficit at the current settings ($B; + = raises it) */
+      behavioralEffect: scn.behavioral ? budget.deficit - flipped.deficit : flipped.deficit - budget.deficit,
       outcomes: computeOutcomes(budget),
       projection: projection(budget),
       baseProjection,

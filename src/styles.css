@@ -166,6 +166,10 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 .toggle input:focus-visible + .switch { outline: 2px solid var(--accent); outline-offset: 2px; }
 .toggle-aside { white-space: nowrap; font-size: 12px; }
 .toggle.disabled { opacity: .55; cursor: default; }
+.toggle .who { font-style: normal; color: var(--muted); font-size: 12px; }
+.toggle .tag { font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 6px; color: var(--muted); }
+.bucket-wild .toggle:has(.hint) { grid-template-columns: auto 1fr; }
+.bucket-wild .toggle:has(.hint) .toggle-aside { grid-column: 2; }
 .scoreboard select.btn { appearance: auto; }
 .toggle-aside .hint { white-space: normal; }
 .bucket-income_tax .toggle:has(.hint) { grid-template-columns: auto 1fr; }

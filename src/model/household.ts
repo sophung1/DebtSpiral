@@ -79,6 +79,7 @@ export function computeHousehold(h: Archetype, scn: Scenario): HouseholdResult {
   const e = eitc(h, agi, scn.programs.eitc ?? 1);
   if (e > 0) benefits.eitc = e;
   if (nonref + refundable > 0) benefits.ctc = nonref + refundable;
+  if (scn.stimulusPerAdult > 0) benefits.stimulus = scn.stimulusPerAdult * (f === 'mfj' ? 2 : 1);
 
   const policyEffect = activePolicies(scn).reduce((a, pol) => a + (pol.households[h.id] ?? 0), 0);
   const benefitTotal = Object.values(benefits).reduce((a, b) => a + b, 0);

@@ -22,6 +22,10 @@ export interface Policy {
   households: Record<string, number>;
   /** switches this one supersedes while on (their scores are part of this one's) */
   replaces?: string[];
+  /** whose idea it was (wild-ideas card) */
+  who?: string;
+  /** a one-time cost or saving: counts in year 1 of the 10-year outlook only */
+  oneTime?: boolean;
 }
 
 export interface Archetype {

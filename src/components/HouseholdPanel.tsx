@@ -4,7 +4,7 @@ import { programs } from '../model/data';
 import { Panel } from './Controls';
 import { fmt$, pct } from '../format';
 
-const name = (id: string) => programs.find((p) => p.id === id)?.name ?? id;
+const name = (id: string) => (id === 'stimulus' ? 'Stimulus check' : programs.find((p) => p.id === id)?.name ?? id);
 
 export function HouseholdPanel() {
   const { households } = useResults();

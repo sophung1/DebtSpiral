@@ -17,7 +17,8 @@ export const BUCKETS: BucketDef[] = [
   { id: 'safety_net', title: 'Safety net & family credits', receipts: [], outlays: ['snap', 'eitc', 'ctc', 'ssi', 'unemployment'] },
   { id: 'defense_other', title: 'Defense, veterans & other spending', receipts: [], outlays: ['defense', 'nondefense', 'veterans', 'fed_retirement', 'other_mandatory'] },
   { id: 'business', title: 'Business, trade & new taxes', receipts: ['corporate', 'estate', 'customs', 'excise', 'payrollOther', 'other'], outlays: [] },
-  { id: 'interest', title: 'Interest on the debt', receipts: [], outlays: ['net_interest'] },
+  { id: 'debt', title: 'Debt, interest & inflation', receipts: [], outlays: ['net_interest'] },
+  { id: 'wild', title: 'Wild ideas from past leaders', receipts: [], outlays: ['stimulus'] },
 ];
 
 /** Change in the deficit attributable to a bucket ($B; negative = deficit reduced). */
