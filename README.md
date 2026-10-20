@@ -41,7 +41,7 @@ npm run build
 - **Baseline**: FY2026 actual receipts and outlays from the Monthly Treasury Statement (Tables 4, 5 and 9).
 - **10-year outlook**: the plan applies from FY2027; the primary balance holds as a share of GDP, interest accrues on the debt.
 - **Big Beautiful Bill rollback**: restores pre-2025 tax law (brackets, deductions, exemptions, $1,000 CTC) in the model; the rest of CBO's FY2026 score (~$487B) is a lump sum.
-- **Debt, interest & inflation**: sliders for market rates, persistent extra inflation (interest catches up as the debt reprices over its ~6-year average maturity) and long-bond buybacks funded with bills (priced at the 2-yr vs 10-yr spread).
+- **Debt, interest & inflation**: sliders for market rates, persistent extra inflation (interest catches up as the debt reprices over its ~6-year average maturity) and real GDP growth for the 10-year outlook.
 - **Wild ideas**: a stimulus-check slider (one-time or yearly) and proposals from leaders of both parties. Policies marked `oneTime` count only in year 1 of the 10-year outlook.
 - **Presets**: four sample plans in `src/model/presets.ts`, all with behavioral responses on.
 - **Income tax**: your brackets are applied to IRS SOI income bins. Within each bin, income is spread evenly; the open top bin uses a Pareto tail. The result is scaled so current law reproduces actual receipts. An optional switch adds behavioral responses (taxable income elasticity 0.25, capital gains 0.7, corporate 0.2).

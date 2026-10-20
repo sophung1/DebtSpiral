@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { archetypes, manual, live } from './data';
+import { archetypes, manual } from './data';
 import { currentLaw, lawFor, setPolicy } from './scenario';
 import { scheduleTax, cappedWages, aggregateOrdinaryTax } from './incomeTax';
 import { computeBudget } from './budget';
@@ -188,11 +188,12 @@ describe('debt, inflation & wild ideas', () => {
     expect(gap(2)).toBeGreaterThan(0);
     expect(p[10].interest! - p0[10].interest!).toBeGreaterThan(p[1].interest! - p0[1].interest!);
   });
-  it('buybacks save a little interest at today\'s yield curve and raise the repricing share', () => {
-    const s = currentLaw(); s.buybacksB = 100;
+  it('faster real growth lowers debt-to-GDP but not this year\'s deficit', () => {
+    const s = currentLaw(); s.realGrowth = 0.035;
     const b = computeBudget(s, base);
-    expect(b.netInterest - b0.netInterest).toBeCloseTo(100 * (live.yield2y.value - live.yield10y.value), 6);
-    expect(b.repricing1).toBeGreaterThan(b0.repricing1);
+    expect(b.deficit).toBeCloseTo(b0.deficit, 6);
+    expect(computeOutcomes(b).debtToGdp10).toBeLessThan(computeOutcomes(b0).debtToGdp10);
+    expect(computeOutcomes(b).inflationToHoldRatio).toBeLessThan(computeOutcomes(b0).inflationToHoldRatio);
   });
   it('one-time policies are flagged and excluded from later years', () => {
     const s = currentLaw(); setPolicy(s, 'student_debt', true);

@@ -14,11 +14,11 @@ export interface Budget {
   netInterest: number;
   /** part of net interest caused by the inflation slider ($B) */
   inflationInterest: number;
-  /** interest saved (−) or added (+) by buybacks ($B) */
-  buybackInterest: number;
-  /** share of the debt repricing with inflation in year 1 (bills, rollovers, TIPS, buybacks) */
+  /** share of the debt repricing with inflation in year 1 (bills, rollovers, TIPS) */
   repricing1: number;
   inflationShock: number;
+  /** nominal GDP growth for the outlook: real growth + baseline inflation + extra inflation */
+  nominalGrowth: number;
   /** one-time items in this year's deficit, which the 10-year outlook doesn't repeat ($B; + = cost) */
   oneTime: number;
   totalReceipts: number;
@@ -37,18 +37,16 @@ export function programOutlay(id: string, factor: number): number {
 
 const debt0 = () => live.debtHeldByPublicB.value;
 
-/** Share of the debt whose cost follows inflation in year 1: maturing/rolling debt, TIPS, plus bills issued for buybacks. */
-export const repricingShare = (scn: Scenario) =>
-  Math.min(1, manual.rateRepricingShareYear1 + manual.debtComposition.tipsShare + scn.buybacksB / debt0());
+/** Share of the debt whose cost follows inflation in year 1: maturing/rolling debt plus TIPS. */
+export const repricingShare = () => manual.rateRepricingShareYear1 + manual.debtComposition.tipsShare;
 
-/** Buybacks retire long bonds and issue bills instead; the cost difference is the 2-yr vs 10-yr yield spread. */
-export const buybackInterest = (scn: Scenario) => scn.buybacksB * (live.yield2y.value - live.yield10y.value);
+export const baselineInflation = manual.nominalGdpGrowth - manual.realGdpGrowth;
 
-export const inflationInterest = (scn: Scenario) => scn.inflationShock * repricingShare(scn) * debt0();
+export const inflationInterest = (scn: Scenario) => scn.inflationShock * repricingShare() * debt0();
 
 export function netInterest(scn: Scenario): number {
   return manual.netInterestB.value + scn.rateShock * manual.rateRepricingShareYear1 * debt0()
-    + inflationInterest(scn) + buybackInterest(scn);
+    + inflationInterest(scn);
 }
 
 export const stimulusOutlay = (scn: Scenario) => (scn.stimulusPerAdult * manual.stimulus.adultsM) / 1000;
@@ -85,7 +83,8 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
   const totalOutlays = sum(outlays, 'value');
   return {
     receipts, outlays, policyLines, netInterest: ni, totalReceipts, totalOutlays, oneTime,
-    inflationInterest: inflationInterest(scn), buybackInterest: buybackInterest(scn), repricing1: repricingShare(scn), inflationShock: scn.inflationShock,
+    inflationInterest: inflationInterest(scn), repricing1: repricingShare(), inflationShock: scn.inflationShock,
+    nominalGrowth: scn.realGrowth + baselineInflation + scn.inflationShock,
     deficit: totalOutlays - totalReceipts - policyNet,
     baseDeficit: sum(outlays, 'base') - sum(receipts, 'base'),
   };

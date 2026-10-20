@@ -1,4 +1,4 @@
-import { tax, programs, policies } from './data';
+import { tax, programs, policies, manual } from './data';
 
 export interface BracketSchedule {
   rates: number[];
@@ -24,8 +24,8 @@ export interface Scenario {
   rateShock: number;
   /** persistent inflation above the baseline, decimal per year */
   inflationShock: number;
-  /** long-bond buybacks per year, funded with bills ($B) */
-  buybacksB: number;
+  /** real GDP growth per year for the 10-year outlook, decimal */
+  realGrowth: number;
   /** stimulus check per adult ($) */
   stimulusPerAdult: number;
   /** repeat the check every year (UBI-style) instead of once */
@@ -80,7 +80,7 @@ export function currentLaw(): Scenario {
     policies: Object.fromEntries(policies.map((p) => [p.id, false])),
     rateShock: 0,
     inflationShock: 0,
-    buybacksB: 0,
+    realGrowth: manual.realGdpGrowth,
     stimulusPerAdult: 0,
     stimulusRecurring: false,
     behavioral: false,
