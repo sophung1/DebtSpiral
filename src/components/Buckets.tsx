@@ -3,6 +3,7 @@ import { useStore, BASE } from '../state/store';
 import { useResults } from '../state/results';
 import { programs, policies, live, manual } from '../model/data';
 import { BUCKETS, bucketDelta, ssCashFlow } from '../model/buckets';
+import { baselineInflation } from '../model/budget';
 import { setPolicy } from '../model/scenario';
 import { BracketEditor } from './BracketEditor';
 import { Panel, Slider, Toggle } from './Controls';
@@ -188,7 +189,7 @@ function DebtInflation() {
   const { scn, budget, outcomes: o } = useResults();
   const set = useStore((s) => s.set);
   const debt = live.debtHeldByPublicB.value;
-  const baseInfl = manual.nominalGdpGrowth - manual.realGdpGrowth;
+  const baseInfl = baselineInflation;
   return (
     <Bucket id="debt">
       <div className="ledger">
@@ -203,9 +204,9 @@ function DebtInflation() {
       <Slider label="Extra inflation, every year" value={scn.inflationShock} base={BASE.inflationShock}
         min={0} max={0.1} step={0.0025} format={pts} onChange={(v) => set((s) => { s.inflationShock = v; })}
         hint={<>On top of ~{pct(baseInfl, 1)} normal inflation, which already erodes ~{fmtB(baseInfl * debt)} of real debt a year. {scn.inflationShock > 0 && <>This year it adds {fmtB(budget.inflationInterest)} of interest ({pct(budget.repricing1, 0)} of the debt reprices or is inflation-indexed). </>} Watch the 10-year charts: debt-to-GDP dips, then climbs again as the rest of the debt reprices (average maturity ~{manual.debtComposition.avgMaturityYears} yrs).</>} />
-      <Slider label="Long-bond buybacks per year" value={scn.buybacksB} base={BASE.buybacksB}
-        min={0} max={1000} step={10} format={(v) => (v ? `${fmtB(v)}/yr` : 'none')} onChange={(v) => set((s) => { s.buybacksB = v; })}
-        hint={<>Treasury buys back 10- to 30-year bonds and sells bills instead (since Sept 2026: $4–6B per operation, about every two weeks). At today's yields {scn.buybacksB ? <>that {budget.buybackInterest <= 0 ? 'saves' : 'costs'} {fmtB(Math.abs(budget.buybackInterest))}/yr</> : <>each $100B {live.yield2y.value <= live.yield10y.value ? 'saves' : 'costs'} {fmtB(Math.abs(100 * (live.yield2y.value - live.yield10y.value)))}/yr</>}, but a shorter debt reprices faster when rates or inflation jump.</>} />
+      <Slider label="Real GDP growth" value={scn.realGrowth} base={BASE.realGrowth}
+        min={-0.02} max={0.05} step={0.001} format={(v) => `${pct(v)}/yr`} onChange={(v) => set((s) => { s.realGrowth = v; })}
+        hint={<>Affects the 10-year charts, not this year's deficit. CBO's long-run estimate is ~{pct(manual.realGdpGrowth)}; the 1990s averaged ~3.5%, and 2009 was −2.5%. Faster growth shrinks debt-to-GDP because GDP grows faster than the debt. Revenue and spending grow with the economy here.</>} />
     </Bucket>
   );
 }

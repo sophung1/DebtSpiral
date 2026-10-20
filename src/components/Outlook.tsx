@@ -82,7 +82,7 @@ function Chart({ title, base, plan, pick, fmt, axisFmt, zero }: {
 }
 
 export function Outlook() {
-  const { projection: plan, baseProjection: base } = useResults();
+  const { projection: plan, baseProjection: base, budget } = useResults();
   const charts: { title: string; pick: Pick; fmt: (v: number) => string; axisFmt?: (v: number) => string; zero?: boolean }[] = [
     { title: 'Debt-to-GDP', pick: (p) => p.debt / p.gdp, fmt: (v) => pct(v, 0) },
     { title: 'Annual deficit', pick: (p) => p.deficit, fmt: (v) => fmtB(v), axisFmt: axis$, zero: true },
@@ -112,7 +112,7 @@ export function Outlook() {
           </table>
         </div>
       </details>
-      <p className="hint">Your plan takes effect in FY2027. The primary balance (deficit before interest) stays fixed as a share of GDP. Interest accrues on the growing or shrinking debt, and nominal GDP grows 4%/yr. It's a simple projection, not a CBO-style forecast.</p>
+      <p className="hint">Your plan takes effect in FY2027. The primary balance (deficit before interest) stays fixed as a share of GDP. Interest accrues on the growing or shrinking debt, and nominal GDP grows {pct(budget.nominalGrowth, 1)}/yr (set real growth and inflation in the Debt card). It's a simple projection, not a CBO-style forecast.</p>
     </Panel>
   );
 }

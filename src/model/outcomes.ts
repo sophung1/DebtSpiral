@@ -39,7 +39,7 @@ export const START_FY = 2026;
  */
 export function projection(b: Budget, years = 10): YearPoint[] {
   const gdp0 = manual.gdpB.value;
-  const g = manual.nominalGdpGrowth + b.inflationShock;
+  const g = b.nominalGrowth;
   const maturity = manual.debtComposition.avgMaturityYears;
   let d = live.debtHeldByPublicB.value, y = gdp0;
   const r0 = (b.netInterest - b.inflationInterest) / d;
@@ -58,7 +58,7 @@ export function projection(b: Budget, years = 10): YearPoint[] {
 
 export function computeOutcomes(b: Budget): Outcomes {
   const gdp = manual.gdpB.value;
-  const g = manual.nominalGdpGrowth;
+  const g = b.nominalGrowth - b.inflationShock; // growth without the surprise
   const debt0 = live.debtHeldByPublicB.value;
   const primary = b.deficit - b.netInterest; // primary deficit (+) / surplus (−)
 
@@ -79,7 +79,7 @@ export function computeOutcomes(b: Budget): Outcomes {
   // k → 1 as the debt rolls over, so this year-1 figure is the best case.
   const k = manual.rateRepricingShareYear1 + manual.debtComposition.tipsShare;
   const inflationToHoldRatio = ((b.deficit - b.oneTime) / debt0 - g) / (1 - k);
-  const inflationErosionNow = (g - manual.realGdpGrowth) * debt0;
+  const inflationErosionNow = (manual.nominalGdpGrowth - manual.realGdpGrowth) * debt0;
 
   const p10 = projection(b).at(-1)!;
   return {
