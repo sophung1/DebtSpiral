@@ -1,4 +1,4 @@
-import { policies } from './data';
+import { activePolicies, policyDelta } from './policies';
 import type { Budget } from './budget';
 import type { Scenario } from './scenario';
 
@@ -23,14 +23,14 @@ export const BUCKETS: BucketDef[] = [
 /** Change in the deficit attributable to a bucket ($B; negative = deficit reduced). */
 export function bucketDelta(b: Budget, scn: Scenario, def: BucketDef): number {
   const d = (ls: Budget['receipts'], ids: string[]) => ls.filter((l) => ids.includes(l.id)).reduce((a, l) => a + l.value - l.base, 0);
-  const pol = policies.filter((p) => p.bucket === def.id && scn.policies[p.id]).reduce((a, p) => a + p.deltaB, 0);
+  const pol = activePolicies(scn).filter((p) => p.bucket === def.id).reduce((a, p) => a + policyDelta(p), 0);
   return d(b.outlays, def.outlays) - d(b.receipts, def.receipts) - pol;
 }
 
 /** Social Security's own cash flow: dedicated payroll tax in vs. benefits out, net of SS policy switches ($B). */
 export function ssCashFlow(b: Budget, scn: Scenario) {
   const inflow = b.receipts.find((r) => r.id === 'payrollSS')!.value;
-  const switches = policies.filter((p) => p.bucket === 'social_security' && scn.policies[p.id]).reduce((a, p) => a + p.deltaB, 0);
+  const switches = activePolicies(scn).filter((p) => p.bucket === 'social_security').reduce((a, p) => a + policyDelta(p), 0);
   const outflow = b.outlays.find((o) => o.id === 'social_security')!.value - switches;
   return { inflow, outflow, balance: inflow - outflow };
 }

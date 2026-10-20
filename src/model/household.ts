@@ -1,5 +1,6 @@
-import { tax, policies, type Archetype } from './data';
-import { thresholds, type Scenario } from './scenario';
+import { tax, type Archetype } from './data';
+import { thresholds, lawFor, type Scenario } from './scenario';
+import { activePolicies } from './policies';
 import { scheduleTax } from './incomeTax';
 
 export interface HouseholdResult {
@@ -42,9 +43,11 @@ export function computeHousehold(h: Archetype, scn: Scenario): HouseholdResult {
   const ordinary = h.wages + h.pension + ssTaxable;
   const agi = ordinary + h.capitalGains;
 
+  const law = lawFor(scn);
   const sb = tax.seniorBonus;
-  const senior = h.over65 * Math.max(0, sb.perPerson - sb.phaseoutRate * Math.max(0, agi - sb.phaseoutStart[f]));
-  const deduction = tax.stdDeduction[f] + h.over65 * tax.over65Extra[f] + senior;
+  const senior = law.seniorBonus ? h.over65 * Math.max(0, sb.perPerson - sb.phaseoutRate * Math.max(0, agi - sb.phaseoutStart[f])) : 0;
+  const exemptions = law.personalExemption * ((f === 'mfj' ? 2 : 1) + h.kids);
+  const deduction = law.std[f] + h.over65 * tax.over65Extra[f] + senior + exemptions;
   const tiOrd = Math.max(0, ordinary - deduction);
   const tiCg = Math.max(0, h.capitalGains - Math.max(0, deduction - ordinary));
 
@@ -56,7 +59,7 @@ export function computeHousehold(h: Archetype, scn: Scenario): HouseholdResult {
   incomeTax += cg.niitRate * Math.min(h.capitalGains, Math.max(0, agi - cg.niitThreshold[f]));
 
   // Child Tax Credit
-  const c = tax.ctc;
+  const c = law.ctc;
   const ctcFactor = scn.programs.ctc ?? 1;
   const ctcTotal = Math.max(0, h.kids * c.perChild * ctcFactor - c.phaseoutPer1000 * Math.ceil(Math.max(0, agi - c.phaseoutStart[f]) / 1000));
   const nonref = Math.min(ctcTotal, incomeTax);
@@ -77,7 +80,7 @@ export function computeHousehold(h: Archetype, scn: Scenario): HouseholdResult {
   if (e > 0) benefits.eitc = e;
   if (nonref + refundable > 0) benefits.ctc = nonref + refundable;
 
-  const policyEffect = policies.reduce((a, pol) => a + (scn.policies[pol.id] ? pol.households[h.id] ?? 0 : 0), 0);
+  const policyEffect = activePolicies(scn).reduce((a, pol) => a + (pol.households[h.id] ?? 0), 0);
   const benefitTotal = Object.values(benefits).reduce((a, b) => a + b, 0);
   const net = benefitTotal + policyEffect - incomeTax - payrollTax;
   return { incomeTax, incomeTaxOwed: incomeTax - nonref, ctcNonrefundable: nonref, payrollTax, benefits, policyEffect, totalIncome: agi + h.socialSecurity - ssTaxable, net };

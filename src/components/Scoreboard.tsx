@@ -4,6 +4,7 @@ import { useResults } from '../state/results';
 import { live, manual } from '../model/data';
 import { Dial } from './Dial';
 import { ssCashFlow } from '../model/buckets';
+import { PRESETS } from '../model/presets';
 import { fmtB, pct } from '../format';
 
 function Badge({ ok, title, hint, children }: { ok: boolean | null; title: string; hint?: string; children: React.ReactNode }) {
@@ -18,6 +19,7 @@ function Badge({ ok, title, hint, children }: { ok: boolean | null; title: strin
 export function Scoreboard() {
   const { budget, scn, outcomes: o } = useResults();
   const reset = useStore((s) => s.reset);
+  const load = useStore((s) => s.load);
   const [copied, setCopied] = useState(false);
   const deficit = budget.deficit;
   const change = budget.baseDeficit - deficit;
@@ -36,6 +38,11 @@ export function Scoreboard() {
         <h1>Deficit<span>Dial</span></h1>
         <p>Can you balance the federal budget?</p>
         <div className="actions">
+          <select className="btn" value="" aria-label="Load a preset plan"
+            onChange={(e) => { const p = PRESETS.find((x) => x.id === e.target.value); if (p) load(p.build()); }}>
+            <option value="" disabled>Try a preset…</option>
+            {PRESETS.map((p) => <option key={p.id} value={p.id} title={p.blurb}>{p.name}</option>)}
+          </select>
           <button className="btn" onClick={reset}>Reset to current law</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
@@ -50,11 +57,10 @@ export function Scoreboard() {
         <Badge ok={o.debtToGdp10 <= o.debtToGdpNow} title="Debt-to-GDP in 10 yrs">{pct(o.debtToGdpNow, 0)} → {pct(o.debtToGdp10, 0)}</Badge>
         <Badge ok={o.interestShareOfRevenue < 0.15} title="Interest share of revenue">{pct(o.interestShareOfRevenue, 0)}</Badge>
         <Badge ok={o.inflationToHoldRatio <= 0} title="Inflate it away?"
-          hint={`Inflation shrinks old debt, but new deficits add debt in inflated dollars. Inflation also raises interest: short-term bills (~${pct(manual.debtComposition.billsShare, 0)} of the debt) reprice within months, TIPS are inflation-protected, and once markets expect inflation, all new borrowing costs more. That's why it only works as a surprise, and why it stops working as the debt rolls over (average maturity ~${manual.debtComposition.avgMaturityYears} years). The U.S. has had ~2-3% inflation for 30 years, and debt-to-GDP still went from ~47% (1995) to over 100%.`}>
+          hint={`Inflation shrinks old debt, but new deficits add debt in inflated dollars. Inflation also raises interest: short-term bills (~${pct(manual.debtComposition.billsShare, 0)} of the debt) reprice within months, TIPS are inflation-protected, and once markets expect inflation, all new borrowing costs more. That's why it only works as a surprise, and why it stops working as the debt rolls over (average maturity ~${manual.debtComposition.avgMaturityYears} years). Today's inflation already erodes ~${fmtB(o.inflationErosionNow)} of real debt a year, against a ${fmtB(Math.max(0, budget.deficit))} deficit. The U.S. has had ~2-3% inflation for 30 years, and debt-to-GDP still went from ~47% (1995) to over 100%.`}>
           {o.inflationToHoldRatio <= 0
-            ? <>Not needed<small>debt-to-GDP is already falling at this deficit</small></>
-            : <>No: needs +{pct(o.inflationToHoldRatio)} surprise inflation, every year
-                <small>just to keep debt-to-GDP flat, and it stops working as the debt reprices (~{manual.debtComposition.avgMaturityYears} yrs). Inflation already erodes ~{fmtB(o.inflationErosionNow)}/yr; the deficit is {fmtB(budget.deficit)}.</small></>}
+            ? <>Not needed<small>debt-to-GDP already falling</small></>
+            : <>No: +{pct(o.inflationToHoldRatio)}/yr<small>just to hold debt-to-GDP flat</small></>}
         </Badge>
         <Badge ok={null} title="National debt">{fmtB(live.totalDebtB.value)} <small>as of {live.totalDebtB.asOf}</small></Badge>
       </div>

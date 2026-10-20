@@ -1,5 +1,5 @@
 import { soiBins, tax, manual, type SoiBin } from './data';
-import { thresholds, type BracketSchedule, type Scenario } from './scenario';
+import { thresholds, lawFor, type BracketSchedule, type Scenario, type TaxLaw } from './scenario';
 
 /** Tax on taxable income `ti` under a progressive schedule. */
 export function scheduleTax(ti: number, th: number[], rates: number[]): number {
@@ -37,7 +37,7 @@ export function binSamples(bin: SoiBin): number[] {
 const samples = soiBins.map(binSamples);
 
 /** Un-calibrated aggregate ordinary income tax ($B) for a bracket schedule. */
-export function aggregateOrdinaryTax(s: BracketSchedule, base: BracketSchedule, behavioral: boolean): number {
+export function aggregateOrdinaryTax(s: BracketSchedule, base: BracketSchedule, behavioral: boolean, law: TaxLaw): number {
   const eti = tax.elasticities.taxableIncome;
   let total = 0;
   soiBins.forEach((bin, bi) => {
@@ -45,7 +45,7 @@ export function aggregateOrdinaryTax(s: BracketSchedule, base: BracketSchedule, 
     for (const agi of samples[bi]) {
       for (const [filing, w] of [['mfj', bin.marriedShare], ['single', 1 - bin.marriedShare]] as const) {
         if (w <= 0) continue;
-        let ti = Math.max(0, agi * bin.ordinaryShare - tax.stdDeduction[filing]);
+        let ti = Math.max(0, agi * bin.ordinaryShare - law.std[filing] - law.personalExemption * law.avgExemptions[filing]);
         const th = thresholds(s, filing);
         if (behavioral && ti > 0) {
           const m0 = marginalRate(ti, thresholds(base, filing), base.rates);
@@ -62,7 +62,7 @@ export function aggregateOrdinaryTax(s: BracketSchedule, base: BracketSchedule, 
 /** Ordinary individual income tax receipts ($B), calibrated so current law reproduces actual receipts. */
 export function individualOrdinaryReceipts(scn: Scenario, base: Scenario): number {
   const b = manual.receipts.individualOrdinary.value;
-  return (b * aggregateOrdinaryTax(scn.brackets, base.brackets, scn.behavioral)) / aggregateOrdinaryTax(base.brackets, base.brackets, false);
+  return (b * aggregateOrdinaryTax(scn.brackets, base.brackets, scn.behavioral, lawFor(scn))) / aggregateOrdinaryTax(base.brackets, base.brackets, false, lawFor(base));
 }
 
 /** Total wages ($B) subject to a per-earner wage cap. */

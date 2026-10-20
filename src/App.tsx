@@ -1,5 +1,6 @@
 import { Scoreboard } from './components/Scoreboard';
 import { Buckets } from './components/Buckets';
+import { Outlook } from './components/Outlook';
 import { HouseholdPanel } from './components/HouseholdPanel';
 import { SourcesDrawer } from './components/SourcesDrawer';
 import { policyMeta } from './model/data';
@@ -9,6 +10,7 @@ export default function App() {
     <>
       <Scoreboard />
       <main>
+        <Outlook />
         <Buckets />
         <p className="hint center">Policy switch scores are rough first-year estimates, mostly CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10. Hover a switch for its source.</p>
         <HouseholdPanel />

@@ -20,6 +20,8 @@ export interface Program {
 export interface Policy {
   id: string; bucket: string; label: string; deltaB: number; source: string;
   households: Record<string, number>;
+  /** switches this one supersedes while on (their scores are part of this one's) */
+  replaces?: string[];
 }
 
 export interface Archetype {

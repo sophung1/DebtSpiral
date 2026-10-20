@@ -3,6 +3,7 @@ import { useStore, BASE } from '../state/store';
 import { useResults } from '../state/results';
 import { programs, policies, live, manual } from '../model/data';
 import { BUCKETS, bucketDelta, ssCashFlow } from '../model/buckets';
+import { setPolicy } from '../model/scenario';
 import { BracketEditor } from './BracketEditor';
 import { Panel, Slider, Toggle } from './Controls';
 import { fmtB, fmt$, fmtK, pct } from '../format';
@@ -63,14 +64,18 @@ function PolicyList({ bucket }: { bucket: string }) {
   const set = useStore((s) => s.set);
   const list = policies.filter((p) => p.bucket === bucket);
   if (!list.length) return null;
+  const replacedBy = (id: string) => policies.find((q) => on[q.id] && q.replaces?.includes(id));
   return (
     <div className="policy-list">
       <h3>Policy switches</h3>
-      {list.map((p) => (
-        <Toggle key={p.id} checked={!!on[p.id]} onChange={(v) => set((s) => { s.policies[p.id] = v; })}
-          label={<span title={p.source}>{p.label}</span>}
-          aside={<span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>} />
-      ))}
+      {list.map((p) => {
+        const by = replacedBy(p.id);
+        return (
+          <Toggle key={p.id} checked={!!on[p.id] || !!by} disabled={!!by} onChange={(v) => set((s) => setPolicy(s, p.id, v))}
+            label={<span title={p.source}>{p.label}{by && <em className="hint"> (included in the rollback)</em>}</span>}
+            aside={<span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>} />
+        );
+      })}
     </div>
   );
 }

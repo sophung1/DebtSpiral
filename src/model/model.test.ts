@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { archetypes, manual } from './data';
-import { currentLaw } from './scenario';
+import { currentLaw, lawFor, setPolicy } from './scenario';
 import { scheduleTax, cappedWages, aggregateOrdinaryTax } from './incomeTax';
 import { computeBudget } from './budget';
 import { computeOutcomes } from './outcomes';
@@ -42,8 +42,8 @@ describe('budget calibration', () => {
   it('current law reproduces the baseline deficit', () => {
     const b = computeBudget(base, base);
     expect(b.deficit).toBeCloseTo(b.baseDeficit, 6);
-    expect(b.deficit).toBeGreaterThan(1700);
-    expect(b.deficit).toBeLessThan(1900);
+    // FY2026 actual deficit (MTS): $1,992.5B
+    expect(b.deficit).toBeCloseTo(1992.5, -1);
   });
   it('about 80-90% of wages fall under the SS cap', () => {
     const share = cappedWages(manual.tax.payroll.ssWageBase) / cappedWages(null);
@@ -51,7 +51,7 @@ describe('budget calibration', () => {
     expect(share).toBeLessThan(0.90);
   });
   it('model ordinary tax is in a plausible range before calibration', () => {
-    const t = aggregateOrdinaryTax(base.brackets, base.brackets, false);
+    const t = aggregateOrdinaryTax(base.brackets, base.brackets, false, lawFor(base));
     expect(t).toBeGreaterThan(1200);
     expect(t).toBeLessThan(3500);
   });
@@ -128,5 +128,43 @@ describe('Social Security cash flow', () => {
     const before = ssCashFlow(computeBudget(scn, base), scn).outflow;
     scn.policies.chained_cpi = true;
     expect(ssCashFlow(computeBudget(scn, base), scn).outflow).toBeCloseTo(before - 20, 6);
+  });
+});
+
+describe('OBBBA rollback', () => {
+  const d0 = computeBudget(base, base).deficit;
+  const rolled = () => { const s = currentLaw(); setPolicy(s, 'obbba_rollback', true); return s; };
+  it('cuts the deficit by CBO\'s FY2026 total, split between modeled taxes and a lump sum', () => {
+    const s = rolled();
+    expect(d0 - computeBudget(s, base).deficit).toBeCloseTo(manual.tax.preObbba.cboFy2026DeficitIncreaseB, 6);
+    expect(s.brackets.rates.at(-1)).toBeCloseTo(0.396, 6);
+  });
+  it('supersedes the tips/overtime and SALT switches', () => {
+    const s = rolled();
+    const d1 = computeBudget(s, base).deficit;
+    setPolicy(s, 'tips_ot_repeal', true); setPolicy(s, 'salt10', true);
+    expect(computeBudget(s, base).deficit).toBeCloseTo(d1, 6);
+  });
+  it('raises taxes on the median family (smaller CTC) and restores 39.6% at the top', () => {
+    const s = rolled();
+    const med = arch('median'), top = arch('top1');
+    expect(computeHousehold(med, s).net).toBeLessThan(computeHousehold(med, base).net);
+    expect(computeHousehold(top, s).incomeTax).toBeGreaterThan(computeHousehold(top, base).incomeTax);
+  });
+  it('turning it back off restores current law exactly', () => {
+    const s = rolled(); setPolicy(s, 'obbba_rollback', false);
+    expect(s).toEqual(base);
+  });
+});
+
+describe('presets', () => {
+  it('each preset does what its name claims', async () => {
+    const { PRESETS } = await import('./presets');
+    const run = (id: string) => { const b = computeBudget(PRESETS.find((p) => p.id === id)!.build(), base); return { b, o: computeOutcomes(b) }; };
+    expect(run('hawk').b.deficit).toBeLessThanOrEqual(0);
+    const bal = run('balanced');
+    expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
+    expect(run('socialism').b.totalOutlays).toBeGreaterThan(computeBudget(base, base).totalOutlays * 1.1);
+    expect(run('libertarian').b.totalOutlays).toBeLessThan(computeBudget(base, base).totalOutlays * 0.85);
   });
 });
