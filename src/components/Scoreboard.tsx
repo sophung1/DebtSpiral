@@ -3,6 +3,7 @@ import { useStore } from '../state/store';
 import { useResults } from '../state/results';
 import { live } from '../model/data';
 import { Dial } from './Dial';
+import { ssCashFlow } from '../model/buckets';
 import { fmtB, pct } from '../format';
 
 function Badge({ ok, title, hint, children }: { ok: boolean | null; title: string; hint?: string; children: React.ReactNode }) {
@@ -15,11 +16,12 @@ function Badge({ ok, title, hint, children }: { ok: boolean | null; title: strin
 }
 
 export function Scoreboard() {
-  const { budget, outcomes: o } = useResults();
+  const { budget, scn, outcomes: o } = useResults();
   const reset = useStore((s) => s.reset);
   const [copied, setCopied] = useState(false);
   const deficit = budget.deficit;
   const change = budget.baseDeficit - deficit;
+  const onBudget = deficit + ssCashFlow(budget, scn).balance;
 
   const share = async () => {
     try { await navigator.clipboard.writeText(location.href); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard unavailable */ }
@@ -40,7 +42,7 @@ export function Scoreboard() {
       </div>
       <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230}
         label={deficit > 0 ? 'Annual deficit' : 'Annual surplus'} display={fmtB(Math.abs(deficit))}
-        sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${change >= 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} />
+        sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${Math.abs(change) < 0.5 ? 'current law' : `${change > 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} · excl. SS ${onBudget > 0 ? '' : '+'}${fmtB(Math.abs(onBudget))}`} />
       <div className="badges">
         <Badge ok={o.balanced} title="Balanced budget">{o.balanced ? '✅ Yes!' : `❌ ${fmtB(deficit)} short`}</Badge>
         {payoff && <Badge ok={o.payoffYears !== Infinity} title="Debt paid off">{payoff}</Badge>}

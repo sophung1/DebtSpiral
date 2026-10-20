@@ -2,10 +2,11 @@
 
 **deficitdial.io**: a dashboard game where you try to balance the U.S. federal budget using real data.
 
-- **Taxes**: a draggable 2D bracket editor. Drag a step up or down to change its rate, and drag a knob left or right to move where the bracket starts. There are also sliders for capital gains, payroll (rate and cap), corporate and estate taxes.
-- **Spending**: a slider for each major program. Each one shows the total cost to the government and what each sample household gets.
-- **Policy switches**: about 20 on/off options with rough scores, mostly from CBO.
-- **Scoreboard**: the deficit dial, plus whether the budget balances, years to pay off the debt, months until the debt ceiling, debt-to-GDP in 10 years and interest as a share of revenue.
+- **Areas**: the budget is grouped into cards: income tax, Social Security, health, safety net, defense & other spending, business & trade, and interest. Each card has its own sliders and policy switches, and shows how much it adds to or saves from the deficit. Every line of the budget belongs to exactly one card. A policy's card is set by `bucket` in `data/policies.json`.
+- **Income tax**: a draggable 2D bracket editor. Drag a step up or down to change its rate, and drag a knob left or right to move where the bracket starts.
+- **Social Security**: its own cash flow (payroll tax in vs. benefits out), plus the payroll rate and wage cap.
+- **Programs**: each benefit slider shows the total cost and what each sample household gets.
+- **Scoreboard**: the deficit dial (including the deficit without Social Security), plus whether the budget balances, years to pay off the debt, months until the debt ceiling, debt-to-GDP in 10 years and interest as a share of revenue.
 - **Households**: six sample households, from a minimum-wage worker to the top 1%, showing taxes, benefits and net change vs current law.
 - Scenarios are saved in the URL, so you can share them.
 
