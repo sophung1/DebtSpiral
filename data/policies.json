@@ -3,21 +3,6 @@
   "cboUrl": "https://www.cbo.gov/publication/60557",
   "policies": [
     {
-      "id": "obbba_rollback",
-      "bucket": "income_tax",
-      "label": "Roll back the One Big Beautiful Bill (2025)",
-      "deltaB": 487,
-      "source": "Restores pre-2025 law: TCJA brackets/deduction/CTC expire, no tips/overtime/senior deductions, Medicaid & SNAP cuts reversed. Total = CBO's FY2026 score (~$487B); the tax pieces are modeled directly, the rest is a lump sum.",
-      "households": {
-        "working_family": -400,
-        "median": -300
-      },
-      "replaces": [
-        "tips_ot_repeal",
-        "salt10"
-      ]
-    },
-    {
       "id": "vat5",
       "bucket": "business",
       "label": "5% broad-based VAT",
@@ -316,14 +301,19 @@
       "households": {}
     },
     {
-      "id": "ieepa_refunds",
+      "id": "obbba_rollback",
       "bucket": "wild",
-      "label": "Pay the remaining IEEPA tariff refunds",
-      "who": "Court-ordered (2026)",
-      "deltaB": -25,
-      "source": "~$166B in IEEPA duties plus interest must be refunded after V.O.S. Selections v. US (Feb 2026); ~$145B was refunded in FY2026 (MTS).",
-      "households": {},
-      "oneTime": true
+      "label": "Roll back the One Big Beautiful Bill (2025)",
+      "deltaB": 487,
+      "source": "Restores pre-2025 law: TCJA brackets/deduction/CTC expire, no tips/overtime/senior deductions, Medicaid & SNAP cuts reversed. Total = CBO's FY2026 score (~$487B); the tax pieces are modeled directly, the rest is a lump sum.",
+      "households": {
+        "working_family": -400,
+        "median": -300
+      },
+      "replaces": [
+        "tips_ot_repeal",
+        "salt10"
+      ]
     },
     {
       "id": "doge_rollback",
