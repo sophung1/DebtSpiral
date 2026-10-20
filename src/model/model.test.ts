@@ -88,11 +88,19 @@ describe('outcomes', () => {
 });
 
 describe('inflation card', () => {
-  it('erosion is a share of public debt and costs are positive', () => {
-    const o = computeOutcomes(computeBudget(base, base));
-    expect(o.inflationErosion).toBeGreaterThan(100);
-    expect(o.inflationErosion).toBeLessThan(0.01 * 40000);
-    expect(o.inflationCost).toBeGreaterThan(50);
+  const b0 = computeBudget(base, base);
+  it('current law needs a few points of surprise inflation every year just to stand still', () => {
+    const o = computeOutcomes(b0);
+    expect(o.inflationToHoldRatio).toBeGreaterThan(0.015);
+    expect(o.inflationToHoldRatio).toBeLessThan(0.035);
+  });
+  it('a balanced budget needs none; a bigger deficit needs more', () => {
+    expect(computeOutcomes({ ...b0, deficit: 0 }).inflationToHoldRatio).toBeLessThanOrEqual(0);
+    expect(computeOutcomes({ ...b0, deficit: 2500 }).inflationToHoldRatio).toBeGreaterThan(computeOutcomes(b0).inflationToHoldRatio);
+  });
+  it('baseline inflation already erodes about 2.2% of public debt a year', async () => {
+    const { live } = await import('./data');
+    expect(computeOutcomes(b0).inflationErosionNow).toBeCloseTo(0.022 * live.debtHeldByPublicB.value, 6);
   });
 });
 

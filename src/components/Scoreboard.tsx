@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../state/store';
 import { useResults } from '../state/results';
-import { live } from '../model/data';
+import { live, manual } from '../model/data';
 import { Dial } from './Dial';
 import { ssCashFlow } from '../model/buckets';
 import { fmtB, pct } from '../format';
@@ -49,10 +49,12 @@ export function Scoreboard() {
         {ceiling && <Badge ok={(o.ceilingMonths ?? 0) > 24} title="Hits the debt ceiling">{ceiling}</Badge>}
         <Badge ok={o.debtToGdp10 <= o.debtToGdpNow} title="Debt-to-GDP in 10 yrs">{pct(o.debtToGdpNow, 0)} → {pct(o.debtToGdp10, 0)}</Badge>
         <Badge ok={o.interestShareOfRevenue < 0.15} title="Interest share of revenue">{pct(o.interestShareOfRevenue, 0)}</Badge>
-        <Badge ok={null} title="Inflate it away?"
-          hint="Effect of 1 point of surprise inflation for one year. It erodes the real value of fixed-rate debt once. Meanwhile, bills (~22% of the debt) reprice within months, TIPS are inflation-protected, and Social Security and other indexed benefits rise, so the costs keep coming back every year. To halve debt-to-GDP by inflation alone, prices would roughly have to double.">
-          −{fmtB(o.inflationErosion)} real debt
-          <small>per +1pt surprise inflation, but +{fmtB(o.inflationCost)}/yr in costs</small>
+        <Badge ok={o.inflationToHoldRatio <= 0} title="Inflate it away?"
+          hint={`Inflation shrinks old debt, but new deficits add debt in inflated dollars. Inflation also raises interest: short-term bills (~${pct(manual.debtComposition.billsShare, 0)} of the debt) reprice within months, TIPS are inflation-protected, and once markets expect inflation, all new borrowing costs more. That's why it only works as a surprise, and why it stops working as the debt rolls over (average maturity ~${manual.debtComposition.avgMaturityYears} years). The U.S. has had ~2-3% inflation for 30 years, and debt-to-GDP still went from ~47% (1995) to over 100%.`}>
+          {o.inflationToHoldRatio <= 0
+            ? <>Not needed<small>debt-to-GDP is already falling at this deficit</small></>
+            : <>No: needs +{pct(o.inflationToHoldRatio)} surprise inflation, every year
+                <small>just to keep debt-to-GDP flat, and it stops working as the debt reprices (~{manual.debtComposition.avgMaturityYears} yrs). Inflation already erodes ~{fmtB(o.inflationErosionNow)}/yr; the deficit is {fmtB(budget.deficit)}.</small></>}
         </Badge>
         <Badge ok={null} title="National debt">{fmtB(live.totalDebtB.value)} <small>as of {live.totalDebtB.asOf}</small></Badge>
       </div>

@@ -7,6 +7,7 @@
   },
   "gdpB": { "value": 30200, "source": "BEA, nominal GDP FY2025 (approx.)", "url": "https://www.bea.gov/data/gdp/gross-domestic-product" },
   "nominalGdpGrowth": 0.04,
+  "realGdpGrowth": 0.018,
   "receipts": {
     "individualOrdinary": { "label": "Individual income tax (ordinary)", "value": 2400, "source": "MTS FY2025 individual receipts ($2.66T) less est. capital gains portion" },
     "capitalGains": { "label": "Capital gains & dividends tax", "value": 260, "source": "Estimated share of individual receipts (CBO/JCT realizations)" },
@@ -24,7 +25,7 @@
   "debtComposition": {
     "billsShare": 0.22,
     "tipsShare": 0.08,
-    "indexedPrograms": ["social_security", "fed_retirement", "ssi", "veterans"],
+    "avgMaturityYears": 6,
     "source": "Treasury Monthly Statement of the Public Debt (approx. shares of marketable debt)"
   },
   "programs": [
