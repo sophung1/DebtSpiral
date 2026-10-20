@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "baseline": "FY2025 actuals (Monthly Treasury Statement, Sept 2025), rounded",
+    "taxYear": 2026,
+    "units": "Dollar amounts in billions ($B) unless a field says otherwise",
+    "note": "Hand-maintained. Update yearly: brackets (IRS Rev. Proc.), SOI table, CBO baseline. Values are rounded approximations; verify before quoting."
+  },
+  "gdpB": { "value": 30200, "source": "BEA, nominal GDP FY2025 (approx.)", "url": "https://www.bea.gov/data/gdp/gross-domestic-product" },
+  "nominalGdpGrowth": 0.04,
+  "receipts": {
+    "individualOrdinary": { "label": "Individual income tax (ordinary)", "value": 2400, "source": "MTS FY2025 individual receipts ($2.66T) less est. capital gains portion" },
+    "capitalGains": { "label": "Capital gains & dividends tax", "value": 260, "source": "Estimated share of individual receipts (CBO/JCT realizations)" },
+    "payrollSS": { "label": "Social Security payroll tax", "value": 1300, "source": "SSA Trustees Report (OASDI payroll tax income, approx.)" },
+    "payrollHI": { "label": "Medicare payroll tax", "value": 380, "source": "CMS Trustees Report (HI payroll tax, approx.)" },
+    "payrollOther": { "label": "Other social insurance (UI, railroad)", "value": 70, "source": "MTS FY2025" },
+    "corporate": { "label": "Corporate income tax", "value": 452, "source": "MTS FY2025" },
+    "customs": { "label": "Customs duties (tariffs)", "value": 195, "source": "MTS FY2025" },
+    "excise": { "label": "Excise taxes", "value": 100, "source": "MTS FY2025" },
+    "estate": { "label": "Estate & gift tax", "value": 30, "source": "MTS FY2025" },
+    "other": { "label": "Fed remittances & misc.", "value": 45, "source": "MTS FY2025" }
+  },
+  "netInterestB": { "value": 1000, "source": "CBO Monthly Budget Review, FY2025 net interest (approx.)", "url": "https://www.cbo.gov/topics/budget/monthly-budget-review" },
+  "rateRepricingShareYear1": 0.3,
+  "programs": [
+    { "id": "social_security", "name": "Social Security", "category": "mandatory", "baselineB": 1580, "unit": "per retired-worker household", "source": "MTS FY2025; SSA avg retired-worker benefit ~$2,000/mo" },
+    { "id": "medicare", "name": "Medicare", "category": "mandatory", "baselineB": 1000, "unit": "per enrollee (~$15k/yr federal)", "source": "MTS FY2025 (net of premiums)" },
+    { "id": "medicaid", "name": "Medicaid & CHIP", "category": "mandatory", "baselineB": 668, "unit": "federal share per enrollee", "source": "MTS FY2025" },
+    { "id": "aca", "name": "ACA premium tax credits", "category": "mandatory", "baselineB": 100, "unit": "per marketplace enrollee", "source": "CBO baseline (enhanced credits expired end of 2025)" },
+    { "id": "snap", "name": "SNAP (food stamps)", "category": "mandatory", "baselineB": 100, "unit": "per household", "source": "USDA FNS FY2025" },
+    { "id": "eitc", "name": "Earned Income Tax Credit", "category": "taxCredit", "baselineB": 60, "fullCostB": 68, "unit": "computed per household", "source": "IRS/JCT; outlay = refundable portion" },
+    { "id": "ctc", "name": "Child Tax Credit", "category": "taxCredit", "baselineB": 35, "fullCostB": 115, "unit": "computed per household", "source": "JCT; outlay = refundable portion, remainder reduces income tax" },
+    { "id": "ssi", "name": "Supplemental Security Income", "category": "mandatory", "baselineB": 66, "unit": "per recipient", "source": "MTS FY2025" },
+    { "id": "unemployment", "name": "Unemployment insurance", "category": "mandatory", "baselineB": 35, "unit": "per claimant", "source": "MTS FY2025" },
+    { "id": "veterans", "name": "Veterans' benefits (comp & pensions)", "category": "mandatory", "baselineB": 200, "unit": "per veteran beneficiary", "source": "MTS FY2025" },
+    { "id": "fed_retirement", "name": "Federal civilian & military retirement", "category": "mandatory", "baselineB": 180, "unit": "per retiree", "source": "MTS FY2025" },
+    { "id": "other_mandatory", "name": "Other mandatory (farm, student loans, etc.)", "category": "mandatory", "baselineB": 150, "unit": "n/a", "source": "MTS FY2025 residual" },
+    { "id": "defense", "name": "Defense (discretionary)", "category": "discretionary", "baselineB": 890, "unit": "n/a", "source": "MTS FY2025" },
+    { "id": "nondefense", "name": "Non-defense discretionary", "category": "discretionary", "baselineB": 950, "unit": "n/a", "source": "MTS FY2025 (education, transport, science, VA health, etc.)" }
+  ],
+  "tax": {
+    "source": "IRS Rev. Proc. 2025-32 (TY2026, post-OBBBA)",
+    "url": "https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026-including-amendments-from-the-one-big-beautiful-bill",
+    "brackets": {
+      "rates": [0.10, 0.12, 0.22, 0.24, 0.32, 0.35, 0.37],
+      "single": [0, 12400, 50400, 105700, 201775, 256225, 640600],
+      "mfj": [0, 24800, 100800, 211400, 403550, 512450, 768700]
+    },
+    "stdDeduction": { "single": 16100, "mfj": 32200 },
+    "over65Extra": { "single": 2050, "mfj": 1650 },
+    "seniorBonus": { "perPerson": 6000, "phaseoutStart": { "single": 75000, "mfj": 150000 }, "phaseoutRate": 0.06 },
+    "capitalGains": {
+      "rates": [0, 0.15, 0.20],
+      "single": [0, 49450, 545500],
+      "mfj": [0, 98900, 613700],
+      "niitRate": 0.038,
+      "niitThreshold": { "single": 200000, "mfj": 250000 }
+    },
+    "ctc": { "perChild": 2200, "refundableMax": 1700, "refundableRate": 0.15, "earnedFloor": 2500, "phaseoutStart": { "single": 200000, "mfj": 400000 }, "phaseoutPer1000": 50 },
+    "eitc": {
+      "source": "IRS TY2025 parameters",
+      "byKids": [
+        { "rate": 0.0765, "earnedAmount": 8490, "phaseoutRate": 0.0765 },
+        { "rate": 0.34, "earnedAmount": 12730, "phaseoutRate": 0.1598 },
+        { "rate": 0.40, "earnedAmount": 17880, "phaseoutRate": 0.2106 },
+        { "rate": 0.45, "earnedAmount": 17880, "phaseoutRate": 0.2106 }
+      ],
+      "phaseoutStart": { "single": [10620, 23350, 23350, 23350], "mfj": [17730, 30470, 30470, 30470] }
+    },
+    "payroll": { "ssRate": 0.124, "ssWageBase": 184500, "hiRate": 0.029, "addlHiRate": 0.009, "addlHiThreshold": { "single": 200000, "mfj": 250000 } },
+    "corporateRate": 0.21,
+    "estate": { "rate": 0.40, "exemption": 15000000 },
+    "elasticities": { "taxableIncome": 0.25, "capitalGains": 0.7, "corporate": 0.2, "estateExemption": 0.6 }
+  },
+  "soi": {
+    "source": "IRS SOI Table 1.1/1.4, TY2022, all returns by AGI (approx., rounded). marriedShare and ordinaryShare are modeling assumptions. earnersPerMarriedReturn is a calibration knob: 1.0 puts ~86% of wages under the SS cap (SSA reports ~83% of covered earnings are taxable).",
+    "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-statistical-tables-by-size-of-adjusted-gross-income",
+    "earnersPerMarriedReturn": 1.0,
+    "bins": [
+      { "lo": 1, "hi": 5000, "returnsM": 9.0, "agiB": 25, "wagesB": 22, "marriedShare": 0.05, "ordinaryShare": 0.97 },
+      { "lo": 5000, "hi": 10000, "returnsM": 8.7, "agiB": 65, "wagesB": 55, "marriedShare": 0.07, "ordinaryShare": 0.97 },
+      { "lo": 10000, "hi": 15000, "returnsM": 10.5, "agiB": 131, "wagesB": 100, "marriedShare": 0.10, "ordinaryShare": 0.97 },
+      { "lo": 15000, "hi": 20000, "returnsM": 9.4, "agiB": 164, "wagesB": 125, "marriedShare": 0.13, "ordinaryShare": 0.97 },
+      { "lo": 20000, "hi": 25000, "returnsM": 8.6, "agiB": 193, "wagesB": 150, "marriedShare": 0.16, "ordinaryShare": 0.97 },
+      { "lo": 25000, "hi": 30000, "returnsM": 8.2, "agiB": 225, "wagesB": 175, "marriedShare": 0.19, "ordinaryShare": 0.97 },
+      { "lo": 30000, "hi": 40000, "returnsM": 14.8, "agiB": 516, "wagesB": 400, "marriedShare": 0.24, "ordinaryShare": 0.97 },
+      { "lo": 40000, "hi": 50000, "returnsM": 12.4, "agiB": 555, "wagesB": 425, "marriedShare": 0.30, "ordinaryShare": 0.96 },
+      { "lo": 50000, "hi": 75000, "returnsM": 22.1, "agiB": 1363, "wagesB": 1020, "marriedShare": 0.40, "ordinaryShare": 0.96 },
+      { "lo": 75000, "hi": 100000, "returnsM": 14.9, "agiB": 1295, "wagesB": 960, "marriedShare": 0.55, "ordinaryShare": 0.95 },
+      { "lo": 100000, "hi": 200000, "returnsM": 26.3, "agiB": 3640, "wagesB": 2700, "marriedShare": 0.72, "ordinaryShare": 0.94 },
+      { "lo": 200000, "hi": 500000, "returnsM": 8.8, "agiB": 2520, "wagesB": 1750, "marriedShare": 0.85, "ordinaryShare": 0.88 },
+      { "lo": 500000, "hi": 1000000, "returnsM": 1.3, "agiB": 870, "wagesB": 500, "marriedShare": 0.89, "ordinaryShare": 0.78 },
+      { "lo": 1000000, "hi": 1500000, "returnsM": 0.33, "agiB": 395, "wagesB": 200, "marriedShare": 0.90, "ordinaryShare": 0.70 },
+      { "lo": 1500000, "hi": 2000000, "returnsM": 0.14, "agiB": 240, "wagesB": 110, "marriedShare": 0.90, "ordinaryShare": 0.65 },
+      { "lo": 2000000, "hi": 5000000, "returnsM": 0.20, "agiB": 590, "wagesB": 230, "marriedShare": 0.90, "ordinaryShare": 0.58 },
+      { "lo": 5000000, "hi": 10000000, "returnsM": 0.05, "agiB": 340, "wagesB": 110, "marriedShare": 0.90, "ordinaryShare": 0.48 },
+      { "lo": 10000000, "hi": null, "returnsM": 0.03, "agiB": 1300, "wagesB": 250, "marriedShare": 0.90, "ordinaryShare": 0.35 }
+    ]
+  }
+}

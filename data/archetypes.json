@@ -1,0 +1,17 @@
+{
+  "note": "Illustrative households. Benefit amounts are typical federal amounts at baseline (annual $); EITC and CTC are computed from tax rules.",
+  "archetypes": [
+    { "id": "min_wage", "name": "Single min-wage worker", "icon": "🧹", "filing": "single", "kids": 0, "over65": 0, "wages": 15080, "pension": 0, "socialSecurity": 0, "capitalGains": 0,
+      "benefits": { "medicaid": 6700, "snap": 700 } },
+    { "id": "working_family", "name": "Working family of 4", "icon": "👨‍👩‍👧‍👦", "filing": "mfj", "kids": 2, "over65": 0, "wages": 55000, "pension": 0, "socialSecurity": 0, "capitalGains": 0,
+      "benefits": { "medicaid": 4000 } },
+    { "id": "median", "name": "Median household", "icon": "🏠", "filing": "mfj", "kids": 2, "over65": 0, "wages": 84000, "pension": 0, "socialSecurity": 0, "capitalGains": 0,
+      "benefits": {} },
+    { "id": "retirees", "name": "Retired couple", "icon": "👵", "filing": "mfj", "kids": 0, "over65": 2, "wages": 0, "pension": 22000, "socialSecurity": 48000, "capitalGains": 0,
+      "benefits": { "social_security": 48000, "medicare": 30000 } },
+    { "id": "professional", "name": "Upper-middle professionals", "icon": "💼", "filing": "mfj", "kids": 2, "over65": 0, "wages": 260000, "pension": 0, "socialSecurity": 0, "capitalGains": 10000,
+      "benefits": {} },
+    { "id": "top1", "name": "Top 1% household", "icon": "🛥️", "filing": "mfj", "kids": 2, "over65": 0, "wages": 900000, "pension": 0, "socialSecurity": 0, "capitalGains": 1100000,
+      "benefits": {} }
+  ]
+}
