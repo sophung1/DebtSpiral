@@ -28,6 +28,7 @@ interface Store {
   scn: Scenario;
   set: (fn: (s: Scenario) => void) => void;
   reset: () => void;
+  load: (s: Scenario) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -38,6 +39,7 @@ export const useStore = create<Store>((set) => ({
     return { scn: next };
   }),
   reset: () => set({ scn: currentLaw() }),
+  load: (scn) => set({ scn }),
 }));
 
 useStore.subscribe(({ scn }) => {

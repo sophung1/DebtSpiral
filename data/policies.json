@@ -2,25 +2,236 @@
   "note": "deltaB = first-year change to the deficit, $B; positive reduces the deficit. Mostly 10-year scores divided by 10 (CBO 'Options for Reducing the Deficit', Dec 2024, unless noted). Approximate. households = rough annual $ change for each archetype (+ = better off).",
   "cboUrl": "https://www.cbo.gov/publication/60557",
   "policies": [
-    { "id": "vat5", "bucket": "business", "label": "5% broad-based VAT", "deltaB": 300, "source": "CBO Options (annualized)", "households": { "min_wage": -500, "working_family": -2000, "median": -2800, "retirees": -2300, "professional": -6000, "top1": -20000 } },
-    { "id": "carbon25", "bucket": "business", "label": "$25/ton carbon tax (no rebate)", "deltaB": 100, "source": "CBO Options (annualized)", "households": { "min_wage": -250, "working_family": -700, "median": -850, "retirees": -700, "professional": -1300, "top1": -3500 } },
-    { "id": "wealth2", "bucket": "business", "label": "2% wealth tax above $50M", "deltaB": 200, "source": "Advocates' estimate; heavily contested (valuation, avoidance)", "households": {} },
-    { "id": "stepup", "bucket": "income_tax", "label": "Tax unrealized gains at death", "deltaB": 20, "source": "Treasury Green Book (annualized)", "households": { "top1": -5000 } },
-    { "id": "carried", "bucket": "income_tax", "label": "Tax carried interest as ordinary income", "deltaB": 1.5, "source": "CBO/JCT (annualized)", "households": {} },
-    { "id": "irs_enforce", "bucket": "business", "label": "+$10B/yr IRS enforcement", "deltaB": 15, "source": "CBO (net of cost; ramps up over time)", "households": {} },
-    { "id": "gas15", "bucket": "business", "label": "Raise fuel taxes 15¢/gal", "deltaB": 22, "source": "CBO Options (annualized)", "households": { "min_wage": -90, "working_family": -230, "median": -250, "retirees": -150, "professional": -300, "top1": -400 } },
-    { "id": "tariffs_repeal", "bucket": "business", "label": "Repeal the 2025 tariffs", "deltaB": -150, "source": "MTS: customs rose from ~$80B (FY2024) to ~$195B (FY2025)", "households": { "min_wage": 600, "working_family": 1400, "median": 1800, "retirees": 1500, "professional": 3500, "top1": 9000 } },
-    { "id": "tips_ot_repeal", "bucket": "income_tax", "label": "Repeal no-tax-on-tips & overtime deductions", "deltaB": 12, "source": "JCT score of P.L. 119-21 (annualized)", "households": { "working_family": -400, "median": -300 } },
-    { "id": "salt10", "bucket": "income_tax", "label": "Restore $10k SALT cap (from $40k)", "deltaB": 25, "source": "JCT score of P.L. 119-21 (annualized)", "households": { "professional": -3600 } },
-    { "id": "chained_cpi", "bucket": "social_security", "label": "Use chained CPI for SS cost-of-living raises", "deltaB": 20, "source": "CBO Options (annualized; grows each year)", "households": { "retirees": -120 } },
-    { "id": "fra70", "bucket": "social_security", "label": "Raise full retirement age to 70 (phased in)", "deltaB": 10, "source": "CBO Options (small at first; large long-run savings)", "households": {} },
-    { "id": "ma_bench", "bucket": "health", "label": "Cut Medicare Advantage benchmarks", "deltaB": 45, "source": "CBO Options (annualized)", "households": { "retirees": -150 } },
-    { "id": "drug_neg", "bucket": "health", "label": "Expand Medicare drug price negotiation", "deltaB": 20, "source": "CBO (annualized, approx.)", "households": { "retirees": 100 } },
-    { "id": "medicaid_caps", "bucket": "health", "label": "Per-capita caps on federal Medicaid funding", "deltaB": 90, "source": "CBO Options (annualized)", "households": { "min_wage": -700, "working_family": -400 } },
-    { "id": "enhanced_aca", "bucket": "health", "label": "Restore enhanced ACA subsidies", "deltaB": -35, "source": "CBO (annualized)", "households": {} },
-    { "id": "farm", "bucket": "defense_other", "label": "Cut farm subsidies & crop insurance", "deltaB": 4, "source": "CBO Options (annualized)", "households": {} },
-    { "id": "fed_pay", "bucket": "defense_other", "label": "Freeze federal civilian pay for one year", "deltaB": 5, "source": "CBO (approx.)", "households": {} },
-    { "id": "ctc_2021", "bucket": "safety_net", "label": "Expand CTC to 2021 levels, fully refundable", "deltaB": -110, "source": "CBO/JCT (annualized)", "households": { "min_wage": 0, "working_family": 1600, "median": 1600 } },
-    { "id": "prek", "bucket": "safety_net", "label": "Universal pre-K", "deltaB": -40, "source": "Approx. (2021 Build Back Better proposal, annualized)", "households": {} }
+    {
+      "id": "obbba_rollback",
+      "bucket": "income_tax",
+      "label": "Roll back the One Big Beautiful Bill (2025)",
+      "deltaB": 487,
+      "source": "Restores pre-2025 law: TCJA brackets/deduction/CTC expire, no tips/overtime/senior deductions, Medicaid & SNAP cuts reversed. Total = CBO's FY2026 score (~$487B); the tax pieces are modeled directly, the rest is a lump sum.",
+      "households": {
+        "working_family": -400,
+        "median": -300
+      },
+      "replaces": [
+        "tips_ot_repeal",
+        "salt10"
+      ]
+    },
+    {
+      "id": "vat5",
+      "bucket": "business",
+      "label": "5% broad-based VAT",
+      "deltaB": 300,
+      "source": "CBO Options (annualized)",
+      "households": {
+        "min_wage": -500,
+        "working_family": -2000,
+        "median": -2800,
+        "retirees": -2300,
+        "professional": -6000,
+        "top1": -20000
+      }
+    },
+    {
+      "id": "carbon25",
+      "bucket": "business",
+      "label": "$25/ton carbon tax (no rebate)",
+      "deltaB": 100,
+      "source": "CBO Options (annualized)",
+      "households": {
+        "min_wage": -250,
+        "working_family": -700,
+        "median": -850,
+        "retirees": -700,
+        "professional": -1300,
+        "top1": -3500
+      }
+    },
+    {
+      "id": "wealth2",
+      "bucket": "business",
+      "label": "2% wealth tax above $50M",
+      "deltaB": 200,
+      "source": "Advocates' estimate; heavily contested (valuation, avoidance)",
+      "households": {}
+    },
+    {
+      "id": "stepup",
+      "bucket": "income_tax",
+      "label": "Tax unrealized gains at death",
+      "deltaB": 20,
+      "source": "Treasury Green Book (annualized)",
+      "households": {
+        "top1": -5000
+      }
+    },
+    {
+      "id": "carried",
+      "bucket": "income_tax",
+      "label": "Tax carried interest as ordinary income",
+      "deltaB": 1.5,
+      "source": "CBO/JCT (annualized)",
+      "households": {}
+    },
+    {
+      "id": "irs_enforce",
+      "bucket": "business",
+      "label": "+$10B/yr IRS enforcement",
+      "deltaB": 15,
+      "source": "CBO (net of cost; ramps up over time)",
+      "households": {}
+    },
+    {
+      "id": "gas15",
+      "bucket": "business",
+      "label": "Raise fuel taxes 15\u00a2/gal",
+      "deltaB": 22,
+      "source": "CBO Options (annualized)",
+      "households": {
+        "min_wage": -90,
+        "working_family": -230,
+        "median": -250,
+        "retirees": -150,
+        "professional": -300,
+        "top1": -400
+      }
+    },
+    {
+      "id": "tariffs_repeal",
+      "bucket": "business",
+      "label": "Repeal the remaining 2025 tariffs",
+      "deltaB": -90,
+      "source": "MTS FY2026: net customs $173B vs ~$80B before 2025 (gross $318B less $145B refunded after the IEEPA tariffs were struck down)",
+      "households": {
+        "min_wage": 350,
+        "working_family": 800,
+        "median": 1000,
+        "retirees": 850,
+        "professional": 2000,
+        "top1": 5000
+      }
+    },
+    {
+      "id": "tips_ot_repeal",
+      "bucket": "income_tax",
+      "label": "Repeal no-tax-on-tips & overtime deductions",
+      "deltaB": 12,
+      "source": "JCT score of P.L. 119-21 (annualized)",
+      "households": {
+        "working_family": -400,
+        "median": -300
+      }
+    },
+    {
+      "id": "salt10",
+      "bucket": "income_tax",
+      "label": "Restore $10k SALT cap (from $40k)",
+      "deltaB": 25,
+      "source": "JCT score of P.L. 119-21 (annualized)",
+      "households": {
+        "professional": -3600
+      }
+    },
+    {
+      "id": "chained_cpi",
+      "bucket": "social_security",
+      "label": "Use chained CPI for SS cost-of-living raises",
+      "deltaB": 20,
+      "source": "CBO Options (annualized; grows each year)",
+      "households": {
+        "retirees": -120
+      }
+    },
+    {
+      "id": "fra70",
+      "bucket": "social_security",
+      "label": "Raise full retirement age to 70 (phased in)",
+      "deltaB": 10,
+      "source": "CBO Options (small at first; large long-run savings)",
+      "households": {}
+    },
+    {
+      "id": "ma_bench",
+      "bucket": "health",
+      "label": "Cut Medicare Advantage benchmarks",
+      "deltaB": 45,
+      "source": "CBO Options (annualized)",
+      "households": {
+        "retirees": -150
+      }
+    },
+    {
+      "id": "drug_neg",
+      "bucket": "health",
+      "label": "Expand Medicare drug price negotiation",
+      "deltaB": 20,
+      "source": "CBO (annualized, approx.)",
+      "households": {
+        "retirees": 100
+      }
+    },
+    {
+      "id": "medicaid_caps",
+      "bucket": "health",
+      "label": "Per-capita caps on federal Medicaid funding",
+      "deltaB": 90,
+      "source": "CBO Options (annualized)",
+      "households": {
+        "min_wage": -700,
+        "working_family": -400
+      }
+    },
+    {
+      "id": "enhanced_aca",
+      "bucket": "health",
+      "label": "Restore enhanced ACA subsidies",
+      "deltaB": -35,
+      "source": "CBO (annualized)",
+      "households": {}
+    },
+    {
+      "id": "farm",
+      "bucket": "defense_other",
+      "label": "Cut farm subsidies & crop insurance",
+      "deltaB": 4,
+      "source": "CBO Options (annualized)",
+      "households": {}
+    },
+    {
+      "id": "fed_pay",
+      "bucket": "defense_other",
+      "label": "Freeze federal civilian pay for one year",
+      "deltaB": 5,
+      "source": "CBO (approx.)",
+      "households": {}
+    },
+    {
+      "id": "ctc_2021",
+      "bucket": "safety_net",
+      "label": "Expand CTC to 2021 levels, fully refundable",
+      "deltaB": -110,
+      "source": "CBO/JCT (annualized)",
+      "households": {
+        "min_wage": 0,
+        "working_family": 1600,
+        "median": 1600
+      }
+    },
+    {
+      "id": "prek",
+      "bucket": "safety_net",
+      "label": "Universal pre-K",
+      "deltaB": -40,
+      "source": "Approx. (2021 Build Back Better proposal, annualized)",
+      "households": {}
+    },
+    {
+      "id": "doge_rollback",
+      "bucket": "defense_other",
+      "label": "Roll back DOGE cuts",
+      "deltaB": -5,
+      "source": "Low confidence. Independent estimates of DOGE's verifiable net savings: ~$1-7B (B. Stevenson), ~$2B verified (NPR), ~$5.5B (OpenFeds); GAO-26-108615 could trace only 43% of claimed contract savings. Midpoint used. Excludes possible lost IRS revenue from staff cuts (estimates unverified).",
+      "households": {}
+    }
   ]
 }

@@ -41,7 +41,7 @@ export function SourcesDrawer() {
       </ul>
       <h3>How the math works</h3>
       <ul>
-        <li>This is a one-year, static score. Changes are measured against FY2025 actual receipts and outlays.</li>
+        <li>This is a one-year, static score. Changes are measured against FY2026 actual receipts and outlays. The 10-year charts apply your plan from FY2027 on.</li>
         <li>Income tax: your brackets are applied to about 160M tax returns, using IRS income bins. The result is scaled so current law matches actual receipts.</li>
         <li>Outcomes: the primary balance stays fixed as a share of GDP. Interest accrues on the remaining debt, and GDP grows {pct(manual.nominalGdpGrowth, 0)}/yr in nominal terms. The debt-ceiling clock is the room left under the limit ÷ the monthly deficit.</li>
       </ul>

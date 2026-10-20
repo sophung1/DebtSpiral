@@ -18,6 +18,40 @@ export interface Outcomes {
   inflationErosionNow: number;
 }
 
+export interface YearPoint {
+  /** fiscal year */
+  fy: number;
+  /** debt held by the public at year end ($B) */
+  debt: number;
+  gdp: number;
+  /** null for the starting year (FY2026 actuals) */
+  deficit: number | null;
+  interest: number | null;
+}
+
+export const START_FY = 2026;
+
+/**
+ * Ten-year path from end-of-FY2026 debt, with the plan in force from FY2027. The primary balance is held
+ * constant as a share of GDP; interest accrues on the remaining debt at the scenario's effective rate.
+ */
+export function projection(b: Budget, years = 10): YearPoint[] {
+  const gdp0 = manual.gdpB.value;
+  const g = manual.nominalGdpGrowth;
+  let d = live.debtHeldByPublicB.value, y = gdp0;
+  const r = b.netInterest / d;
+  const primary = b.deficit - b.netInterest;
+  const pts: YearPoint[] = [{ fy: START_FY, debt: d, gdp: y, deficit: null, interest: null }];
+  for (let t = 1; t <= years; t++) {
+    const interest = d * r;
+    const deficit = interest + primary * (y / gdp0);
+    d += deficit;
+    y *= 1 + g;
+    pts.push({ fy: START_FY + t, debt: d, gdp: y, deficit, interest });
+  }
+  return pts;
+}
+
 export function computeOutcomes(b: Budget): Outcomes {
   const gdp = manual.gdpB.value;
   const g = manual.nominalGdpGrowth;
@@ -25,15 +59,6 @@ export function computeOutcomes(b: Budget): Outcomes {
   const r = b.netInterest / debt0;
   const primary = b.deficit - b.netInterest; // primary deficit (+) / surplus (−)
 
-  // Hold the primary balance constant as a share of GDP; interest accrues on the remaining debt.
-  const project = (years: number) => {
-    let d = debt0, y = gdp;
-    for (let t = 0; t < years; t++) {
-      d += d * r + primary * (y / gdp);
-      y *= 1 + g;
-    }
-    return { d, y };
-  };
 
   let payoffYears: number | null = null;
   if (b.deficit <= 0) {
@@ -59,7 +84,7 @@ export function computeOutcomes(b: Budget): Outcomes {
   const inflationToHoldRatio = (b.deficit / debt0 - g) / (1 - k);
   const inflationErosionNow = (g - manual.realGdpGrowth) * debt0;
 
-  const p10 = project(10);
+  const p10 = projection(b).at(-1)!;
   return {
     balanced: b.deficit <= 0,
     deficitPctGdp: b.deficit / gdp,
@@ -67,7 +92,7 @@ export function computeOutcomes(b: Budget): Outcomes {
     payoffYears,
     ceilingMonths,
     debtToGdpNow: debt0 / gdp,
-    debtToGdp10: p10.d / p10.y,
+    debtToGdp10: p10.debt / p10.gdp,
     interestShareOfRevenue: b.netInterest / b.totalReceipts,
     inflationToHoldRatio,
     inflationErosionNow,

@@ -25,10 +25,10 @@ export function Slider({ label, value, min, max, step, base, format, onChange, h
   );
 }
 
-export function Toggle({ label, checked, onChange, aside }: { label: ReactNode; checked: boolean; onChange: (v: boolean) => void; aside?: ReactNode }) {
+export function Toggle({ label, checked, onChange, aside, disabled }: { label: ReactNode; checked: boolean; onChange: (v: boolean) => void; aside?: ReactNode; disabled?: boolean }) {
   return (
-    <label className={`toggle ${checked ? 'on' : ''}`}>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+    <label className={`toggle ${checked ? 'on' : ''} ${disabled ? 'disabled' : ''}`}>
+      <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
       <span className="switch" aria-hidden />
       <span className="toggle-label">{label}</span>
       {aside && <span className="toggle-aside">{aside}</span>}

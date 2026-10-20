@@ -1,4 +1,5 @@
-import { manual, live, programs, policies } from './data';
+import { manual, live, programs } from './data';
+import { activePolicies, policyDelta, ctcLawFactor } from './policies';
 import type { Scenario } from './scenario';
 import {
   individualOrdinaryReceipts, payrollSSReceipts, capitalGainsReceipts, corporateReceipts, estateReceipts,
@@ -44,12 +45,13 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
     rec('other', R.other.value),
   ];
   const outlays: Line[] = programs.map((p) => ({
-    id: p.id, label: p.name, value: programOutlay(p.id, scn.programs[p.id] ?? 1), base: p.baselineB,
+    id: p.id, label: p.name, base: p.baselineB,
+    value: programOutlay(p.id, (scn.programs[p.id] ?? 1) * (p.id === 'ctc' ? ctcLawFactor(scn) : 1)),
   }));
   const ni = netInterest(scn);
   outlays.push({ id: 'net_interest', label: 'Net interest', value: ni, base: manual.netInterestB.value });
 
-  const policyLines = policies.filter((p) => scn.policies[p.id]).map((p) => ({ id: p.id, label: p.label, value: p.deltaB }));
+  const policyLines = activePolicies(scn).map((p) => ({ id: p.id, label: p.label, value: policyDelta(p) }));
   const policyNet = policyLines.reduce((a, p) => a + p.value, 0);
 
   const sum = (ls: Line[], k: 'value' | 'base') => ls.reduce((a, l) => a + l[k], 0);
