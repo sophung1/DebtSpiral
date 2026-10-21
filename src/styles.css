@@ -8,6 +8,7 @@
   --accent: #2f6fde;
   --good: #1f8a4c;
   --bad: #d13b3b;
+  --warn: #b98400;
   --good-soft: #1f8a4c22;
   --bad-soft: #d13b3b22;
   --radius: 12px;
@@ -28,6 +29,7 @@
     --accent: #5b93ff;
     --good: #3ecf7a;
     --bad: #ff6b6b;
+    --warn: #f2c14e;
     --good-soft: #3ecf7a22;
     --bad-soft: #ff6b6b22;
     --series-plan: #4f8af7;
@@ -302,3 +304,5 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 .dial .mark-num { fill: var(--text); font-size: 9px; font-weight: 700; }
 .dial-marks { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 10px; font-size: 11px; color: var(--muted); margin-top: 4px; }
 .dial-marks .pos { color: var(--good); font-weight: 600; }
+.mid { color: var(--warn); }
+.dial .arc.grad { opacity: .8; }
