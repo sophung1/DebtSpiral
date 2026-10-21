@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../state/store';
 import { useResults } from '../state/results';
+import { useLayout } from '../state/layout';
 import { live, manual } from '../model/data';
 import { Dial } from './Dial';
 import { ssCashFlow } from '../model/buckets';
@@ -26,6 +27,7 @@ export function Scoreboard() {
   const preset = activePreset(scn);
   const cond = activeConditions(scn);
   const [copied, setCopied] = useState(false);
+  const { header, setHeader, reset: resetLayout } = useLayout();
   // Screen readers hear the new deficit once changes settle, not on every slider tick.
   const [spoken, setSpoken] = useState('');
   const deficit = budget.deficit;
@@ -53,8 +55,34 @@ export function Scoreboard() {
 
   const summary = `${deficit > 0 ? 'Deficit' : 'Surplus'} ${fmtB(Math.abs(deficit))}, ${pct(Math.abs(o.deficitPctGdp))} of GDP; debt ${pct(o.debtToGdp10, 0)} of GDP in 10 years.`;
   useEffect(() => { const t = setTimeout(() => setSpoken(summary), 800); return () => clearTimeout(t); }, [summary]);
+  const tone = deficit < -0.015 * gdp ? 'mid' : deficit <= 0.01 * gdp ? 'pos' : deficit <= 0.04 * gdp ? 'mid' : 'neg';
+  const live$ = <p className="sr-only" aria-live="polite">{spoken}</p>;
+  const sizeButtons = (
+    <span className="sb-size">
+      <button className="icon-btn" onClick={() => setHeader(header === 'compact' ? 'full' : 'compact')} aria-label={header === 'compact' ? 'Expand the scoreboard' : 'Shrink the scoreboard to one line'} title={header === 'compact' ? 'Expand' : 'Reduce'}>{header === 'compact' ? '▢' : '▁'}</button>
+      <button className="icon-btn" onClick={() => setHeader('hidden')} aria-label="Hide the scoreboard" title="Hide">✕</button>
+    </span>
+  );
+  if (header === 'hidden') return (
+    <>
+      <button className="sb-show btn primary" onClick={() => setHeader('full')} aria-label="Show the scoreboard">Show scoreboard · <span>{fmtB(Math.abs(deficit))} {deficit > 0 ? 'deficit' : 'surplus'}</span></button>
+      {live$}
+    </>
+  );
+  if (header === 'compact') return (
+    <header className="scoreboard compact">
+      <strong className="sb-brand">Debt<span>Spiral</span></strong>
+      <span className={`sb-deficit ${tone}`}>{fmtB(Math.abs(deficit))} {deficit > 0 ? 'deficit' : 'surplus'}</span>
+      <span className="sb-stat">{pct(Math.abs(o.deficitPctGdp))} of GDP</span>
+      <span className="sb-stat">debt {pct(o.debtToGdpNow, 0)} → {pct(o.debtToGdp10, 0)}</span>
+      <span className="sb-stat">{{ falling: 'debt falling', rising: 'debt rising', snowball: 'snowballing', spiral: 'spiraling' }[o.spiral]}</span>
+      {sizeButtons}
+      {live$}
+    </header>
+  );
   return (
     <header className="scoreboard">
+      {sizeButtons}
       <div className="brand">
         <h1>Debt<span>Spiral</span></h1>
         <p>Can you balance the federal budget?</p>
@@ -89,14 +117,15 @@ export function Scoreboard() {
           <button className="btn reset" onClick={reset}>Reset to default</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
+        <p className="sb-hint">Drag a card by ⠿ to reorder it, or click its title to collapse it. <button className="link" onClick={resetLayout}>Reset layout</button></p>
       </div>
-      <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230} marks={milestones} stops={dialStops} tone={deficit < -0.015 * gdp ? 'mid' : deficit <= 0.01 * gdp ? 'pos' : deficit <= 0.04 * gdp ? 'mid' : 'neg'}
+      <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230} marks={milestones} stops={dialStops} tone={tone}
         arcTitle="Green: a deficit near balance. Amber: a 3% deficit, or a big surplus (it drags on the economy and shrinks the supply of Treasuries). Red: 5%+ deficits."
         label={deficit > 0 ? 'Annual deficit' : 'Annual surplus'} display={fmtB(Math.abs(deficit))}
         sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${Math.abs(change) < 0.5 ? 'current law' : `${change > 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} · excl. SS ${onBudget > 0 ? '' : '+'}${fmtB(Math.abs(onBudget))}`}>
         <span className="dial-marks">{milestones.map((m, k) => <span key={m.label} title={m.label} className={deficit <= m.value ? 'pos' : ''}>{m.short}{k === 0 ? ' of GDP' : ''} {fmtB(m.value)}{deficit <= m.value && ' ✓'}</span>)}</span>
       </Dial>
-      <p className="sr-only" aria-live="polite">{spoken}</p>
+      {live$}
       <div className="badges">
         <Badge ok={o.balanced} title="Balanced budget">{o.balanced ? '✅ Yes!' : `❌ ${fmtB(deficit)} short`}</Badge>
         {payoff && <Badge ok={o.payoffYears !== Infinity} title="Debt paid off">{payoff}</Badge>}

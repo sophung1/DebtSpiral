@@ -12,7 +12,7 @@ const FULL = new Set(['households', 'debt', 'outlook', 'moneyflow', 'wild']);
 const WIDE = new Set(['income_tax']);
 
 export default function App() {
-  const { order, reset, dragging, over } = useLayout();
+  const { order, dragging, over } = useLayout();
 
   return (
     <>
@@ -32,8 +32,7 @@ export default function App() {
           })}
         </div>
         <p className="hint center">
-          Drag a card by ⠿ to reorder it, or click its title to collapse it. <button className="link" onClick={reset}>Reset layout</button>
-          <br />Policy switch scores are rough first-year estimates, mostly CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10. Hover a switch for its source.
+          Policy switch scores are rough first-year estimates, mostly CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10. Hover a switch for its source.
         </p>
         <SourcesDrawer />
       </main>
