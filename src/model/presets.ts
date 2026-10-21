@@ -40,6 +40,8 @@ export const CONDITIONS: Condition[] = [
     blurb: 'A sharp, short collapse (GDP ~4% below normal for the year) with rates cut to near zero, then a fast rebound (~2.5% growth).' },
   { id: 'inflation2021', name: '2021–22 inflation surge', values: ep({ inflationSensitivity: 2, realGrowth: 0.02, inflationShock: 0.025, rateShock: -0.015, gdpShock: 0.01 }),
     blurb: 'Prices jump (inflation peaked ~9%; ~4.7% averaged over 2021–24), rates rise after them, and the economy runs a little hot.' },
+  { id: 'forced_austerity', name: 'Forced austerity (debt crisis)', values: ep({ marketFear: 3, rateShock: 0.02, gdpShock: -0.03, multiplier: 1.2 }),
+    blurb: 'Bond markets force cuts in the middle of a crisis (Greece 2010, the UK in 2022): real rates already 2 pts higher with markets panicking (3× fear), the economy 3% below normal, and a high multiplier (1.2×) because the Fed can\'t offset the cuts. Pair it with Fiscal hawk to see austerity by force vs. by choice.' },
   { id: 'doomsday', name: 'Doomsday (hypothetical)', values: ep({ inflationSensitivity: 2, marketFear: 3, rateShock: -0.02, inflationShock: 0.05, realGrowth: -0.015, gdpShock: -0.06, multiplier: 1.5 }),
     blurb: 'Everything at once: 1970s-style inflation (+5 pts/yr), 10-yr yields near 8% (+3 pts), a 2009-sized crash, then a lost decade (−1.5%/yr), with Greece-level feedback (1.5×). Add your own emergency response on top.' },
 ];
@@ -233,18 +235,6 @@ export const PRESETS: Preset[] = [
       on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'farm', 'fed_pay', 'salt10', 'stepup', 'carried', 'gas15', 'tips_ot_repeal', 'irs_enforce');
       s.ssWageBase = 400000;
       progs(s, { defense: 0.8, nondefense: 0.7, medicare: 0.9, medicaid: 0.9, fed_retirement: 0.9, other_mandatory: 0.8 });
-    }),
-  },
-  {
-    id: 'dalio',
-    name: "Ray Dalio's 3% solution",
-    blurb: 'Get the deficit to ~3% of GDP with roughly equal spending cuts and tax increases, across the board. His third lever, lower interest rates, is an outcome he expects once the deficit falls: try it by pairing this with the "Nominal" economy.',
-    build: make((s) => {
-      on(s, 'salt10', 'tips_ot_repeal', 'stepup', 'carried', 'irs_enforce', 'ss_means_test', 'site_neutral', 'end_iorb');
-      rates(s, [0.11, 0.14, 0.24, 0.26, 0.35, 0.40, 0.44]);
-      s.corporateRate = 0.25;
-      s.capGainsTopRate = 0.25;
-      progs(s, { social_security: 0.97, medicare: 0.92, medicaid: 0.9, aca: 0.9, snap: 0.92, defense: 0.88, nondefense: 0.85, veterans: 0.97, fed_retirement: 0.92, other_mandatory: 0.9 });
     }),
   },
   {

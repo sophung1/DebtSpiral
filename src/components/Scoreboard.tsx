@@ -30,6 +30,12 @@ export function Scoreboard() {
   const onBudget = deficit + ssCashFlow(budget, scn).balance;
   const pop = popularity(scn);
   const inflNow = baselineInflation + budget.inflationShock;
+  // Milestones short of a balanced budget: progress doesn't have to mean going full hawk.
+  const milestones = [
+    { value: manual.nominalGdpGrowth * live.debtHeldByPublicB.value, short: 'debt stops rising', label: 'Debt stops rising: a deficit about equal to nominal GDP growth × the debt keeps debt-to-GDP flat' },
+    { value: manual.netInterestB.value, short: 'borrow only for interest', label: 'Borrow only for interest: the budget before interest balances (a primary balance)' },
+    { value: 0.03 * manual.gdpB.value, short: '3% of GDP', label: "3% of GDP: Ray Dalio's target and the EU's deficit rule" },
+  ];
 
   const share = async () => {
     try { await navigator.clipboard.writeText(location.href); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard unavailable */ }
@@ -68,9 +74,11 @@ export function Scoreboard() {
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
       </div>
-      <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230}
+      <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230} marks={milestones}
         label={deficit > 0 ? 'Annual deficit' : 'Annual surplus'} display={fmtB(Math.abs(deficit))}
-        sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${Math.abs(change) < 0.5 ? 'current law' : `${change > 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} · excl. SS ${onBudget > 0 ? '' : '+'}${fmtB(Math.abs(onBudget))}`} />
+        sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${Math.abs(change) < 0.5 ? 'current law' : `${change > 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} · excl. SS ${onBudget > 0 ? '' : '+'}${fmtB(Math.abs(onBudget))}`}>
+        <span className="dial-marks">{milestones.map((m, k) => <span key={m.label} title={m.label} className={deficit <= m.value ? 'pos' : ''}>{'①②③'[k]} {m.short} {fmtB(m.value)}{deficit <= m.value && ' ✓'}</span>)}</span>
+      </Dial>
       <div className="badges">
         <Badge ok={o.balanced} title="Balanced budget">{o.balanced ? '✅ Yes!' : `❌ ${fmtB(deficit)} short`}</Badge>
         {payoff && <Badge ok={o.payoffYears !== Infinity} title="Debt paid off">{payoff}</Badge>}

@@ -193,7 +193,7 @@ describe('presets', () => {
     const lib = run('libertarian');
     expect(lib.o.debtToGdp10).toBeLessThan(lib.o.debtToGdpNow - 0.1);
     // The 3%-of-GDP plans.
-    for (const id of ['balanced', 'dalio', 'simpson_bowles']) {
+    for (const id of ['balanced', 'simpson_bowles']) {
       const pct = run(id).o.deficitPctGdp;
       expect(pct).toBeGreaterThan(0.025);
       expect(pct).toBeLessThanOrEqual(0.0355);
@@ -373,7 +373,7 @@ describe('historical economies', () => {
     expect(Math.abs(d10('great_recession') - now)).toBeLessThan(0.06);
     // Stagflation: big deficits, but ~8.7% inflation with negative real rates erodes the debt (as in the 1970s).
     expect(d10('stagflation')).toBeLessThan(now);
-    expect(CONDITIONS.length).toBe(12);
+    expect(CONDITIONS.length).toBe(13);
   });
 });
 
@@ -508,5 +508,16 @@ describe('overlapping switches', () => {
     expect([s.policies.wealth_sanders, s.policies.billionaire_min_tax]).toEqual([false, true]);
     setPolicy(s, 'gas15', true); setPolicy(s, 'perot_gas', true);
     expect([s.policies.gas15, s.policies.perot_gas]).toEqual([false, true]);
+  });
+});
+
+describe('forced austerity', () => {
+  it('hurts the same hawk plan far more than austerity by choice', async () => {
+    const { PRESETS, applyConditions } = await import('./presets');
+    const hawk = PRESETS.find((p) => p.id === 'hawk')!.build();
+    const chosen = computeBudget(hawk, base), forced = computeBudget(applyConditions(hawk, 'forced_austerity'), base);
+    expect(forced.multiplierUsed).toBeGreaterThan(1);
+    expect(forced.deficit).toBeGreaterThan(chosen.deficit + 500);
+    expect(computeOutcomes(forced).debtToGdp10).toBeGreaterThan(computeOutcomes(chosen).debtToGdp10 + 0.1);
   });
 });
