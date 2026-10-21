@@ -3,7 +3,7 @@ import { create } from 'zustand';
 /** Card order and collapsed state: a per-viewer convenience kept in localStorage (safe to lose). */
 export const DEFAULT_ORDER = [
   'households', 'debt', 'outlook', 'moneyflow',
-  'income_tax', 'social_security', 'health', 'safety_net', 'defense_other', 'business', 'wild',
+  'income_tax', 'social_security', 'health', 'safety_net', 'defense_other', 'business', 'energy', 'wild',
 ];
 const DEFAULT_COLLAPSED: Record<string, boolean> = { moneyflow: true };
 const KEY = 'deficit-dial-layout-v2';

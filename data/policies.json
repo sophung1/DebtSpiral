@@ -19,7 +19,7 @@
     },
     {
       "id": "carbon25",
-      "bucket": "business",
+      "bucket": "energy",
       "label": "$25/ton carbon tax (no rebate)",
       "deltaB": 100,
       "source": "CBO Options (annualized)",
@@ -30,7 +30,96 @@
         "retirees": -700,
         "professional": -1300,
         "top1": -3500
+      },
+      "excludes": [
+        "carbon_dividend"
+      ]
+    },
+    {
+      "id": "carbon_dividend",
+      "bucket": "energy",
+      "label": "Carbon dividend: $40/ton carbon tax, all rebated per person",
+      "who": "Baker-Shultz plan",
+      "deltaB": 0,
+      "excludes": [
+        "carbon25"
+      ],
+      "source": "Revenue-neutral by design. Most low- and middle-income households get back more than they pay.",
+      "households": {
+        "min_wage": 300,
+        "working_family": 500,
+        "median": 300,
+        "retirees": 200,
+        "professional": -300,
+        "top1": -1500
       }
+    },
+    {
+      "id": "ev_restore",
+      "bucket": "energy",
+      "label": "Restore EV tax credits ($7,500/car)",
+      "who": "Inflation Reduction Act",
+      "deltaB": -15,
+      "excludes": [
+        "repeal_clean"
+      ],
+      "source": "Ended Sept 2025 by P.L. 119-21. Usage ran well above CBO's original score.",
+      "households": {}
+    },
+    {
+      "id": "restore_clean",
+      "bucket": "energy",
+      "label": "Restore all clean-energy tax credits repealed in 2025",
+      "who": "Democrats",
+      "deltaB": -70,
+      "replaces": [
+        "ev_restore"
+      ],
+      "excludes": [
+        "repeal_clean"
+      ],
+      "source": "Low confidence: estimates vary ~3x (CBO 2022 vs Penn Wharton/Goldman). Includes EV credits.",
+      "households": {}
+    },
+    {
+      "id": "repeal_clean",
+      "bucket": "energy",
+      "label": "Repeal the remaining clean-energy credits (nuclear, carbon capture, clean fuels, manufacturing)",
+      "who": "GOP proposals",
+      "deltaB": 30,
+      "excludes": [
+        "restore_clean",
+        "ev_restore"
+      ],
+      "source": "Low confidence; what's left after P.L. 119-21's cuts.",
+      "households": {}
+    },
+    {
+      "id": "fossil_breaks",
+      "bucket": "energy",
+      "label": "Repeal fossil-fuel tax breaks",
+      "who": "Treasury Green Book",
+      "deltaB": 4.5,
+      "source": "Intangible drilling costs, percentage depletion, etc.",
+      "households": {}
+    },
+    {
+      "id": "nuclear",
+      "bucket": "energy",
+      "label": "Nuclear buildout (federal financing for new reactors)",
+      "who": "Trump 2025 EOs, ADVANCE Act",
+      "deltaB": -10,
+      "source": "Low confidence; depends on the federal share. Vogtle units 3-4 cost ~$35B.",
+      "households": {}
+    },
+    {
+      "id": "gnd_climate",
+      "bucket": "energy",
+      "label": "Green New Deal-style clean energy & grid investment",
+      "who": "AOC/Markey; Biden 2020 ($2T/4 yrs)",
+      "deltaB": -500,
+      "source": "Uses Biden's 2020 climate plan ($2T over 4 years) as the scorable core. The GND resolution itself has no official score.",
+      "households": {}
     },
     {
       "id": "wealth2",
@@ -105,6 +194,52 @@
       }
     },
     {
+      "id": "buyback_tax4",
+      "bucket": "business",
+      "label": "Raise the stock-buyback tax from 1% to 4%",
+      "who": "Biden",
+      "deltaB": 17,
+      "source": "Treasury Green Book (~$166B over 10 years).",
+      "households": {}
+    },
+    {
+      "id": "ftt",
+      "bucket": "business",
+      "label": "0.1% tax on stock, bond & derivative trades",
+      "who": "Sanders",
+      "deltaB": 75,
+      "source": "CBO Options: ~$777B over 2019-28 (JCT). Disputed: trading volume would fall, so actual revenue could be much lower.",
+      "households": {}
+    },
+    {
+      "id": "gold_card",
+      "bucket": "business",
+      "label": "Sell $1M 'Gold Card' residency visas",
+      "who": "Trump 2025",
+      "deltaB": 10,
+      "source": "Low confidence. ~10,000 registered interest at launch (Dec 2025); 10,000/yr x $1M = $10B. Official claims bundle it into $100B with other programs.",
+      "households": {}
+    },
+    {
+      "id": "end_iorb",
+      "bucket": "business",
+      "label": "Stop the Fed paying interest on bank reserves",
+      "who": "Cruz / Sanders",
+      "deltaB": 30,
+      "source": "Low confidence. Cruz claims $1.1T over 10 yrs; critics say banks would shift into T-bills and savings would be small. Midpoint-ish.",
+      "households": {}
+    },
+    {
+      "id": "gse_sale",
+      "bucket": "business",
+      "label": "Sell government stakes in Fannie Mae & Freddie Mac",
+      "who": "Trump 2025",
+      "deltaB": 30,
+      "oneTime": true,
+      "source": "Low confidence. Reported plans to sell ~5% for ~$30B.",
+      "households": {}
+    },
+    {
       "id": "tips_ot_repeal",
       "bucket": "income_tax",
       "label": "Repeal no-tax-on-tips & overtime deductions",
@@ -126,6 +261,15 @@
       }
     },
     {
+      "id": "billionaire_min_tax",
+      "bucket": "income_tax",
+      "label": "Billionaire minimum tax (25% incl. unrealized gains, $100M+)",
+      "who": "Biden",
+      "deltaB": 50,
+      "source": "Treasury FY2025 Green Book: ~$500B over 10 years.",
+      "households": {}
+    },
+    {
       "id": "chained_cpi",
       "bucket": "social_security",
       "label": "Use chained CPI for SS cost-of-living raises",
@@ -141,6 +285,26 @@
       "label": "Raise full retirement age to 70 (phased in)",
       "deltaB": 10,
       "source": "CBO Options (small at first; large long-run savings)",
+      "households": {}
+    },
+    {
+      "id": "no_tax_ss",
+      "bucket": "social_security",
+      "label": "No income tax on Social Security benefits",
+      "who": "Trump 2024",
+      "deltaB": -180,
+      "source": "CRFB: ~$1.8T over FY2026-35, all of it revenue that now goes to the Social Security and Medicare trust funds, so it speeds up their insolvency.",
+      "households": {
+        "retirees": 1200
+      }
+    },
+    {
+      "id": "ss_means_test",
+      "bucket": "social_security",
+      "label": "Means-test benefits for high-income retirees",
+      "who": "Various",
+      "deltaB": 25,
+      "source": "Low confidence. Phases down benefits for retirees with high non-Social Security income.",
       "households": {}
     },
     {
@@ -183,6 +347,15 @@
       "households": {}
     },
     {
+      "id": "site_neutral",
+      "bucket": "health",
+      "label": "Site-neutral Medicare payments + pharmacy-benefit-manager reform",
+      "who": "Bipartisan",
+      "deltaB": 18,
+      "source": "CBO: site-neutral options ~$140B over 10 yrs; PBM reforms ~$5B/yr.",
+      "households": {}
+    },
+    {
       "id": "farm",
       "bucket": "defense_other",
       "label": "Cut farm subsidies & crop insurance",
@@ -196,6 +369,60 @@
       "label": "Freeze federal civilian pay for one year",
       "deltaB": 5,
       "source": "CBO (approx.)",
+      "households": {}
+    },
+    {
+      "id": "close_bases",
+      "bucket": "defense_other",
+      "label": "Close most overseas military bases",
+      "who": "Various",
+      "deltaB": 20,
+      "source": "Low confidence. Overseas basing is ~$55B/yr (2021 est.), but host-nation support and relocating forces home cut the net savings.",
+      "households": {}
+    },
+    {
+      "id": "end_foreign_aid",
+      "bucket": "defense_other",
+      "label": "End foreign aid (economic & humanitarian)",
+      "who": "Various",
+      "deltaB": 35,
+      "source": "~1% of the budget. Polls find Americans guess it's ~25%.",
+      "households": {}
+    },
+    {
+      "id": "abolish_ed",
+      "bucket": "defense_other",
+      "label": "Abolish the Department of Education (programs move elsewhere)",
+      "who": "GOP platform",
+      "deltaB": 5,
+      "source": "Low confidence. Proposals move Pell grants, Title I and special-ed funding to other agencies, so savings are mostly overhead.",
+      "households": {}
+    },
+    {
+      "id": "mass_deportation",
+      "bucket": "defense_other",
+      "label": "Mass deportation program",
+      "who": "Trump 2024",
+      "deltaB": -90,
+      "source": "American Immigration Council: ~$88B/yr in enforcement costs. Lost tax revenue from deported workers is not counted.",
+      "households": {}
+    },
+    {
+      "id": "immigration_reform",
+      "bucket": "defense_other",
+      "label": "Immigration reform with a path to legal status",
+      "who": "2013 bipartisan Senate bill",
+      "deltaB": 18,
+      "source": "CBO (S.744, 2013): cut deficits ~$175B in the first decade as more workers pay taxes.",
+      "households": {}
+    },
+    {
+      "id": "renew_iija",
+      "bucket": "defense_other",
+      "label": "Renew the 2021 infrastructure law's funding",
+      "who": "Bipartisan",
+      "deltaB": -110,
+      "source": "IIJA added ~$550B of new spending over FY2022-26 (~$110B/yr). Actual outlays lag spending authority.",
       "households": {}
     },
     {
@@ -216,6 +443,62 @@
       "label": "Universal pre-K",
       "deltaB": -40,
       "source": "Approx. (2021 Build Back Better proposal, annualized)",
+      "households": {}
+    },
+    {
+      "id": "free_college",
+      "bucket": "safety_net",
+      "label": "Tuition-free public college",
+      "who": "Sanders / Biden",
+      "deltaB": -50,
+      "source": "Sanders' College for All Act (2021): ~$47B/yr federal share.",
+      "households": {}
+    },
+    {
+      "id": "childcare",
+      "bucket": "safety_net",
+      "label": "Universal childcare (cost capped ~7% of income)",
+      "who": "Build Back Better",
+      "deltaB": -40,
+      "source": "CBO score of the 2021 House bill: ~$380B over 10 years.",
+      "households": {
+        "working_family": 4000
+      }
+    },
+    {
+      "id": "paid_leave",
+      "bucket": "safety_net",
+      "label": "12 weeks of national paid family leave",
+      "who": "Biden American Families Plan",
+      "deltaB": -23,
+      "source": "White House estimate: ~$225B over 10 years.",
+      "households": {}
+    },
+    {
+      "id": "baby_bonds",
+      "bucket": "safety_net",
+      "label": "Baby bonds ($1,000 at birth + up to $2,000/yr by income)",
+      "who": "Booker",
+      "deltaB": -65,
+      "source": "CRFB: ~$650B over 10 years. Paid into accounts, not cash, until age 18.",
+      "households": {}
+    },
+    {
+      "id": "trump_accounts",
+      "bucket": "safety_net",
+      "label": "Extend Trump Accounts' $1,000 baby deposit past 2028",
+      "who": "P.L. 119-21",
+      "deltaB": -4,
+      "source": "~3.6M births x $1,000, plus the tax break on contributions (not counted). Taxes on withdrawals decades later pay back part, beyond this model's horizon.",
+      "households": {}
+    },
+    {
+      "id": "housing_supply",
+      "bucket": "safety_net",
+      "label": "Housing supply package (expand housing tax credit & builder incentives)",
+      "who": "Both parties",
+      "deltaB": -15,
+      "source": "Low confidence. Combines proposals to expand the Low-Income Housing Tax Credit and new-construction incentives.",
       "households": {}
     },
     {
@@ -321,6 +604,35 @@
       "label": "Roll back DOGE cuts",
       "deltaB": -5,
       "source": "Low confidence. Independent estimates of DOGE's verifiable net savings: ~$1-7B (B. Stevenson), ~$2B verified (NPR), ~$5.5B (OpenFeds); GAO-26-108615 could trace only 43% of claimed contract savings. Midpoint used. Excludes possible lost IRS revenue from staff cuts (estimates unverified).",
+      "households": {}
+    },
+    {
+      "id": "jobs_guarantee",
+      "bucket": "wild",
+      "label": "Federal jobs guarantee",
+      "who": "Green New Deal",
+      "deltaB": -450,
+      "source": "Low confidence. Outside estimates ~$400-500B/yr, depending on take-up and wages.",
+      "households": {}
+    },
+    {
+      "id": "min_wage15",
+      "bucket": "wild",
+      "label": "$15 federal minimum wage",
+      "who": "Democratic proposals",
+      "deltaB": -5,
+      "source": "CBO (2021): small budget effect; raises pay for ~17M workers, with ~1.4M fewer jobs.",
+      "households": {
+        "min_wage": 9000
+      }
+    },
+    {
+      "id": "swf",
+      "bucket": "wild",
+      "label": "Start a sovereign wealth fund ($100B/yr, borrowed)",
+      "who": "Trump EO 2025",
+      "deltaB": -100,
+      "source": "Buying assets counts as spending, and the US borrows to do it. It pays off only if returns beat the Treasury rate (historically stocks beat it ~3-4 pts/yr, with risk). Most of that comes after this model's 10 years.",
       "households": {}
     }
   ]
