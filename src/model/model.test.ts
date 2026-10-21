@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { archetypes, manual } from './data';
-import { currentLaw, lawFor, setPolicy, enforceProgressive } from './scenario';
+import { currentLaw, lawFor, setPolicy, enforceProgressive, sanitizeScenario } from './scenario';
 import { scheduleTax, cappedWages, aggregateOrdinaryTax } from './incomeTax';
 import { computeBudget } from './budget';
 import { computeOutcomes, projection } from './outcomes';
@@ -592,5 +592,37 @@ describe('CBO calibration', () => {
     expect(p.debt / p.gdp).toBeLessThan(1.28);
     expect(p.interest!).toBeGreaterThan(1900);
     expect(p.interest!).toBeLessThan(2400);
+  });
+});
+
+describe('share-link sanitizing', () => {
+  it('round-trips every preset and economy unchanged, so real shared links keep working', async () => {
+    const { PRESETS, CONDITIONS, applyConditions } = await import('./presets');
+    for (const p of PRESETS) {
+      const s = p.build();
+      expect(sanitizeScenario(JSON.parse(JSON.stringify(s)))).toEqual(s);
+    }
+    for (const c of CONDITIONS) {
+      const s = applyConditions(currentLaw(), c.id);
+      expect(sanitizeScenario(JSON.parse(JSON.stringify(s)))).toEqual(s);
+    }
+  });
+  it('clamps absurd values and drops junk', () => {
+    const s = sanitizeScenario({
+      corporateRate: 5, ssRate: 'lots', multiplier: NaN, programs: { defense: -3, made_up: 9 }, policies: { m4a: 'yes', fake: true, vat5: true },
+      monetary: 'bitcoin', brackets: { rates: [0.1, 7], single: [0, -5], mfjRatio: [2, 2] }, __proto__: { polluted: true },
+    })!;
+    expect(s.corporateRate).toBe(0.6);
+    expect(s.ssRate).toBe(currentLaw().ssRate);
+    expect(s.multiplier).toBe(currentLaw().multiplier);
+    expect(s.programs.defense).toBe(0);
+    expect('made_up' in s.programs).toBe(false);
+    expect([s.policies.m4a, s.policies.vat5, 'fake' in s.policies]).toEqual([false, true, false]);
+    expect(s.monetary).toBe('fed');
+    expect(s.brackets).toEqual(currentLaw().brackets);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+  it('rejects non-objects', () => {
+    for (const v of [null, 3, 'x', [1, 2]]) expect(sanitizeScenario(v)).toBeNull();
   });
 });

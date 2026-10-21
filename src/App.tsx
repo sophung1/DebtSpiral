@@ -37,7 +37,11 @@ export default function App() {
         </p>
         <SourcesDrawer />
       </main>
-      <footer className="site-foot">debtspiral.app · a simplified, one-year model with a 10-year outlook. It's an educational simulator, not an official score.</footer>
+      <footer className="site-foot">
+        <p>debtspiral.app · A simplified educational simulator: one-year scores with a 10-year outlook, not an official estimate.</p>
+        <p>Not affiliated with or endorsed by any government agency, party, candidate or organization named here; presets are our approximations of their published plans. Not financial, tax or legal advice; household figures are illustrative.</p>
+        <p>Data from Treasury, CBO and public polls (dated in Sources); estimates are rough and can be out of date. No cookies or tracking: your layout stays in your browser, and shared scenarios live in the link.</p>
+      </footer>
     </>
   );
 }

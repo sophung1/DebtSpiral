@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { currentLaw, type Scenario } from '../model/scenario';
+import { currentLaw, sanitizeScenario, type Scenario } from '../model/scenario';
 
 export const BASE = currentLaw();
 
@@ -10,10 +10,8 @@ function encode(s: Scenario): string {
 function decode(h: string): Scenario | null {
   try {
     const json = decodeURIComponent(escape(atob(h.replace(/-/g, '+').replace(/_/g, '/'))));
-    const s = JSON.parse(json) as Partial<Scenario>;
-    // Merge onto current law so new programs/policies added later still get defaults.
-    const base = currentLaw();
-    return { ...base, ...s, programs: { ...base.programs, ...s.programs }, policies: { ...base.policies, ...s.policies } } as Scenario;
+    // Links can be hand-crafted: keep only known, in-range values (missing ones get current-law defaults).
+    return sanitizeScenario(JSON.parse(json));
   } catch {
     return null;
   }
