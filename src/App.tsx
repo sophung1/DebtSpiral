@@ -31,15 +31,12 @@ export default function App() {
             );
           })}
         </div>
-        <p className="hint center">
-          Policy switch scores are rough first-year estimates, mostly CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10. Hover a switch for its source.
-        </p>
         <SourcesDrawer />
       </main>
       <footer className="site-foot">
-        <p>debtspiral.app · A simplified educational simulator: one-year scores with a 10-year outlook, not an official estimate.</p>
+        <p>debtspiral.app · A simplified educational simulator, not an official estimate. Policy scores are rough first-year figures, mostly from CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10; hover a switch for its source.</p>
         <p>Not affiliated with or endorsed by any government agency, party, candidate or organization named here; presets are our approximations of their published plans. Not financial, tax or legal advice; household figures are illustrative.</p>
-        <p>Data from Treasury, CBO and public polls (dated in Sources); estimates are rough and can be out of date. No cookies or tracking: your layout stays in your browser, and shared scenarios live in the link.</p>
+        <p>Data from Treasury, CBO and public polls (dated in Sources) and may be out of date. No cookies or tracking: your layout stays in your browser, and shared scenarios live in the link.</p>
       </footer>
     </>
   );
