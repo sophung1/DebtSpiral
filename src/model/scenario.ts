@@ -104,3 +104,8 @@ export function currentLaw(): Scenario {
 export function thresholds(s: BracketSchedule, filing: 'single' | 'mfj'): number[] {
   return filing === 'single' ? s.single : s.single.map((t, i) => Math.round(t * s.mfjRatio[i]));
 }
+
+/** After bracket `i` changes, push neighbors so rates never fall as income rises (higher brackets up, lower ones down). */
+export function enforceProgressive(rates: number[], i: number): number[] {
+  return rates.map((r, j) => (j > i ? Math.max(r, rates[i]) : j < i ? Math.min(r, rates[i]) : r));
+}

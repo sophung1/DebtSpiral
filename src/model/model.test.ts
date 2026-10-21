@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { archetypes, manual } from './data';
-import { currentLaw, lawFor, setPolicy } from './scenario';
+import { currentLaw, lawFor, setPolicy, enforceProgressive } from './scenario';
 import { scheduleTax, cappedWages, aggregateOrdinaryTax } from './incomeTax';
 import { computeBudget } from './budget';
 import { computeOutcomes, projection } from './outcomes';
@@ -347,5 +347,38 @@ describe('new headline switches', () => {
       const s = currentLaw(); s.multiplier = 0; setPolicy(s, p.id, true);
       expect(d0 - computeBudget(s, base).deficit).toBeCloseTo(policyDelta(p), 6);
     }
+  });
+});
+
+describe('popularity', () => {
+  it('averages support over polled changes only', async () => {
+    const { popularity, polls } = await import('./popularity');
+    expect(popularity(currentLaw()).approval).toBeNull();
+    const s = currentLaw();
+    setPolicy(s, 'drug_neg', true);
+    expect(popularity(s).approval).toBe(polls.drug_neg.support);
+    setPolicy(s, 'gold_card', true); // no poll
+    const p = popularity(s);
+    expect([p.counted, p.total]).toEqual([1, 2]);
+    s.programs.social_security = 0.9;
+    expect(popularity(s).approval).toBeCloseTo((polls.drug_neg.support + polls['program:social_security:down'].support) / 2, 9);
+  });
+  it('ignores switches folded into the Big Beautiful Bill rollback', async () => {
+    const { changes } = await import('./popularity');
+    const s = currentLaw();
+    setPolicy(s, 'tips_ot_repeal', true); setPolicy(s, 'obbba_rollback', true);
+    expect(changes(s).map((c) => c.key)).toEqual(['obbba_rollback']);
+  });
+});
+
+describe('enforceProgressive', () => {
+  it('raising a lower bracket lifts the higher ones', () => {
+    expect(enforceProgressive([0.1, 0.5, 0.22, 0.24, 0.6], 1)).toEqual([0.1, 0.5, 0.5, 0.5, 0.6]);
+  });
+  it('lowering the top drops the lower ones', () => {
+    expect(enforceProgressive([0.1, 0.12, 0.22, 0.24, 0.15], 4)).toEqual([0.1, 0.12, 0.15, 0.15, 0.15]);
+  });
+  it('leaves an already progressive schedule alone', () => {
+    expect(enforceProgressive([0.1, 0.12, 0.22], 1)).toEqual([0.1, 0.12, 0.22]);
   });
 });
