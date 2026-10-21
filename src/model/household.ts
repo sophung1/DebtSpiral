@@ -1,4 +1,4 @@
-import { tax, type Archetype } from './data';
+import { tax, manual, type Archetype } from './data';
 import { thresholds, lawFor, type Scenario } from './scenario';
 import { activePolicies } from './policies';
 import { scheduleTax } from './incomeTax';
@@ -13,6 +13,10 @@ export interface HouseholdResult {
   payrollTax: number;
   benefits: Record<string, number>;
   policyEffect: number;
+  /** real purchasing power lost to extra inflation this year (−) */
+  inflationCost: number;
+  /** average pay lost (−) or gained (+) from the GDP gap */
+  recessionPay: number;
   totalIncome: number;
   /** benefits + policy effects − taxes */
   net: number;
@@ -36,7 +40,9 @@ export function eitc(h: Archetype, agi: number, factor: number): number {
   return Math.max(0, credit) * factor;
 }
 
-export function computeHousehold(h: Archetype, scn: Scenario): HouseholdResult {
+export interface Macro { gdpGap: number; inflationShock: number }
+
+export function computeHousehold(h: Archetype, scn: Scenario, macro: Macro = { gdpGap: 0, inflationShock: 0 }): HouseholdResult {
   const f = h.filing;
   const other = h.wages + h.pension + h.capitalGains;
   const ssTaxable = taxableSS(h.socialSecurity, other, f);
@@ -83,6 +89,11 @@ export function computeHousehold(h: Archetype, scn: Scenario): HouseholdResult {
 
   const policyEffect = activePolicies(scn).reduce((a, pol) => a + (pol.households[h.id] ?? 0), 0);
   const benefitTotal = Object.values(benefits).reduce((a, b) => a + b, 0);
-  const net = benefitTotal + policyEffect - incomeTax - payrollTax;
-  return { incomeTax, incomeTaxOwed: incomeTax - nonref, ctcNonrefundable: nonref, payrollTax, benefits, policyEffect, totalIncome: agi + h.socialSecurity - ssTaxable, net };
+  // Macro effects: extra inflation erodes spendable cash income (Social Security is COLA-indexed and health
+  // coverage isn't cash, so both are excluded); a GDP gap moves average pay.
+  const spendable = Math.max(0, h.wages + h.pension + h.capitalGains - (incomeTax - nonref) - payrollTax);
+  const inflationCost = -macro.inflationShock * spendable;
+  const recessionPay = macro.gdpGap * manual.feedback.wageLossPerGdpGap * h.wages;
+  const net = benefitTotal + policyEffect - incomeTax - payrollTax + inflationCost + recessionPay;
+  return { incomeTax, incomeTaxOwed: incomeTax - nonref, ctcNonrefundable: nonref, payrollTax, benefits, policyEffect, inflationCost, recessionPay, totalIncome: agi + h.socialSecurity - ssTaxable, net };
 }

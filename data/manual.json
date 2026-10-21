@@ -573,6 +573,8 @@
     "maxMultiplier": 2,
     "severityNote": "Scale with severity: above a 2%-of-GDP tightening, the multiplier rises 0.1 per extra point of GDP (capped at 2). A Greece-sized 13% consolidation gets ~1.6, near the 0.9-1.7 Blanchard & Leigh found.",
     "shockRevenueElasticity": 2.5,
-    "shockNote": "Recessions hit revenue harder than GDP: capital gains and corporate profits collapse. In FY2009 receipts fell ~17% with GDP ~6% below potential, an elasticity of ~2.5-3."
+    "shockNote": "Recessions hit revenue harder than GDP: capital gains and corporate profits collapse. In FY2009 receipts fell ~17% with GDP ~6% below potential, an elasticity of ~2.5-3.",
+    "wageLossPerGdpGap": 0.5,
+    "wageLossNote": "Rough Okun's-law average: each 1% of GDP below normal costs ~0.5% of wage income (job losses plus fewer hours). Averages hide that some lose everything and most lose nothing."
   }
 }

@@ -8,7 +8,7 @@ import { policyMeta } from './model/data';
 import { useLayout } from './state/layout';
 
 const CARDS: Record<string, () => JSX.Element> = { households: HouseholdPanel, outlook: Outlook, moneyflow: MoneyFlow, ...BUCKET_CARDS };
-const FULL = new Set(['households', 'outlook', 'moneyflow']);
+const FULL = new Set(['households', 'debt', 'outlook', 'moneyflow']);
 const WIDE = new Set(['income_tax', 'wild']);
 
 export default function App() {

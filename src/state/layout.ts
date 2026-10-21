@@ -2,11 +2,11 @@ import { create } from 'zustand';
 
 /** Card order and collapsed state: a per-viewer convenience kept in localStorage (safe to lose). */
 export const DEFAULT_ORDER = [
-  'households', 'outlook', 'moneyflow',
-  'income_tax', 'social_security', 'health', 'safety_net', 'defense_other', 'business', 'debt', 'wild',
+  'households', 'debt', 'outlook', 'moneyflow',
+  'income_tax', 'social_security', 'health', 'safety_net', 'defense_other', 'business', 'wild',
 ];
 const DEFAULT_COLLAPSED: Record<string, boolean> = { moneyflow: true };
-const KEY = 'deficit-dial-layout-v1';
+const KEY = 'deficit-dial-layout-v2';
 
 export interface DropTarget { id: string; after: boolean }
 
