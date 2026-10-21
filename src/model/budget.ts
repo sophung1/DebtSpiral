@@ -1,7 +1,8 @@
 import { manual, live, programs } from './data';
 import { activePolicies, policyDelta, ctcLawFactor } from './policies';
 import type { Scenario } from './scenario';
-import { BILLS, TIPS, NOTES_ROLL1, YIELDS0, policyInflation, fiscalPremium, yields } from './macro';
+import { BILLS, TIPS, NOTES_ROLL1, YIELDS0, policyInflation, fiscalPremium, yields, inflationRiskPremium, dominanceInflation } from './macro';
+import { regimeOf } from './monetary';
 import {
   individualOrdinaryReceipts, payrollSSReceipts, capitalGainsReceipts, corporateReceipts, estateReceipts,
 } from './incomeTax';
@@ -25,8 +26,15 @@ export interface Budget {
   policyInflation: number;
   /** one-time price-level jump from switches like tariffs */
   priceBump: number;
-  /** fiscal risk premium on long yields this year (decimal) */
+  /** total risk premium on long yields this year: fiscal + inflation risk (decimal) */
   premium: number;
+  fiscalPremium: number;
+  inflationRiskPremium: number;
+  /** inflation from fiscal dominance and from central-bank financing this year */
+  dominanceInflation: number;
+  monetizedInflation: number;
+  /** monetary regime id */
+  monetary: string;
   /** market yields this year under the plan */
   yields: { y2: number; y10: number; y30: number };
   /** settings and inputs the outlook reuses */
@@ -74,6 +82,12 @@ export const baselineInflation = manual.nominalGdpGrowth - manual.realGdpGrowth;
 export const netInterestAt = (y: { y2: number; y10: number }, dPi: number) =>
   manual.netInterestB.value + debt0() * (BILLS * (y.y2 - YIELDS0.y2) + NOTES_ROLL1 * (y.y10 - YIELDS0.y10) + TIPS * dPi);
 
+/** Change in fuel-tax revenue from the gas and diesel sliders ($B); gas revenue grows less than 1:1 as people drive less. */
+export function fuelTaxDelta(scn: Scenario): number {
+  const f = manual.fuelTax, g = scn.gasTaxCents - f.gasCents;
+  return f.gasPerCentB * g - f.gasCurvature * g * Math.abs(g) + f.dieselPerCentB * (scn.dieselTaxCents - f.dieselCents);
+}
+
 export const stimulusOutlay = (scn: Scenario) => (scn.stimulusPerAdult * manual.stimulus.adultsM) / 1000;
 
 export function computeBudget(scn: Scenario, base: Scenario): Budget {
@@ -87,6 +101,7 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
     rec('corporate', corporateReceipts(scn, base)),
     rec('customs', R.customs.value),
     rec('excise', R.excise.value),
+    rec('fuelExcise', Math.max(0, R.fuelExcise.value + fuelTaxDelta(scn))),
     rec('estate', estateReceipts(scn, base)),
     rec('other', R.other.value),
   ];
@@ -109,9 +124,11 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
     - (sum(outlays, 'base') - sum(receipts, 'base'));
   const fb = manual.feedback;
   const tightening = -primaryChange / manual.gdpB.value; // share of GDP; + = austerity
-  const multiplierUsed = scn.multiplierScales && scn.multiplier > 0
-    ? Math.min(fb.maxMultiplier, scn.multiplier + fb.severitySlope * Math.max(0, tightening - fb.severityThreshold))
-    : scn.multiplier;
+  const reg = regimeOf(scn.monetary);
+  const m0 = scn.multiplier > 0 ? scn.multiplier + reg.multiplierAdd : 0;
+  const multiplierUsed = scn.multiplierScales && m0 > 0
+    ? Math.min(fb.maxMultiplier, m0 + fb.severitySlope * Math.max(0, tightening - fb.severityThreshold))
+    : m0;
   const policyGap = (multiplierUsed * primaryChange) / manual.gdpB.value;
   const gdpGap = policyGap + scn.gdpShock;
   const staticReceipts = sum(receipts, 'value');
@@ -120,32 +137,43 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
   const totalReceipts = sum(receipts, 'value');
   const cyclicalB = -staticReceipts * fb.shockRevenueElasticity * scn.gdpShock;
 
-  // Inflation: the slider, plus demand from the plan (Phillips curve), plus one-time price jumps (tariffs).
-  const policyPi = policyInflation(policyGap, scn.inflationSensitivity);
-  const priceBump = scn.inflationSensitivity > 0 ? active.reduce((a, p) => a + (p.priceLevelPts ?? 0), 0) : 0;
-  const dPi = scn.inflationShock + policyPi + priceBump;
+  // Inflation: the slider and the monetary regime's trend, plus demand from the plan (Phillips curve), plus
+  // one-time price jumps (tariffs). Settings are scaled by the regime.
+  const sens = scn.inflationSensitivity * reg.sensitivityScale, fear = scn.marketFear * reg.fearScale;
+  const trend = scn.inflationShock + reg.trendPi, realShock = scn.rateShock + reg.realShock;
+  const policyPi = policyInflation(policyGap, sens);
+  const priceBump = sens > 0 ? active.reduce((a, p) => a + (p.priceLevelPts ?? 0), 0) : 0;
 
-  // Rates and the deficit feed each other through the fiscal risk premium: solve for the fixed point.
+  // Rates, inflation and the deficit feed each other (fiscal premium -> expected inflation -> inflation risk
+  // premium -> interest -> deficit, and money-financed deficits -> inflation): solve for the fixed point.
   const nonInterest = sum(outlays, 'value');
   const baseDeficit = sum(outlays, 'base') + manual.netInterestB.value - sum(receipts, 'base');
-  const endoPi = policyPi + priceBump;
-  let premium = 0, y = yields(scn.inflationShock, endoPi, policyGap, 0, scn.rateShock), ni = netInterestAt(y, dPi);
-  for (let i = 0; i < 30; i++) {
-    const deficit = nonInterest + ni - totalReceipts - policyNet;
-    const next = fiscalPremium(scn.marketFear, (deficit - cyclicalB - baseDeficit) / manual.gdpB.value, 0);
-    y = yields(scn.inflationShock, endoPi, policyGap, next, scn.rateShock);
+  const gdp = manual.gdpB.value;
+  let fiscal = 0, dom = 0, mon = 0, dPi = 0, inflRisk = 0, y = YIELDS0, ni = manual.netInterestB.value;
+  for (let i = 0; i < 80; i++) {
+    dPi = trend + policyPi + priceBump + dom + mon;
+    inflRisk = inflationRiskPremium(fear, baselineInflation + dPi - reg.targetShift);
+    y = yields(trend, policyPi + priceBump + dom + mon, policyGap, fiscal + inflRisk, realShock, reg);
     ni = netInterestAt(y, dPi);
-    if (Math.abs(next - premium) < 1e-7) { premium = next; break; }
-    premium = next;
+    const deficit = nonInterest + ni - totalReceipts - policyNet;
+    const nf = fiscalPremium(fear, (deficit - cyclicalB - baseDeficit) / gdp, 0);
+    const nd = dominanceInflation(sens, nf);
+    const nm = reg.monetizeAbove === null ? 0 : reg.monetizeInflation * Math.max(0, deficit / gdp - reg.monetizeAbove);
+    const done = Math.abs(nf - fiscal) + Math.abs(nd - dom) + Math.abs(nm - mon) < 1e-8;
+    // Damped updates keep the loop stable when the settings are extreme.
+    fiscal += (nf - fiscal) / 2; dom += (nd - dom) / 2; mon += (nm - mon) / 2;
+    if (done) break;
   }
+  const premium = fiscal + inflRisk;
   outlays.splice(outlays.length - 1, 0, { id: 'net_interest', label: 'Net interest', value: ni, base: manual.netInterestB.value });
   const totalOutlays = sum(outlays, 'value');
   return {
     receipts, outlays, policyLines, netInterest: ni, totalReceipts, totalOutlays, oneTime,
-    inflationInterest: netInterestAt(y, dPi) - netInterestAt(yields(0, 0, policyGap, premium, scn.rateShock), 0),
-    repricing1: repricingShare(), inflationShock: dPi, inflationSlider: scn.inflationShock, policyInflation: policyPi, priceBump,
-    premium, yields: y, rateShock: scn.rateShock, realGrowth: scn.realGrowth,
-    inflationSensitivity: scn.inflationSensitivity, marketFear: scn.marketFear, policyGap, cyclicalB,
+    inflationInterest: netInterestAt(y, dPi) - netInterestAt(yields(0, 0, policyGap, fiscal, realShock, reg), 0),
+    repricing1: repricingShare(), inflationShock: dPi, inflationSlider: trend, policyInflation: policyPi, priceBump,
+    premium, fiscalPremium: fiscal, inflationRiskPremium: inflRisk, dominanceInflation: dom, monetizedInflation: mon, monetary: reg.id,
+    yields: y, rateShock: realShock, realGrowth: scn.realGrowth,
+    inflationSensitivity: sens, marketFear: fear, policyGap, cyclicalB,
     nominalGrowth: scn.realGrowth + baselineInflation + dPi,
     gdpGap, multiplierUsed, feedbackB: staticReceipts - totalReceipts,
     deficit: totalOutlays - totalReceipts - policyNet,

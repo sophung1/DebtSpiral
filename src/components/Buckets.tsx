@@ -200,7 +200,7 @@ function DebtInflation() {
         <div><span>Net interest</span><strong>{fmtB(budget.netInterest)}</strong></div>
         <div><span>Debt held by public</span><strong>{fmtB(debt)}</strong></div>
         <div className={o.inflationToHoldRatio <= 0 ? 'pos' : 'neg'}><span>Inflation to stand still</span><strong>{o.inflationToHoldRatio <= 0 ? 'none' : `${pct(baselineInflation + budget.inflationShock + o.inflationToHoldRatio)}/yr (+${pct(o.inflationToHoldRatio)} over now)`}</strong></div>
-        <div className={budget.inflationShock > 0.0005 ? 'neg' : ''}><span>Inflation this year</span><strong>{pct(baseInfl + budget.inflationShock, 1)}{Math.abs(budget.policyInflation + budget.priceBump) >= 0.0005 && <small> ({budget.policyInflation + budget.priceBump > 0 ? '+' : '−'}{pct(Math.abs(budget.policyInflation + budget.priceBump), 1)} from your plan{budget.priceBump ? `, incl. ${pct(budget.priceBump, 1)} tariff price jump` : ''})</small>}</strong></div>
+        <div className={budget.inflationShock > 0.0005 ? 'neg' : ''}><span>Inflation this year</span><strong>{pct(baseInfl + budget.inflationShock, 1)}{Math.abs((budget.policyInflation + budget.priceBump + budget.dominanceInflation + budget.monetizedInflation)) >= 0.0005 && <small> ({(budget.policyInflation + budget.priceBump + budget.dominanceInflation + budget.monetizedInflation) > 0 ? '+' : '−'}{pct(Math.abs((budget.policyInflation + budget.priceBump + budget.dominanceInflation + budget.monetizedInflation)), 1)} from your plan{budget.priceBump ? `, incl. ${pct(budget.priceBump, 1)} tariff price jump` : ''})</small>}</strong></div>
         <div className={budget.premium > 0.00005 ? 'neg' : budget.premium < -0.00005 ? 'pos' : ''}><span>Market risk premium</span><strong>{Math.abs(budget.premium) < 0.00005 ? 'none' : `${budget.premium > 0 ? '+' : '−'}${Math.round(Math.abs(budget.premium) * 1e4)} bp on long yields`}</strong></div>
       </div>
       <YieldCurve plan={budget.yields} />
@@ -224,11 +224,12 @@ function DebtInflation() {
           How much each $1 of spending cuts or tax hikes shrinks the economy (and each $1 of stimulus grows it). Smaller GDP means less revenue and a bigger debt-to-GDP. About 0.5 in normal times; 0.9–1.7 in Europe's 2010–13 austerity, when Greece cut its deficit and its debt-to-GDP still rose (Blanchard &amp; Leigh, IMF). The effect fades ~30%/yr. Starts at 0.5, the normal-times estimate. Set it to 0 for static scoring, like CBO's conventional scores.</>} />
       <Slider label="Inflation sensitivity" value={scn.inflationSensitivity} base={BASE.inflationSensitivity}
         min={0} max={2} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.inflationSensitivity = v; })}
-        hint={<>{Math.abs(budget.policyInflation) >= 0.0005 && <strong className={budget.policyInflation > 0 ? 'neg' : 'pos'}>Your plan {budget.policyInflation > 0 ? 'adds' : 'takes off'} {pct(Math.abs(budget.policyInflation), 1)} of inflation this year. </strong>}
+        hint={<>{(() => { const plan = budget.policyInflation + budget.priceBump + budget.dominanceInflation + budget.monetizedInflation; return Math.abs(plan) >= 0.0005 && <strong className={plan > 0 ? 'neg' : 'pos'}>Now: your plan {plan > 0 ? 'adds' : 'takes off'} {pct(Math.abs(plan), 1)} of inflation this year{budget.dominanceInflation >= 0.0005 ? ` (${pct(budget.dominanceInflation, 1)} of it from debt fears)` : ''}{budget.monetizedInflation >= 0.0005 ? ` (${pct(budget.monetizedInflation, 1)} from money-financed deficits)` : ''}. </strong>; })()}
           How much your plan's boost (or drag) to the economy shows up as inflation: ~{manual.macro.phillipsUp} pts per 1% of GDP the economy runs hot, ~{manual.macro.phillipsDown} when it runs cold. 2× is a tight economy like 2021, when stimulus met supply shortages. The Fed answers with higher short rates (Taylor rule), and inflation erodes paychecks in the household cards. 0 = static.</>} />
       <Slider label="Bond market fear" value={scn.marketFear} base={BASE.marketFear}
         min={0} max={3} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.marketFear = v; })}
-        hint={<>Investors demand higher long yields when deficits and debt run above the current-law path: ~{Math.round(manual.macro.premiumPerDeficitPt * 1e4)} bp per point of GDP of extra deficit and ~{Math.round(manual.macro.premiumPerDebtPt * 1e4)} bp per point of debt (Laubach 2009). Cutting the deficit lowers rates the same way. Higher rates raise interest, which raises the deficit, which raises rates: that loop is how a debt spiral starts. 3× is stressed markets (the UK's 2022 gilt crisis); capped at +{manual.macro.premiumCap * 100} pts since the U.S. borrows in its own reserve currency. 0 = off.</>} />
+        hint={<>{budget.premium !== 0 && <strong className={budget.premium > 0 ? 'neg' : 'pos'}>Now: markets {budget.premium > 0 ? 'add' : 'take off'} {Math.round(Math.abs(budget.premium) * 1e4)} bp{budget.inflationRiskPremium > 0.00005 ? ` (deficits ${budget.fiscalPremium >= 0 ? '+' : '−'}${Math.round(Math.abs(budget.fiscalPremium) * 1e4)}, inflation +${Math.round(budget.inflationRiskPremium * 1e4)})` : ''}. </strong>}
+          Investors demand higher long yields when deficits and debt run above the current-law path, and when inflation runs above ~{pct(manual.macro.inflationRiskFloor, 1)} (+{manual.macro.inflationRiskPerPt * 100} bp per point; the late-1970s inflation risk premium reached 2–4 pts): ~{Math.round(manual.macro.premiumPerDeficitPt * 1e4)} bp per point of GDP of extra deficit and ~{Math.round(manual.macro.premiumPerDebtPt * 1e4)} bp per point of debt (Laubach 2009). Cutting the deficit lowers rates the same way. Higher rates raise interest, which raises the deficit, which raises rates: that loop is how a debt spiral starts. 3× is stressed markets (the UK's 2022 gilt crisis); capped at +{manual.macro.premiumCap * 100} pts since the U.S. borrows in its own reserve currency. 0 = off.</>} />
       <Toggle label="Scale with severity (Greece effect)" checked={scn.multiplierScales} onChange={(v) => set((s) => { s.multiplierScales = v; })}
         aside={<span className="hint">{scn.multiplierScales && budget.multiplierUsed > scn.multiplier + 0.005 && <strong className="neg">Your plan's austerity raises it to {budget.multiplierUsed.toFixed(2)}×. </strong>}
           Big, fast austerity hits harder than small changes. Above a {pct(manual.feedback.severityThreshold, 0)}-of-GDP squeeze, the multiplier rises 0.1 per extra point of GDP (max {manual.feedback.maxMultiplier}×). A Greece-sized 13% squeeze gets ~1.6×. Turn off to use the slider value as-is.</span>} />
@@ -263,9 +264,18 @@ function WildIdeas() {
 }
 
 function Energy() {
+  const { scn } = useResults();
+  const set = useStore((s) => s.set);
   return (
     <Bucket id="energy">
-      <p className="hint">Energy tax credits, carbon pricing, fuel taxes, clean-energy spending, and roads, bridges and transit. Opposite or overlapping switches (restore vs. repeal credits, carbon tax vs. carbon dividend, 15¢ vs. 50¢ gas tax) turn each other off.</p>
+      <p className="hint">Energy tax credits, carbon pricing, fuel taxes, clean-energy spending, and roads, bridges and transit. Opposite switches (restore vs. repeal credits, carbon tax vs. carbon dividend) turn each other off.</p>
+      <h3>Fuel taxes <RevDelta id="fuelExcise" /></h3>
+      <Slider label="Federal gas tax" value={scn.gasTaxCents} base={BASE.gasTaxCents} min={0} max={100} step={0.1}
+        format={(v) => `${v.toFixed(1)}¢/gal`} onChange={(v) => set((s) => { s.gasTaxCents = v; })}
+        hint={`Unchanged since 1993 (worth ~half as much after inflation). Each cent raises ~$1.5B, a bit less as people drive less; it funds the Highway Trust Fund. Ross Perot proposed +50¢ in 1992.`} />
+      <Slider label="Federal diesel tax" value={scn.dieselTaxCents} base={BASE.dieselTaxCents} min={0} max={100} step={0.1}
+        format={(v) => `${v.toFixed(1)}¢/gal`} onChange={(v) => set((s) => { s.dieselTaxCents = v; })}
+        hint="~$0.44B per cent. Mostly paid by trucking, so it shows up in shipping costs. An Oct 2026 executive order defers it through Dec 31." />
       <PolicyList bucket="energy" />
     </Bucket>
   );

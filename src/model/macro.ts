@@ -1,4 +1,5 @@
 import { manual, live } from './data';
+import { REGIMES, type Regime } from './monetary';
 
 /**
  * Inflation and interest-rate feedback. Policy-driven demand moves inflation (a convex Phillips curve), the Fed
@@ -30,11 +31,21 @@ export const fiscalPremium = (fear: number, extraDeficit: number, extraDebt: num
  * `policyPi` is inflation the plan itself causes, which the Fed leans against (Taylor rule) and long yields
  * price in partly. `realShock` is the change in real rates (beyond inflation) from the economy setting.
  */
-export function yields(trendPi: number, policyPi: number, gap: number, premium: number, realShock: number) {
-  const long = realShock + trendPi + M.longInflationPassThrough * policyPi;
+export function yields(trendPi: number, policyPi: number, gap: number, premium: number, realShock: number, reg: Regime = REGIMES[0]) {
+  const long = realShock + trendPi + M.longInflationPassThrough * policyPi + reg.longShift;
+  const y10 = Math.max(0, YIELDS0.y10 + long + premium);
+  const y30 = Math.max(0, YIELDS0.y30 + long + premium * M.thirtyYearPremiumScale);
   return {
-    y2: Math.max(0, YIELDS0.y2 + realShock + trendPi + M.taylorInflation * policyPi + M.taylorGap * gap),
-    y10: Math.max(0, YIELDS0.y10 + long + premium),
-    y30: Math.max(0, YIELDS0.y30 + long + premium * M.thirtyYearPremiumScale),
+    y2: Math.max(0, YIELDS0.y2 + realShock + trendPi + reg.billsShift + reg.taylorScale * (M.taylorInflation * policyPi + M.taylorGap * gap)),
+    y10: reg.y10Cap === null ? y10 : Math.min(y10, reg.y10Cap),
+    y30: reg.y10Cap === null ? y30 : Math.min(y30, reg.y10Cap + (YIELDS0.y30 - YIELDS0.y10)),
   };
 }
+
+/** Extra yield investors demand when inflation runs above ~2.5% (an inflation risk premium), scaled by market fear. */
+export const inflationRiskPremium = (fear: number, inflation: number) =>
+  Math.min(M.inflationRiskCap, fear * M.inflationRiskPerPt * Math.max(0, inflation - M.inflationRiskFloor));
+
+/** Fiscal dominance: a fiscal risk premium lifts inflation expectations a little. */
+export const dominanceInflation = (sensitivity: number, fiscal: number) =>
+  sensitivity * M.dominancePerPremiumPt * Math.max(0, fiscal);

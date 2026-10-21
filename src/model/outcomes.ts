@@ -1,7 +1,8 @@
 import { manual, live } from './data';
 import { computeBudget, baselineInflation, type Budget } from './budget';
 import { currentLaw } from './scenario';
-import { BILLS, TIPS, NOTES_RATE0, policyInflation, fiscalPremium, yields } from './macro';
+import { BILLS, TIPS, NOTES_RATE0, policyInflation, fiscalPremium, yields, inflationRiskPremium, dominanceInflation } from './macro';
+import { regimeOf } from './monetary';
 
 export interface Outcomes {
   balanced: boolean;
@@ -64,22 +65,30 @@ export function projection(b: Budget, years = 10): YearPoint[] {
   const primary = b.deficit - b.netInterest - b.oneTime - b.feedbackB;
   const fade = (t: number) => Math.pow(manual.feedback.persistence, t - 1);
   const base = b.marketFear > 0 ? basePath(years) : null;
-  let extraDeficit = 0, extraDebt = 0;
+  let extraDeficit = 0, extraDebt = 0, prevDeficitShare = 0, monetized = 0;
   lastPremium = 0;
+  const reg = regimeOf(b.monetary);
   const pts: YearPoint[] = [{ fy: START_FY, debt: d, gdp: y, deficit: null, interest: null, rate: null, y2: null, y10: null, inflation: null, growth: null }];
   for (let t = 1; t <= years; t++) {
     const gap = b.policyGap * fade(t);
-    const endoPi = policyInflation(gap, b.inflationSensitivity) + (t === 1 ? b.priceBump : 0);
+    const fiscal = t === 1 ? b.fiscalPremium : fiscalPremium(b.marketFear, extraDeficit, extraDebt);
+    const mon = t === 1 ? b.monetizedInflation
+      : reg.monetizeAbove === null ? 0 : reg.monetizeInflation * Math.max(0, prevDeficitShare - reg.monetizeAbove);
+    const endoPi = policyInflation(gap, b.inflationSensitivity) + (t === 1 ? b.priceBump : 0)
+      + dominanceInflation(b.inflationSensitivity, fiscal) + mon;
     const dPi = b.inflationSlider + endoPi;
-    const premium = t === 1 ? b.premium : fiscalPremium(b.marketFear, extraDeficit, extraDebt);
+    const premium = fiscal + inflationRiskPremium(b.marketFear, baselineInflation + dPi - reg.targetShift);
     lastPremium = premium;
-    const yl = yields(b.inflationSlider, endoPi, gap, premium, b.rateShock);
+    const yl = yields(b.inflationSlider, endoPi, gap, premium, b.rateShock, reg);
     notes += (yl.y10 - notes) / maturity;
     const rate = BILLS * yl.y2 + (1 - BILLS) * notes + TIPS * dPi;
-    const interest = d * rate;
+    // Debt the central bank financed with money carries no interest.
+    const interest = Math.max(0, d - monetized) * rate;
     // The multiplier's GDP gap and its revenue loss fade over time.
     const deficit = interest + (primary + b.feedbackB * fade(t)) * (y / gdp0) + (t === 1 ? b.oneTime : 0);
     const growth = b.realGrowth + baselineInflation + dPi;
+    if (reg.monetizeAbove !== null) monetized += Math.max(0, deficit - reg.monetizeAbove * y);
+    prevDeficitShare = deficit / y;
     d += deficit;
     y *= 1 + growth;
     // Markets look at last year's structural deficit and debt (recession revenue losses are seen as cyclical).

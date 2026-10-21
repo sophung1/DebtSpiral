@@ -6,7 +6,7 @@ const IN = [
   { id: 'individual', label: 'Individual income tax', lines: ['individualOrdinary', 'capitalGains'], slot: '1' },
   { id: 'payroll', label: 'Payroll taxes', lines: ['payrollSS', 'payrollHI', 'payrollOther'], slot: '2' },
   { id: 'corporate', label: 'Corporate tax', lines: ['corporate'], slot: '3' },
-  { id: 'trade', label: 'Tariffs & excise', lines: ['customs', 'excise'], slot: '4' },
+  { id: 'trade', label: 'Tariffs & excise', lines: ['customs', 'excise', 'fuelExcise'], slot: '4' },
   { id: 'other_rev', label: 'Other revenue', lines: ['estate', 'other'], slot: '5' },
 ];
 const OUT = [

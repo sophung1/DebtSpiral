@@ -87,7 +87,9 @@ export function computeHousehold(h: Archetype, scn: Scenario, macro: Macro = { g
   if (nonref + refundable > 0) benefits.ctc = nonref + refundable;
   if (scn.stimulusPerAdult > 0) benefits.stimulus = scn.stimulusPerAdult * (f === 'mfj' ? 2 : 1);
 
-  const policyEffect = activePolicies(scn).reduce((a, pol) => a + (pol.households[h.id] ?? 0), 0);
+  const fuelCost = (manual.fuelTax.gasHouseholdPerCent as Record<string, number>)[h.id] ?? 0;
+  const policyEffect = activePolicies(scn).reduce((a, pol) => a + (pol.households[h.id] ?? 0), 0)
+    + fuelCost * (scn.gasTaxCents - manual.fuelTax.gasCents);
   const benefitTotal = Object.values(benefits).reduce((a, b) => a + b, 0);
   // Macro effects: extra inflation erodes spendable cash income (Social Security is COLA-indexed and health
   // coverage isn't cash, so both are excluded); a GDP gap moves average pay.

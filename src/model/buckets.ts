@@ -17,7 +17,7 @@ export const BUCKETS: BucketDef[] = [
   { id: 'safety_net', title: 'Safety net & family credits', receipts: [], outlays: ['snap', 'eitc', 'ctc', 'ssi', 'unemployment'] },
   { id: 'defense_other', title: 'Defense, veterans & other spending', receipts: [], outlays: ['defense', 'nondefense', 'veterans', 'fed_retirement', 'other_mandatory'] },
   { id: 'business', title: 'Business, trade & new taxes', receipts: ['corporate', 'estate', 'customs', 'excise', 'payrollOther', 'other'], outlays: [] },
-  { id: 'energy', title: 'Energy & infrastructure', receipts: [], outlays: [] },
+  { id: 'energy', title: 'Energy & infrastructure', receipts: ['fuelExcise'], outlays: [] },
   { id: 'debt', title: 'Debt, interest & inflation', receipts: [], outlays: ['net_interest'] },
   { id: 'wild', title: 'Headline proposals', receipts: [], outlays: ['stimulus'] },
 ];

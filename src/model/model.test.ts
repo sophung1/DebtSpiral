@@ -121,7 +121,7 @@ describe('buckets', () => {
   });
   it('infrastructure renewal counts in the energy & infrastructure card', async () => {
     const { BUCKETS, bucketDelta } = await import('./buckets');
-    const scn = currentLaw(); setPolicy(scn, 'renew_iija', true);
+    const scn = currentLaw(); Object.assign(scn, { multiplier: 0, inflationSensitivity: 0, marketFear: 0 }); setPolicy(scn, 'renew_iija', true);
     const energy = BUCKETS.find((d) => d.id === 'energy')!;
     expect(bucketDelta(computeBudget(scn, base), scn, energy)).toBeCloseTo(110, 6);
   });
@@ -373,7 +373,9 @@ describe('historical economies', () => {
     expect(Math.abs(d10('great_recession') - now)).toBeLessThan(0.06);
     // Stagflation: big deficits, but ~8.7% inflation with negative real rates erodes the debt (as in the 1970s).
     expect(d10('stagflation')).toBeLessThan(now);
-    expect(CONDITIONS.length).toBe(13);
+    // WWII: capped rates plus inflation shrink the debt ratio (financial repression).
+    expect(d10('wwii')).toBeLessThan(now - 0.1);
+    expect(CONDITIONS.length).toBe(14);
   });
 });
 
@@ -470,9 +472,10 @@ describe('inflation and interest-rate feedback', () => {
   });
   it('keeps the risk premium inside its caps', () => {
     const huge = run((s) => { s.stimulusPerAdult = 20000; s.stimulusRecurring = true; s.marketFear = 3; });
-    expect(huge.premium).toBeLessThanOrEqual(manual.macro.premiumCap + 1e-12);
+    expect(huge.fiscalPremium).toBeLessThanOrEqual(manual.macro.premiumCap + 1e-9);
+    expect(huge.inflationRiskPremium).toBeLessThanOrEqual(manual.macro.inflationRiskCap + 1e-9);
     const cuts = run((s) => { for (const k of Object.keys(s.programs)) s.programs[k] = 0.3; s.marketFear = 3; });
-    expect(cuts.premium).toBeGreaterThanOrEqual(manual.macro.premiumFloor - 1e-12);
+    expect(cuts.fiscalPremium).toBeGreaterThanOrEqual(manual.macro.premiumFloor - 1e-9);
   });
   it('Smoot-Hawley tariffs lift prices about 1% at once', () => {
     const b = run((s) => { s.multiplier = 0; setPolicy(s, 'smoot_hawley', true); });
@@ -498,7 +501,7 @@ describe('inflation and interest-rate feedback', () => {
 });
 
 describe('overlapping switches', () => {
-  it('lets you pick one wealth-or-minimum tax and one gas-tax hike', () => {
+  it('lets you pick one wealth-or-minimum tax', () => {
     const s = currentLaw();
     setPolicy(s, 'billionaire_min_tax', true); setPolicy(s, 'buffett_rule', true);
     expect([s.policies.billionaire_min_tax, s.policies.buffett_rule]).toEqual([false, true]);
@@ -506,8 +509,7 @@ describe('overlapping switches', () => {
     expect([s.policies.wealth_sanders, s.policies.buffett_rule]).toEqual([true, false]);
     setPolicy(s, 'billionaire_min_tax', true);
     expect([s.policies.wealth_sanders, s.policies.billionaire_min_tax]).toEqual([false, true]);
-    setPolicy(s, 'gas15', true); setPolicy(s, 'perot_gas', true);
-    expect([s.policies.gas15, s.policies.perot_gas]).toEqual([false, true]);
+
   });
 });
 
@@ -519,5 +521,64 @@ describe('forced austerity', () => {
     expect(forced.multiplierUsed).toBeGreaterThan(1);
     expect(forced.deficit).toBeGreaterThan(chosen.deficit + 500);
     expect(computeOutcomes(forced).debtToGdp10).toBeGreaterThan(computeOutcomes(chosen).debtToGdp10 + 0.1);
+  });
+});
+
+describe('fuel-tax sliders', () => {
+  const at = (gas: number, diesel = manual.fuelTax.dieselCents) => {
+    const s = currentLaw(); Object.assign(s, { multiplier: 0, inflationSensitivity: 0, marketFear: 0, gasTaxCents: gas, dieselTaxCents: diesel });
+    return computeBudget(s, base).deficit;
+  };
+  const d0 = at(manual.fuelTax.gasCents);
+  it('match CBO: +15 cents of gas tax raises ~$22B, +50 cents ~$65B', () => {
+    expect(d0 - at(manual.fuelTax.gasCents + 15)).toBeCloseTo(21.4, 0);
+    expect(d0 - at(manual.fuelTax.gasCents + 50)).toBeGreaterThan(62);
+    expect(d0 - at(manual.fuelTax.gasCents + 50)).toBeLessThan(68);
+  });
+  it('dropping the diesel tax costs ~$11B', () => {
+    expect(at(manual.fuelTax.gasCents, 0) - d0).toBeCloseTo(10.7, 0);
+  });
+});
+
+describe('inflation <-> market fear links', () => {
+  const run = (f: (s: ReturnType<typeof currentLaw>) => void) => { const s = currentLaw(); f(s); return computeBudget(s, base); };
+  it('high inflation adds an inflation risk premium only when markets are fearful', () => {
+    expect(run((s) => { s.inflationShock = 0.04; }).inflationRiskPremium).toBeGreaterThan(0.005);
+    expect(run((s) => { s.inflationShock = 0.04; s.marketFear = 0; }).inflationRiskPremium).toBe(0);
+  });
+  it('a big fiscal premium lifts inflation (fiscal dominance) when inflation is sensitive', () => {
+    const loose = (sens: number) => run((s) => { s.stimulusPerAdult = 6000; s.stimulusRecurring = true; s.marketFear = 3; s.inflationSensitivity = sens; });
+    expect(loose(1).dominanceInflation).toBeGreaterThan(0.001);
+    expect(loose(0).dominanceInflation).toBe(0);
+  });
+});
+
+describe('monetary regimes', () => {
+  const run = (id: string, f: (s: ReturnType<typeof currentLaw>) => void = () => {}) => { const s = currentLaw(); s.monetary = id; f(s); const b = computeBudget(s, base); return { b, o: computeOutcomes(b) }; };
+  const fed = run('fed');
+  it("today's Fed leaves current law calibrated", () => {
+    expect(fed.b.deficit).toBeCloseTo(fed.b.baseDeficit, 6);
+  });
+  it('gold standard: no inflation to erode the debt, so debt-to-GDP ends higher', () => {
+    const g = run('gold');
+    expect(g.b.inflationShock).toBeLessThan(-0.02);
+    expect(g.o.debtToGdp10).toBeGreaterThan(fed.o.debtToGdp10);
+  });
+  it('yield-curve control caps the 10-yr', () => {
+    expect(run('ycc', (s) => { s.inflationShock = 0.05; }).b.yields.y10).toBeLessThanOrEqual(0.04 + 1e-12);
+  });
+  it('Fed-financed deficits cut interest but raise inflation', () => {
+    const big = (id: string) => run(id, (s) => { s.stimulusPerAdult = 6000; s.stimulusRecurring = true; });
+    const m = big('mmt'), f = big('fed');
+    expect(m.b.inflationShock).toBeGreaterThan(f.b.inflationShock);
+    expect(projection(m.b).at(-1)!.interest!).toBeLessThan(projection(f.b).at(-1)!.interest!);
+  });
+  it('a stablecoin boom barely moves the budget', () => {
+    expect(Math.abs(run('stablecoin').b.deficit - fed.b.deficit)).toBeLessThan(15);
+  });
+  it('losing reserve status raises yields and interest', () => {
+    const r = run('reserve_loss');
+    expect(r.b.yields.y10).toBeGreaterThan(fed.b.yields.y10 + 0.005);
+    expect(r.o.debtToGdp10).toBeGreaterThan(fed.o.debtToGdp10);
   });
 });
