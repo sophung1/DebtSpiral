@@ -161,7 +161,7 @@ export const PRESETS: Preset[] = [
     name: 'Populist: only what polls 60%+',
     blurb: 'Every change here has majority support of 60% or more in national polls. It shows the catch: the popular menu tilts toward spending, so it does little for the deficit.',
     build: make((s) => {
-      on(s, 'drug_neg', 'ss_means_test', 'enhanced_aca', 'renew_iija', 'childcare', 'billionaire_min_tax', 'wealth_sanders', 'carbon25', 'tariffs_repeal', 'immigration_reform', 'free_college');
+      on(s, 'drug_neg', 'ss_means_test', 'enhanced_aca', 'renew_iija', 'childcare', 'wealth_sanders', 'carbon25', 'tariffs_repeal', 'immigration_reform', 'free_college');
       s.capGainsTopRate = 0.28;
       s.ssWageBase = 400000;
       s.corporateRate = 0.28;
@@ -183,7 +183,7 @@ export const PRESETS: Preset[] = [
     name: 'Progressive (Sanders)',
     blurb: 'Medicare for All, free public college, universal childcare, paid leave, a Green New Deal, infrastructure, housing, a $15 minimum wage and bigger Social Security checks, plus ending military aid to Israel and overseas bases. Paid for with Medicare for All premiums (an income-based payroll tax), a wealth tax, a billionaire minimum tax, a carbon tax, a financial transactions tax, no Social Security cap, higher top and corporate rates, and taxing capital gains like wages at the top. Claims to be paid for.',
     build: make((s) => {
-      on(s, 'm4a', 'free_college', 'childcare', 'paid_leave', 'wealth_sanders', 'ftt', 'stepup', 'carried', 'obbba_rollback', 'drug_neg', 'irs_enforce', 'buyback_tax4', 'end_iorb', 'gnd_climate', 'renew_iija', 'housing_supply', 'min_wage15', 'end_israel_aid', 'fossil_breaks', 'close_bases', 'carbon25', 'billionaire_min_tax');
+      on(s, 'm4a', 'free_college', 'childcare', 'paid_leave', 'wealth_sanders', 'ftt', 'stepup', 'carried', 'obbba_rollback', 'drug_neg', 'irs_enforce', 'buyback_tax4', 'end_iorb', 'gnd_climate', 'renew_iija', 'housing_supply', 'min_wage15', 'end_israel_aid', 'fossil_breaks', 'close_bases', 'carbon25');
       rates(s, [0.10, 0.12, 0.22, 0.24, 0.37, 0.45, 0.52]);
       s.capGainsTopRate = 0.396;
       s.ssWageBase = null;
@@ -200,11 +200,11 @@ export const PRESETS: Preset[] = [
     name: 'Total socialism',
     blurb: 'Everything in the Sanders plan plus a jobs guarantee, reparations, baby bonds, restored clean-energy credits, much bigger safety-net programs and a smaller military. Paid for Nordic-style: a 90% top rate, a VAT, a carbon tax, higher payroll taxes and every wealth tax on the menu. Built so the new programs are paid for: the deficit ends no higher than current law.',
     build: make((s) => {
-      on(s, 'obbba_rollback', 'm4a', 'free_college', 'childcare', 'paid_leave', 'jobs_guarantee', 'wealth_sanders', 'ftt', 'carbon25', 'stepup', 'carried', 'irs_enforce', 'ctc_2021', 'prek', 'drug_neg', 'buyback_tax4', 'end_iorb', 'gnd_climate', 'restore_clean', 'renew_iija', 'baby_bonds', 'housing_supply', 'min_wage15', 'reparations', 'billionaire_min_tax', 'end_israel_aid', 'close_bases', 'fossil_breaks', 'vat5');
+      on(s, 'obbba_rollback', 'm4a', 'free_college', 'childcare', 'paid_leave', 'jobs_guarantee', 'wealth_sanders', 'ftt', 'carbon25', 'stepup', 'carried', 'irs_enforce', 'ctc_2021', 'prek', 'drug_neg', 'buyback_tax4', 'end_iorb', 'gnd_climate', 'restore_clean', 'renew_iija', 'baby_bonds', 'housing_supply', 'min_wage15', 'reparations', 'end_israel_aid', 'close_bases', 'fossil_breaks', 'vat5');
       rates(s, [0.10, 0.20, 0.30, 0.40, 0.60, 0.75, 0.90]);
       s.capGainsTopRate = 0.50;
       s.ssWageBase = null;
-      s.hiRate = 0.25;
+      s.hiRate = 0.26;
       s.ssRate = 0.16;
       s.corporateRate = 0.40;
       s.estateRate = 0.70;
@@ -252,7 +252,7 @@ export const PRESETS: Preset[] = [
     name: 'Stabilize the debt',
     blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health and Social Security reforms (including means-testing), immigration reform and broadening the tax base, while still renewing infrastructure funding, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
     build: make((s) => {
-      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'medicaid_caps', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'billionaire_min_tax', 'renew_iija');
+      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'medicaid_caps', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'renew_iija', 'billionaire_min_tax');
       rates(s, [0.10, 0.12, 0.22, 0.24, 0.33, 0.39, 0.44]);
       s.capGainsTopRate = 0.28;
       s.ssWageBase = 600000;
@@ -266,7 +266,7 @@ export const PRESETS: Preset[] = [
     blurb: 'Close the whole deficit in one year: every targeted saving on the menu (means-tested Social Security, health payment reform, no overseas bases or foreign aid, no CHIPS or fossil breaks, a billionaire minimum tax), then broad spending cuts plus a VAT and higher top rates to finish the job. Assumes a normal economy (0.5× feedback, no severity scaling).',
     build: make((s) => {
       s.multiplierScales = false;
-      on(s, 'vat5', 'carbon25', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'drug_neg', 'farm', 'fed_pay', 'irs_enforce', 'salt10', 'tips_ot_repeal', 'ss_means_test', 'site_neutral', 'end_iorb', 'chips_repeal', 'close_bases', 'end_foreign_aid', 'fossil_breaks', 'buyback_tax4', 'billionaire_min_tax', 'stepup', 'carried', 'immigration_reform', 'gse_sale');
+      on(s, 'vat5', 'carbon25', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'drug_neg', 'farm', 'fed_pay', 'irs_enforce', 'salt10', 'tips_ot_repeal', 'ss_means_test', 'site_neutral', 'end_iorb', 'chips_repeal', 'close_bases', 'end_foreign_aid', 'fossil_breaks', 'buyback_tax4', 'stepup', 'carried', 'immigration_reform', 'gse_sale', 'billionaire_min_tax');
       s.brackets.rates = [0.10, 0.12, 0.24, 0.26, 0.35, 0.40, 0.45];
       s.ssWageBase = 400000;
       s.corporateRate = 0.25;

@@ -105,7 +105,7 @@ function IncomeTax() {
                 {Math.abs(behavioralEffect) < 0.5 ? 'No effect at current-law tax rates.' : `${behavioralEffect > 0 ? 'Costs' : 'Saves'} ${fmtB(Math.abs(behavioralEffect))} at your rates${scn.behavioral ? '' : ' (if turned on)'}.`}
               </strong>{' '}
               People and companies report less income when rates rise (and more when they fall). It only matters once you change a tax rate. Applies to all taxes. Taxable income elasticity 0.25, capital gains 0.7, corporate 0.2.</span>} />
-          <p className="hint">Taxes on the very rich come in layers, and you can pick one in each: a wealth tax, a minimum tax on top incomes, and taxing gains at death. Their estimates each assume the others don't exist.</p>
+          <p className="hint">Pick one way to tax the very rich's wealth and top incomes: a wealth tax or a minimum tax (they hit the same people, and each estimate assumes the others don't exist). Taxing gains at death can be added to either.</p>
           <PolicyList bucket="income_tax" />
         </div>
       </div>

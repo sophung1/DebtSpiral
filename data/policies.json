@@ -150,7 +150,11 @@
       "label": "2% wealth tax above $50M",
       "deltaB": 200,
       "source": "Advocates' estimate; heavily contested (valuation, avoidance)",
-      "households": {}
+      "households": {},
+      "excludes": [
+        "billionaire_min_tax",
+        "buffett_rule"
+      ]
     },
     {
       "id": "wealth_sanders",
@@ -163,7 +167,9 @@
         "top1": -60000
       },
       "excludes": [
-        "wealth2"
+        "wealth2",
+        "billionaire_min_tax",
+        "buffett_rule"
       ]
     },
     {
