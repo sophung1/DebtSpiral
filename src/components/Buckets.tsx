@@ -20,7 +20,7 @@ function Bucket({ id, children, className = '' }: { id: string; children: ReactN
   const badge = Math.abs(d) < 0.5
     ? <span className="panel-total muted">no change</span>
     : <span className={`panel-total ${d < 0 ? 'pos' : 'neg'}`}>{d < 0 ? 'saves' : 'adds'} {fmtB(Math.abs(d))}</span>;
-  return <Panel title={def.title} right={badge} className={`bucket bucket-${id} ${className}`}>{children}</Panel>;
+  return <Panel id={id} title={def.title} right={badge} className={`bucket bucket-${id} ${className}`}>{children}</Panel>;
 }
 
 /** Shows a revenue line's current value and its change from current law. */
@@ -209,8 +209,11 @@ function DebtInflation() {
         hint={<>Affects the 10-year charts, not this year's deficit. CBO's long-run estimate is ~{pct(manual.realGdpGrowth)}; the 1990s averaged ~3.5%, and 2009 was −2.5%. Faster growth shrinks debt-to-GDP because GDP grows faster than the debt. Revenue and spending grow with the economy here.</>} />
       <Slider label="Economic feedback (fiscal multiplier)" value={scn.multiplier} base={BASE.multiplier}
         min={0} max={2} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.multiplier = v; })}
-        hint={<>{scn.multiplier > 0 && <strong className={budget.gdpGap < -0.0005 ? 'neg' : budget.gdpGap > 0.0005 ? 'pos' : ''}>{Math.abs(budget.gdpGap) < 0.0005 ? 'No effect: your plan doesn\'t change the deficit before interest. ' : `GDP ${budget.gdpGap > 0 ? '+' : '−'}${pct(Math.abs(budget.gdpGap))} this year; revenue ${budget.feedbackB > 0 ? '−' : '+'}${fmtB(Math.abs(budget.feedbackB))}. `}</strong>}
-          How much each $1 of spending cuts or tax hikes shrinks the economy (and each $1 of stimulus grows it). Smaller GDP means less revenue and a bigger debt-to-GDP. About 0.5 in normal times; 0.9–1.7 in Europe's 2010–13 austerity, when Greece cut its deficit and its debt-to-GDP still rose (Blanchard &amp; Leigh, IMF). The effect fades ~30%/yr. Off = static scoring, like CBO's conventional scores.</>} />
+        hint={<>{scn.multiplier > 0 && <strong className={budget.gdpGap < -0.0005 ? 'neg' : budget.gdpGap > 0.0005 ? 'pos' : ''}>{Math.abs(budget.gdpGap) < 0.0005 ? 'No effect: your plan doesn\'t change the deficit before interest. ' : `At ${budget.multiplierUsed.toFixed(2)}×: GDP ${budget.gdpGap > 0 ? '+' : '−'}${pct(Math.abs(budget.gdpGap))} this year; revenue ${budget.feedbackB > 0 ? '−' : '+'}${fmtB(Math.abs(budget.feedbackB))}. `}</strong>}
+          How much each $1 of spending cuts or tax hikes shrinks the economy (and each $1 of stimulus grows it). Smaller GDP means less revenue and a bigger debt-to-GDP. About 0.5 in normal times; 0.9–1.7 in Europe's 2010–13 austerity, when Greece cut its deficit and its debt-to-GDP still rose (Blanchard &amp; Leigh, IMF). The effect fades ~30%/yr. Starts at 0.5, the normal-times estimate. Set it to 0 for static scoring, like CBO's conventional scores.</>} />
+      <Toggle label="Scale with severity (Greece effect)" checked={scn.multiplierScales} onChange={(v) => set((s) => { s.multiplierScales = v; })}
+        aside={<span className="hint">{scn.multiplierScales && budget.multiplierUsed > scn.multiplier + 0.005 && <strong className="neg">Your plan's austerity raises it to {budget.multiplierUsed.toFixed(2)}×. </strong>}
+          Big, fast austerity hits harder than small changes. Above a {pct(manual.feedback.severityThreshold, 0)}-of-GDP squeeze, the multiplier rises 0.1 per extra point of GDP (max {manual.feedback.maxMultiplier}×). A Greece-sized 13% squeeze gets ~1.6×. Turn off to use the slider value as-is.</span>} />
     </Bucket>
   );
 }
@@ -240,17 +243,14 @@ function WildIdeas() {
   );
 }
 
-export function Buckets() {
-  return (
-    <div className="buckets">
-      <IncomeTax />
-      <SocialSecurity />
-      <Health />
-      <SafetyNet />
-      <DefenseOther />
-      <Business />
-      <DebtInflation />
-      <WildIdeas />
-    </div>
-  );
-}
+/** Area cards by bucket id, for the sortable layout. */
+export const BUCKET_CARDS: Record<string, () => JSX.Element> = {
+  income_tax: IncomeTax,
+  social_security: SocialSecurity,
+  health: Health,
+  safety_net: SafetyNet,
+  defense_other: DefenseOther,
+  business: Business,
+  debt: DebtInflation,
+  wild: WildIdeas,
+};

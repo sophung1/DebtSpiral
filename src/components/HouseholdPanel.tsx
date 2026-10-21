@@ -9,7 +9,7 @@ const name = (id: string) => (id === 'stimulus' ? 'Stimulus check' : programs.fi
 export function HouseholdPanel() {
   const { households } = useResults();
   return (
-    <Panel title="What it means for households" className="households">
+    <Panel id="households" title="What it means for households" className="households">
       <div className="hh-grid">
         {households.map(({ a, now, base }) => {
           const change = now.net - base.net;

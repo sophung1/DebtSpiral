@@ -141,7 +141,7 @@ export function MoneyFlow() {
   const sum = (xs: Flow[]) => xs.reduce((a, x) => a + x.value, 0);
   const policyNet = budget.policyLines.reduce((a, p) => a + p.value, 0);
   return (
-    <Panel title="Where the money goes" className="moneyflow" right={<span className="hint">This year, your plan</span>}>
+    <Panel id="moneyflow" title="Where the money goes" className="moneyflow" right={<span className="hint">This year, your plan</span>}>
       <Sankey inflows={f.inflows} outflows={f.outflows} />
       <div className="donuts">
         <Donut title="How it's paid for" slices={funding} total={sum(funding)} />
