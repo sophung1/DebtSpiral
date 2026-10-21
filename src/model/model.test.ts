@@ -626,3 +626,13 @@ describe('share-link sanitizing', () => {
     for (const v of [null, 3, 'x', [1, 2]]) expect(sanitizeScenario(v)).toBeNull();
   });
 });
+
+describe('regimeEffects', () => {
+  it('lists nothing for the Fed and the key changes for others', async () => {
+    const { REGIMES, regimeEffects, regimeOf } = await import('./monetary');
+    expect(regimeEffects(regimeOf('fed'))).toEqual([]);
+    expect(regimeEffects(regimeOf('gold'))).toEqual(['inflation −2.2 pts/yr', 'real rates +1 pt', 'no rate cuts in a slump', 'cuts hit the economy harder (multiplier +0.3)']);
+    expect(regimeEffects(regimeOf('reserve_loss'))).toContain('long yields +75 bp');
+    for (const r of REGIMES.filter((x) => x.id !== 'fed')) expect(regimeEffects(r).length).toBeGreaterThan(0);
+  });
+});
