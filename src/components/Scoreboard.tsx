@@ -27,7 +27,7 @@ export function Scoreboard() {
   const preset = activePreset(scn);
   const cond = activeConditions(scn);
   const [copied, setCopied] = useState(false);
-  const { header, setHeader, reset: resetLayout } = useLayout();
+  const { header, setHeader, reset: resetLayout, setAll } = useLayout();
   // Screen readers hear the new deficit once changes settle, not on every slider tick.
   const [spoken, setSpoken] = useState('');
   const deficit = budget.deficit;
@@ -65,7 +65,10 @@ export function Scoreboard() {
   );
   if (header === 'hidden') return (
     <>
-      <button className="sb-show btn primary" onClick={() => setHeader('full')} aria-label="Show the scoreboard">Show scoreboard · <span>{fmtB(Math.abs(deficit))} {deficit > 0 ? 'deficit' : 'surplus'}</span></button>
+      {/* Stays where the ✕ was: a slim tab at the top right. */}
+      <div className="sb-hidden">
+        <button className="sb-show" onClick={() => setHeader('full')} aria-label="Show the scoreboard">▾ Scoreboard · <span className={tone}>{fmtB(Math.abs(deficit))} {deficit > 0 ? 'deficit' : 'surplus'}</span></button>
+      </div>
       {live$}
     </>
   );
@@ -117,7 +120,8 @@ export function Scoreboard() {
           <button className="btn reset" onClick={reset}>Reset to default</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
-        <p className="sb-hint">Drag a card by ⠿ to reorder it, or click its title to collapse it. <button className="link" onClick={resetLayout}>Reset layout</button></p>
+        <p className="sb-hint">Drag a card by ⠿ to reorder it, or click its title to collapse it.{' '}
+          <button className="link" onClick={() => setAll(true)}>Collapse all</button> · <button className="link" onClick={() => setAll(false)}>Expand all</button> · <button className="link" onClick={resetLayout}>Reset layout</button></p>
       </div>
       <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230} marks={milestones} stops={dialStops} tone={tone}
         arcTitle="Green: a deficit near balance. Amber: a 3% deficit, or a big surplus (it drags on the economy and shrinks the supply of Treasuries). Red: 5%+ deficits."
