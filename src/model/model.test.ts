@@ -165,10 +165,12 @@ describe('presets', () => {
     // Hawk assumes a normal economy (no severity scaling) and balances.
     expect(run('hawk').b.deficit).toBeLessThanOrEqual(0);
     expect(run('hawk').b.multiplierUsed).toBeCloseTo(0.5, 9);
-    const boom = run('boom');
+    const { applyConditions } = await import('./presets');
+    const runC = (id: string) => { const b = computeBudget(applyConditions(currentLaw(), id), base); return { b, o: computeOutcomes(b) }; };
+    const boom = runC('boom');
     expect(boom.b.deficit).toBeLessThan(computeBudget(base, base).deficit);
     expect(boom.o.debtToGdp10).toBeLessThan(boom.o.debtToGdpNow);
-    const doom = run('doomsday');
+    const doom = runC('doomsday');
     expect(doom.b.deficit).toBeGreaterThan(3000);
     expect(doom.o.debtToGdp10).toBeGreaterThan(1.4);
     const bal = run('balanced');
@@ -275,8 +277,8 @@ describe('economic shock', () => {
 
 describe('households feel inflation and recessions', () => {
   it('Doomsday leaves working households worse off despite the checks', async () => {
-    const { PRESETS } = await import('./presets');
-    const s = PRESETS.find((p) => p.id === 'doomsday')!.build();
+    const { applyConditions } = await import('./presets');
+    const s = applyConditions(currentLaw(), 'doomsday');
     const b = computeBudget(s, base);
     const macro = { gdpGap: b.gdpGap, inflationShock: b.inflationShock };
     for (const id of ['working_family', 'median', 'professional']) {
@@ -290,5 +292,22 @@ describe('households feel inflation and recessions', () => {
     const r = computeHousehold(arch('median'), base);
     expect(r.inflationCost).toBe(-0);
     expect(r.recessionPay).toBe(0);
+  });
+});
+
+describe('policy presets vs market conditions', () => {
+  it('are independent and detected from the scenario', async () => {
+    const { applyPreset, applyConditions, activePreset, activeConditions } = await import('./presets');
+    let s = currentLaw();
+    expect([activePreset(s), activeConditions(s)]).toEqual(['current', 'nominal']);
+    s = applyConditions(s, 'doomsday');
+    s = applyPreset(s, 'balanced');
+    expect([activePreset(s), activeConditions(s)]).toEqual(['balanced', 'doomsday']);
+    s = applyConditions(s, 'boom');
+    expect(activePreset(s)).toBe('balanced');
+    s.programs.defense = 0.5;
+    expect([activePreset(s), activeConditions(s)]).toEqual([null, 'boom']);
+    s.rateShock = 0.011;
+    expect(activeConditions(s)).toBeNull();
   });
 });
