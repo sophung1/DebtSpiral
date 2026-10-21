@@ -165,6 +165,9 @@ describe('presets', () => {
     // Hawk assumes a normal economy (no severity scaling) and balances.
     expect(run('hawk').b.deficit).toBeLessThanOrEqual(0);
     expect(run('hawk').b.multiplierUsed).toBeCloseTo(0.5, 9);
+    const boom = run('boom');
+    expect(boom.b.deficit).toBeLessThan(computeBudget(base, base).deficit);
+    expect(boom.o.debtToGdp10).toBeLessThan(boom.o.debtToGdpNow);
     const doom = run('doomsday');
     expect(doom.b.deficit).toBeGreaterThan(3000);
     expect(doom.o.debtToGdp10).toBeGreaterThan(1.4);
