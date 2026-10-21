@@ -4,7 +4,7 @@ import { useResults } from '../state/results';
 import { programs, policies, live, manual } from '../model/data';
 import { BUCKETS, bucketDelta, ssCashFlow } from '../model/buckets';
 import { baselineInflation } from '../model/budget';
-import { regimeOf, regimeEffects } from '../model/monetary';
+import { regimeEffects } from '../model/monetary';
 import { CONDITIONS, activeConditions } from '../model/presets';
 import { setPolicy, lawFor } from '../model/scenario';
 import { polls } from '../model/popularity';
@@ -200,7 +200,7 @@ function DebtInflation() {
   const set = useStore((s) => s.set);
   const debt = live.debtHeldByPublicB.value;
   const baseInfl = baselineInflation;
-  const reg = regimeOf(scn.monetary), effects = regimeEffects(reg);
+  const reg = budget.regime, effects = regimeEffects(reg);
   return (
     <Bucket id="debt">
       <div className="ledger">

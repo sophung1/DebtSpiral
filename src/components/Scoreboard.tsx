@@ -7,7 +7,7 @@ import { Dial } from './Dial';
 import { ssCashFlow } from '../model/buckets';
 import { popularity } from '../model/popularity';
 import { baselineInflation } from '../model/budget';
-import { REGIMES, regimeOf } from '../model/monetary';
+import { REGIMES, RESERVE_LOSS, regimeOf } from '../model/monetary';
 import { PRESETS, CONDITIONS, activePreset, activeConditions, applyPreset, applyConditions } from '../model/presets';
 import { fmtB, pct } from '../format';
 
@@ -110,13 +110,17 @@ export function Scoreboard() {
               <option value="custom" disabled>Custom</option>
             </select>
           </label>
-          <label className="picker">
-            <span>Monetary regime</span>
-            <select className="btn" value={regimeOf(scn.monetary).id} title={regimeOf(scn.monetary).blurb}
+          <div className="picker">
+            <label htmlFor="regime-picker">Monetary regime</label>
+            <select id="regime-picker" className="btn" value={regimeOf(scn.monetary).id} title={regimeOf(scn.monetary).blurb}
               onChange={(e) => load({ ...scn, monetary: e.target.value })}>
               {REGIMES.map((r) => <option key={r.id} value={r.id} title={r.blurb}>{r.name}</option>)}
             </select>
-          </label>
+            <label className="picker-check" title={RESERVE_LOSS.blurb}>
+              <input type="checkbox" checked={scn.reserveLoss} onChange={(e) => load({ ...scn, reserveLoss: e.target.checked })} />
+              + dollar loses reserve status
+            </label>
+          </div>
           <button className="btn reset" onClick={reset}>Reset to default</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>

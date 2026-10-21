@@ -39,6 +39,8 @@ export interface Scenario {
   marketFear: number;
   /** monetary regime (see monetary.ts); 'fed' = today's Fed */
   monetary: string;
+  /** the dollar loses its reserve-currency status (stacks on any regime) */
+  reserveLoss: boolean;
   /** federal gas and diesel taxes (cents per gallon) */
   gasTaxCents: number;
   dieselTaxCents: number;
@@ -124,6 +126,7 @@ export function currentLaw(): Scenario {
     inflationSensitivity: 1,
     marketFear: 1,
     monetary: 'fed',
+    reserveLoss: false,
     gasTaxCents: manual.fuelTax.gasCents,
     dieselTaxCents: manual.fuelTax.dieselCents,
     stimulusPerAdult: 0,
@@ -150,7 +153,7 @@ const NUM_RANGES: Partial<Record<keyof Scenario, [number, number]>> = {
   realGrowth: [-0.05, 0.08], multiplier: [0, 2], gdpShock: [-0.15, 0.15], inflationSensitivity: [0, 2], marketFear: [0, 3],
   gasTaxCents: [0, 100], dieselTaxCents: [0, 100], stimulusPerAdult: [0, 12000],
 };
-const BOOLS = ['multiplierScales', 'stimulusRecurring', 'behavioral'] as const;
+const BOOLS = ['multiplierScales', 'stimulusRecurring', 'behavioral', 'reserveLoss'] as const;
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 const clampTo = (v: number, [lo, hi]: [number, number]) => Math.min(hi, Math.max(lo, v));
 
@@ -175,6 +178,8 @@ export function sanitizeScenario(raw: unknown): Scenario | null {
   if (r.ssWageBase === null) s.ssWageBase = null;
   else if (finite(r.ssWageBase)) s.ssWageBase = clampTo(r.ssWageBase, [0, 1e8]);
   if (typeof r.monetary === 'string' && REGIMES.some((x) => x.id === r.monetary)) s.monetary = r.monetary;
+  // Links from when reserve loss was a regime.
+  else if (r.monetary === 'reserve_loss') s.reserveLoss = true;
   const progs = r.programs as Record<string, unknown> | undefined;
   if (progs && typeof progs === 'object') for (const id of Object.keys(s.programs)) if (finite(progs[id])) s.programs[id] = clampTo(progs[id] as number, [0, 20]);
   const pols = r.policies as Record<string, unknown> | undefined;
