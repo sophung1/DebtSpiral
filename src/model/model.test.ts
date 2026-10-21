@@ -180,8 +180,10 @@ describe('presets', () => {
     const doom = runC('doomsday');
     expect(doom.b.deficit).toBeGreaterThan(3000);
     expect(doom.o.debtToGdp10).toBeGreaterThan(1.3);
-    const bal = run('balanced');
-    expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
+    const sb = run('simpson_bowles');
+    expect(sb.o.debtToGdp10).toBeLessThan(sb.o.debtToGdpNow);
+    // Biden FY2025: tax increases outweigh new spending.
+    expect(run('biden_fy25').b.deficit).toBeLessThan(computeBudget(base, base).deficit - 100);
     // Sanders' biggest spending (Medicare for All) comes through switches, so count their costs too.
     const soc = run('sanders').b;
     const switchSpending = soc.policyLines.filter((l) => l.value < 0).reduce((a, l) => a - l.value, 0);
@@ -195,19 +197,11 @@ describe('presets', () => {
     expect(run('rand_paul').o.debtToGdp10).toBeLessThan(run('rand_paul').o.debtToGdpNow - 0.1);
     expect(run('heritage').o.debtToGdp10).toBeLessThan(run('heritage').o.debtToGdpNow);
     // The 3%-of-GDP plans.
-    for (const id of ['balanced', 'simpson_bowles']) {
+    for (const id of ['simpson_bowles']) {
       const pct = run(id).o.deficitPctGdp;
       expect(pct).toBeGreaterThan(0.025);
       expect(pct).toBeLessThanOrEqual(0.0355);
     }
-  });
-
-  it('the populist preset only makes changes that poll 60%+', async () => {
-    const { PRESETS } = await import('./presets');
-    const { changes } = await import('./popularity');
-    const items = changes(PRESETS.find((p) => p.id === 'populist')!.build());
-    expect(items.length).toBeGreaterThan(5);
-    for (const c of items) expect(c.poll?.support ?? 0).toBeGreaterThanOrEqual(60);
   });
 
   it('every preset is detected after loading it', async () => {
@@ -353,10 +347,10 @@ describe('policy presets vs market conditions', () => {
     let s = currentLaw();
     expect([activePreset(s), activeConditions(s)]).toEqual(['current', 'today']);
     s = applyConditions(s, 'doomsday');
-    s = applyPreset(s, 'balanced');
-    expect([activePreset(s), activeConditions(s)]).toEqual(['balanced', 'doomsday']);
+    s = applyPreset(s, 'simpson_bowles');
+    expect([activePreset(s), activeConditions(s)]).toEqual(['simpson_bowles', 'doomsday']);
     s = applyConditions(s, 'boom');
-    expect(activePreset(s)).toBe('balanced');
+    expect(activePreset(s)).toBe('simpson_bowles');
     s.programs.defense = 0.5;
     expect([activePreset(s), activeConditions(s)]).toEqual([null, 'boom']);
     s.rateShock = 0.011;
@@ -377,7 +371,11 @@ describe('historical economies', () => {
     expect(d10('stagflation')).toBeLessThan(now);
     // WWII: capped rates plus inflation shrink the debt ratio (financial repression).
     expect(d10('wwii')).toBeLessThan(now - 0.1);
-    expect(CONDITIONS.length).toBe(14);
+    // Japan: cheap interest and a smaller deficit this year, yet with ~no nominal growth the debt ratio still climbs.
+    const jp = computeBudget(applyConditions(currentLaw(), 'japan'), base);
+    expect(jp.deficit).toBeLessThan(computeBudget(base, base).deficit);
+    expect(d10('japan')).toBeGreaterThan(now);
+    expect(CONDITIONS.length).toBe(15);
   });
 });
 
