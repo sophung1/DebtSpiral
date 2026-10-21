@@ -4,6 +4,10 @@ interface Props {
   pivot: number; size?: number; sub?: string;
   /** milestones drawn across the arc, numbered 1, 2, 3… in the order given */
   marks?: { value: number; label: string }[];
+  /** color the arc as a gradient through these values (green → yellow → red) instead of a two-tone split */
+  stops?: { value: number; color: string }[];
+  /** class for the big number (defaults to pos/neg around the pivot) */
+  tone?: string;
   /** extra content under the caption (e.g. a milestone legend) */
   children?: React.ReactNode;
 }
@@ -19,7 +23,7 @@ const arc = (cx: number, cy: number, r: number, t0: number, t1: number) => {
   return `M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}`;
 };
 
-export function Dial({ value, min, max, label, display, pivot, size = 220, sub, marks = [], children }: Props) {
+export function Dial({ value, min, max, label, display, pivot, size = 220, sub, marks = [], stops, tone, children }: Props) {
   const clamp = (v: number) => Math.min(1, Math.max(0, (v - min) / (max - min)));
   const t = clamp(value);
   const tp = clamp(pivot);
@@ -28,8 +32,22 @@ export function Dial({ value, min, max, label, display, pivot, size = 220, sub, 
   return (
     <figure className="dial" style={{ width: size }} aria-label={`${label}: ${display}`}>
       <svg viewBox={marks.length ? '0 -16 200 134' : '0 0 200 118'}>
-        <path d={arc(100, 100, 82, 0, tp)} className="arc good" />
-        <path d={arc(100, 100, 82, tp, 1)} className="arc bad" />
+        {stops ? (
+          <>
+            {/* A horizontal gradient maps onto the semicircle through x = 100 − 82·cos(πt). */}
+            <defs>
+              <linearGradient id="dial-grad" gradientUnits="userSpaceOnUse" x1={18} y1={0} x2={182} y2={0}>
+                {stops.map((s) => <stop key={s.value} offset={(82 - 82 * Math.cos(Math.PI * clamp(s.value))) / 164} stopColor={s.color} />)}
+              </linearGradient>
+            </defs>
+            <path d={arc(100, 100, 82, 0, 1)} className="arc grad" stroke="url(#dial-grad)" />
+          </>
+        ) : (
+          <>
+            <path d={arc(100, 100, 82, 0, tp)} className="arc good" />
+            <path d={arc(100, 100, 82, tp, 1)} className="arc bad" />
+          </>
+        )}
         {[0, 0.25, 0.5, 0.75, 1].map((k) => {
           const [x0, y0] = polar(100, 100, 92, k);
           const [x1, y1] = polar(100, 100, 98, k);
@@ -51,7 +69,7 @@ export function Dial({ value, min, max, label, display, pivot, size = 220, sub, 
         <circle cx={100} cy={100} r={6} className="hub" />
       </svg>
       <figcaption>
-        <span className={`dial-value ${good ? 'pos' : 'neg'}`}>{display}</span>
+        <span className={`dial-value ${tone ?? (good ? 'pos' : 'neg')}`}>{display}</span>
         <span className="dial-label">{label}</span>
         {sub && <span className="dial-sub">{sub}</span>}
         {children}

@@ -32,6 +32,8 @@ export function Scoreboard() {
   const inflNow = baselineInflation + budget.inflationShock;
   // Milestones short of a balanced budget, as shares of GDP: progress doesn't have to mean going full hawk.
   const gdp = manual.gdpB.value, holdAt = manual.nominalGdpGrowth * live.debtHeldByPublicB.value / gdp;
+  // Green through a 1%-of-GDP deficit, yellow around 3%, red from 5% (today's is ~6%).
+  const dialStops = [{ value: 0.01 * gdp, color: 'var(--good)' }, { value: 0.03 * gdp, color: 'var(--warn)' }, { value: 0.05 * gdp, color: 'var(--bad)' }];
   const milestones = [0.03, 0.02, 0.01].map((p) => ({
     value: p * gdp, short: p === 0.03 ? '3% of GDP' : pct(p, 0),
     label: `A ${pct(p, 0)}-of-GDP deficit: debt-to-GDP falls ~${pct(holdAt - p, 0)} a year${p === 0.03 ? ". Ray Dalio's target and the EU's deficit rule" : ''}`,
@@ -74,7 +76,7 @@ export function Scoreboard() {
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
       </div>
-      <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230} marks={milestones}
+      <Dial value={deficit} min={-1000} max={3000} pivot={0} size={230} marks={milestones} stops={dialStops} tone={deficit <= 0.01 * gdp ? 'pos' : deficit <= 0.04 * gdp ? 'mid' : 'neg'}
         label={deficit > 0 ? 'Annual deficit' : 'Annual surplus'} display={fmtB(Math.abs(deficit))}
         sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${Math.abs(change) < 0.5 ? 'current law' : `${change > 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} · excl. SS ${onBudget > 0 ? '' : '+'}${fmtB(Math.abs(onBudget))}`}>
         <span className="dial-marks">{milestones.map((m, k) => <span key={m.label} title={m.label} className={deficit <= m.value ? 'pos' : ''}>{'①②③'[k]} {m.short} {fmtB(m.value)}{deficit <= m.value && ' ✓'}</span>)}</span>
