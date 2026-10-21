@@ -30,12 +30,12 @@ export function Scoreboard() {
   const onBudget = deficit + ssCashFlow(budget, scn).balance;
   const pop = popularity(scn);
   const inflNow = baselineInflation + budget.inflationShock;
-  // Milestones short of a balanced budget: progress doesn't have to mean going full hawk.
-  const milestones = [
-    { value: manual.nominalGdpGrowth * live.debtHeldByPublicB.value, short: 'debt stops rising', label: 'Debt stops rising: a deficit about equal to nominal GDP growth × the debt keeps debt-to-GDP flat' },
-    { value: manual.netInterestB.value, short: 'borrow only for interest', label: 'Borrow only for interest: the budget before interest balances (a primary balance)' },
-    { value: 0.03 * manual.gdpB.value, short: '3% of GDP', label: "3% of GDP: Ray Dalio's target and the EU's deficit rule" },
-  ];
+  // Milestones short of a balanced budget, as shares of GDP: progress doesn't have to mean going full hawk.
+  const gdp = manual.gdpB.value, holdAt = manual.nominalGdpGrowth * live.debtHeldByPublicB.value / gdp;
+  const milestones = [0.03, 0.02, 0.01].map((p) => ({
+    value: p * gdp, short: p === 0.03 ? '3% of GDP' : pct(p, 0),
+    label: `A ${pct(p, 0)}-of-GDP deficit: debt-to-GDP falls ~${pct(holdAt - p, 0)} a year${p === 0.03 ? ". Ray Dalio's target and the EU's deficit rule" : ''}`,
+  }));
 
   const share = async () => {
     try { await navigator.clipboard.writeText(location.href); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard unavailable */ }

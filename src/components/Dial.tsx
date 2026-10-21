@@ -38,9 +38,7 @@ export function Dial({ value, min, max, label, display, pivot, size = 220, sub, 
         {marks.map((m, i) => {
           const k = clamp(m.value);
           const [x0, y0] = polar(100, 100, 72, k), [x1, y1] = polar(100, 100, 93, k);
-          // Neighbouring numbers alternate between two radii so close milestones don't overlap.
-          const order = [...marks].sort((a, b) => a.value - b.value).indexOf(m);
-          const [tx, ty] = polar(100, 100, 102 + (order % 2) * 9, k);
+          const [tx, ty] = polar(100, 100, 104, k);
           return (
             <g key={m.label} className="mark">
               <title>{m.label}</title>
