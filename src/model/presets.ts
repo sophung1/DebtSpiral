@@ -1,4 +1,6 @@
 import { currentLaw, setPolicy, type Scenario } from './scenario';
+import { live, manual } from './data';
+import { baselineInflation } from './budget';
 
 /** Economic conditions, separate from policy: these fields are set by the Economy picker, the rest by policy presets. */
 export const CONDITION_KEYS = ['rateShock', 'inflationShock', 'realGrowth', 'gdpShock', 'multiplier', 'inflationSensitivity', 'marketFear'] as const;
@@ -18,8 +20,8 @@ const NOMINAL = conditionsOf(currentLaw());
 const ep = (v: Partial<Conditions>): Conditions => ({ ...NOMINAL, ...v });
 
 export const CONDITIONS: Condition[] = [
-  { id: 'today', name: 'Current (today)', values: NOMINAL,
-    blurb: 'Today\'s actual conditions: 10-yr yield ~5.1% (high by historical standards), ~1.8% real growth, ~2.2% inflation, normal feedback (0.5×).' },
+  { id: 'today', name: 'Recent trend', values: NOMINAL,
+    blurb: `Where things stand, carried forward: today's market yields (10-yr ${(live.yield10y.value * 100).toFixed(2)}% as of ${live.yield10y.asOf}, high by historical standards) with CBO's projected ~${(manual.realGdpGrowth * 100).toFixed(1)}% real growth and ~${(baselineInflation * 100).toFixed(1)}% inflation, normal feedback (0.5×), and no boom or bust added. The starting point.` },
   { id: 'nominal', name: 'Normal times (CBO long run)', values: ep({ rateShock: -0.008, inflationShock: -0.002 }),
     blurb: 'A calm long-run economy like CBO\'s long-term projections: 10-yr yield ~4.1% (1 pt below today), 2% inflation, 1.8% real growth, no boom or bust.' },
   { id: 'roaring20s', name: "Roaring '20s (1922–29)", values: ep({ realGrowth: 0.045, inflationShock: -0.022, rateShock: 0.012, gdpShock: 0.02 }),
