@@ -181,8 +181,50 @@ describe('presets', () => {
     expect(doom.o.debtToGdp10).toBeGreaterThan(1.4);
     const bal = run('balanced');
     expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
-    expect(run('socialism').b.totalOutlays).toBeGreaterThan(computeBudget(base, base).totalOutlays * 1.1);
+    // Socialism's biggest spending (Medicare for All, jobs guarantee) comes through switches, so count their costs too.
+    const soc = run('socialism').b;
+    const switchSpending = soc.policyLines.filter((l) => l.value < 0).reduce((a, l) => a - l.value, 0);
+    expect(soc.totalOutlays + switchSpending).toBeGreaterThan(computeBudget(base, base).totalOutlays * 1.3);
     expect(run('libertarian').b.totalOutlays).toBeLessThan(computeBudget(base, base).totalOutlays * 0.85);
+    // "Paid for" plans end no higher than current law; the libertarian plan shrinks the debt ratio.
+    const lawDeficit = computeBudget(base, base).deficit;
+    for (const id of ['socialism', 'sanders']) expect(run(id).b.deficit).toBeLessThanOrEqual(lawDeficit);
+    const lib = run('libertarian');
+    expect(lib.o.debtToGdp10).toBeLessThan(lib.o.debtToGdpNow - 0.1);
+    // The 3%-of-GDP plans.
+    for (const id of ['balanced', 'dalio', 'simpson_bowles']) {
+      const pct = run(id).o.deficitPctGdp;
+      expect(pct).toBeGreaterThan(0.025);
+      expect(pct).toBeLessThanOrEqual(0.0355);
+    }
+  });
+
+  it('the populist preset only makes changes that poll 60%+', async () => {
+    const { PRESETS } = await import('./presets');
+    const { changes } = await import('./popularity');
+    const items = changes(PRESETS.find((p) => p.id === 'populist')!.build());
+    expect(items.length).toBeGreaterThan(5);
+    for (const c of items) expect(c.poll?.support ?? 0).toBeGreaterThanOrEqual(60);
+  });
+
+  it('every preset is detected after loading it', async () => {
+    const { PRESETS, activePreset } = await import('./presets');
+    for (const p of PRESETS) expect(activePreset(p.build())).toBe(p.id);
+  });
+});
+
+describe('FairTax', () => {
+  it('zeroes the replaced taxes, scores the sales tax, and restores current law when off', () => {
+    const s = currentLaw(); s.multiplier = 0;
+    setPolicy(s, 'fairtax', true);
+    expect([s.ssRate, s.hiRate, s.corporateRate, s.estateRate, s.capGainsTopRate, Math.max(...s.brackets.rates)]).toEqual([0, 0, 0, 0, 0, 0]);
+    const s0 = currentLaw(); s0.multiplier = 0;
+    // Tax Policy Center: the advertised rate falls short by roughly $1T a year.
+    const gap = computeBudget(s, base).deficit - computeBudget(s0, base).deficit;
+    expect(gap).toBeGreaterThan(700);
+    expect(gap).toBeLessThan(1100);
+    setPolicy(s, 'fairtax', false);
+    expect(s).toEqual(s0);
   });
 });
 

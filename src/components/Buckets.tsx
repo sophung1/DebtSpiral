@@ -76,7 +76,7 @@ function PolicyList({ bucket }: { bucket: string }) {
         return (
           <Toggle key={p.id} checked={!!on[p.id] || !!by} disabled={!!by} onChange={(v) => set((s) => setPolicy(s, p.id, v))}
             label={<span title={p.source}>{p.label}{p.who && <em className="who"> — {p.who}</em>}{p.oneTime && <em className="tag">one-time</em>}{by && <em className="hint"> (included in the Big Beautiful Bill rollback, under Headline proposals)</em>}</span>}
-            aside={<span className="aside-stack">{p.setsSliders ? <span className="support">moves the sliders</span> : <span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>}{polls[p.id] && <span className="support" title={`${polls[p.id].label}: ${polls[p.id].source}${polls[p.id].note ? `. ${polls[p.id].note}` : ''}`}>{polls[p.id].support}% support</span>}</span>} />
+            aside={<span className="aside-stack">{p.deltaB !== 0 && <span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>}{p.setsSliders && <span className="support">moves the sliders</span>}{polls[p.id] && <span className="support" title={`${polls[p.id].label}: ${polls[p.id].source}${polls[p.id].note ? `. ${polls[p.id].note}` : ''}`}>{polls[p.id].support}% support</span>}</span>} />
         );
       })}
     </div>

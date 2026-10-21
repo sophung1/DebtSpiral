@@ -86,33 +86,110 @@ const make = (fn: (s: Scenario) => void) => () => {
 const on = (s: Scenario, ...ids: string[]) => ids.forEach((id) => setPolicy(s, id, true));
 const progs = (s: Scenario, f: Record<string, number>) => Object.assign(s.programs, f);
 
+// Rates as a list, lowest bracket first (7 brackets).
+const rates = (s: Scenario, r: number[]) => { s.brackets.rates = r; };
+
 export const PRESETS: Preset[] = [
   {
-    id: 'socialism',
-    name: 'Total socialism',
-    blurb: 'Much bigger safety net and health programs, paid for with very high top rates, a wealth tax and no Social Security cap.',
+    id: 'populist',
+    name: 'Populist: only what polls 60%+',
+    blurb: 'Every change here has majority support of 60% or more in national polls. It shows the catch: the popular menu tilts toward spending, so it does little for the deficit.',
     build: make((s) => {
-      on(s, 'obbba_rollback', 'wealth2', 'carbon25', 'stepup', 'carried', 'irs_enforce', 'ctc_2021', 'prek', 'enhanced_aca', 'drug_neg');
-      s.brackets.rates = [0.10, 0.15, 0.25, 0.35, 0.45, 0.55, 0.70];
+      on(s, 'drug_neg', 'ss_means_test', 'enhanced_aca', 'renew_iija', 'childcare', 'billionaire_min_tax', 'wealth_sanders', 'carbon25', 'tariffs_repeal', 'immigration_reform', 'free_college');
+      s.capGainsTopRate = 0.28;
+      s.ssWageBase = 400000;
+      s.corporateRate = 0.28;
+      progs(s, { social_security: 1.1 });
+    }),
+  },
+  {
+    id: 'trump',
+    name: 'Trump agenda',
+    blurb: 'Tariffs stay, mass deportation, no tax on Social Security benefits, a $1.5T defense budget, abolish the Education Department, Gold Card visas, end foreign aid, Trump Accounts, no diesel tax, and the FY2026 budget request\'s ~23% cut to non-defense spending. No deficit target was claimed beyond "tariffs and growth".',
+    build: make((s) => {
+      on(s, 'mass_deportation', 'no_tax_ss', 'defense_15t', 'abolish_ed', 'gold_card', 'end_foreign_aid', 'trump_accounts', 'diesel_zero', 'repeal_clean');
+      progs(s, { nondefense: 0.77 });
+    }),
+  },
+  {
+    id: 'sanders',
+    name: 'Progressive (Sanders)',
+    blurb: 'Medicare for All, free public college, universal childcare, paid leave and bigger Social Security checks, paid for with Medicare for All premiums (an 11.5% payroll tax), a wealth tax, a financial transactions tax, no Social Security cap, higher top and corporate rates, and taxing capital gains like wages at the top. Claims to be paid for.',
+    build: make((s) => {
+      on(s, 'm4a', 'free_college', 'childcare', 'paid_leave', 'wealth_sanders', 'ftt', 'stepup', 'carried', 'obbba_rollback', 'drug_neg', 'irs_enforce', 'buyback_tax4', 'end_iorb');
+      rates(s, [0.10, 0.12, 0.22, 0.24, 0.37, 0.45, 0.52]);
       s.capGainsTopRate = 0.396;
       s.ssWageBase = null;
+      // Medicare for All premiums: 7.5% employer + 4% household on income (wider than wages, so slightly more than 11.5 pts here)
+      s.hiRate = 0.16;
       s.corporateRate = 0.35;
       s.estateRate = 0.65;
       s.estateExemption = 3.5e6;
-      progs(s, { social_security: 1.15, medicare: 1.2, medicaid: 1.5, aca: 1.5, snap: 1.5, ssi: 1.5, unemployment: 1.5, eitc: 1.5, nondefense: 1.3, defense: 0.75 });
+      progs(s, { social_security: 1.1 });
+    }),
+  },
+  {
+    id: 'socialism',
+    name: 'Total socialism',
+    blurb: 'Everything in the Sanders plan plus a federal jobs guarantee, much bigger safety-net programs and a smaller military, paid for with very high top rates and every wealth tax on the menu. Built so the new programs are paid for: the deficit ends no higher than current law.',
+    build: make((s) => {
+      on(s, 'obbba_rollback', 'm4a', 'free_college', 'childcare', 'paid_leave', 'jobs_guarantee', 'wealth_sanders', 'ftt', 'carbon25', 'stepup', 'carried', 'irs_enforce', 'ctc_2021', 'prek', 'drug_neg', 'buyback_tax4', 'end_iorb');
+      rates(s, [0.10, 0.15, 0.25, 0.35, 0.50, 0.60, 0.70]);
+      s.capGainsTopRate = 0.50;
+      s.ssWageBase = null;
+      s.hiRate = 0.2;
+      s.corporateRate = 0.35;
+      s.estateRate = 0.70;
+      s.estateExemption = 3.5e6;
+      progs(s, { social_security: 1.15, medicaid: 1.2, snap: 1.5, ssi: 1.5, unemployment: 1.5, eitc: 1.5, nondefense: 1.3, defense: 0.75 });
     }),
   },
   {
     id: 'libertarian',
     name: 'Libertarian minimal state',
-    blurb: 'A low flat-ish income tax, no estate tax, no tariffs, and deep cuts to safety-net and discretionary programs.',
+    blurb: 'A flat-ish 15% income tax, no estate tax or tariffs, personal Social Security accounts, and a much smaller federal government: no Education Department, no college or foreign aid, no overseas bases, no clean-energy credits, and deep safety-net cuts. Its claim: smaller government and a falling debt.',
     build: make((s) => {
-      on(s, 'tariffs_repeal', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'farm', 'fed_pay');
-      s.brackets.rates = [0.10, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15];
+      on(s, 'tariffs_repeal', 'privatize_ss', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'farm', 'fed_pay', 'abolish_ed', 'end_college_funding', 'end_foreign_aid', 'close_bases', 'repeal_clean', 'fossil_breaks');
+      rates(s, [0.10, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]);
       s.capGainsTopRate = 0.15;
       s.corporateRate = 0.15;
       s.estateRate = 0;
-      progs(s, { social_security: 0.9, medicaid: 0.6, aca: 0, snap: 0.5, ssi: 0.8, unemployment: 0.5, eitc: 0.5, ctc: 0.5, nondefense: 0.5, other_mandatory: 0.5, defense: 0.85 });
+      progs(s, { social_security: 0.85, medicare: 0.8, medicaid: 0.5, aca: 0, snap: 0.4, ssi: 0.7, unemployment: 0.5, eitc: 0.4, ctc: 0.5, nondefense: 0.4, other_mandatory: 0.5, defense: 0.8 });
+    }),
+  },
+  {
+    id: 'simpson_bowles',
+    name: 'Simpson-Bowles (2010)',
+    blurb: "The bipartisan deficit commission's mix, scaled to today: about 3 dollars of cuts per 1 of revenue. Chained-CPI COLAs, a slowly rising retirement age, a higher Social Security cap, a 15¢ gas tax, trimmed tax breaks, and caps on defense and non-defense spending. Its target was a ~2.5–3% of GDP deficit.",
+    build: make((s) => {
+      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'farm', 'fed_pay', 'salt10', 'stepup', 'carried', 'gas15', 'tips_ot_repeal', 'irs_enforce');
+      s.ssWageBase = 400000;
+      progs(s, { defense: 0.8, nondefense: 0.7, medicare: 0.9, medicaid: 0.9, fed_retirement: 0.9, other_mandatory: 0.8 });
+    }),
+  },
+  {
+    id: 'dalio',
+    name: "Ray Dalio's 3% solution",
+    blurb: 'Get the deficit to ~3% of GDP with roughly equal spending cuts and tax increases, across the board. His third lever, lower interest rates, is an outcome he expects once the deficit falls: try it by pairing this with the "Nominal" economy.',
+    build: make((s) => {
+      on(s, 'salt10', 'tips_ot_repeal', 'stepup', 'carried', 'irs_enforce');
+      rates(s, [0.11, 0.14, 0.24, 0.26, 0.35, 0.40, 0.44]);
+      s.corporateRate = 0.25;
+      s.capGainsTopRate = 0.25;
+      progs(s, { social_security: 0.95, medicare: 0.9, medicaid: 0.88, aca: 0.88, snap: 0.9, defense: 0.85, nondefense: 0.82, veterans: 0.95, fed_retirement: 0.9, other_mandatory: 0.88 });
+    }),
+  },
+  {
+    id: 'balanced',
+    name: 'Stabilize the debt',
+    blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health and Social Security reforms plus broadening the tax base, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
+    build: make((s) => {
+      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'medicaid_caps', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15');
+      rates(s, [0.10, 0.12, 0.22, 0.24, 0.33, 0.39, 0.44]);
+      s.capGainsTopRate = 0.28;
+      s.ssWageBase = 600000;
+      s.corporateRate = 0.25;
+      progs(s, { defense: 0.9, nondefense: 0.82, medicare: 0.92 });
     }),
   },
   {
@@ -126,19 +203,6 @@ export const PRESETS: Preset[] = [
       s.ssWageBase = 400000;
       s.corporateRate = 0.25;
       progs(s, { social_security: 0.88, medicare: 0.78, medicaid: 0.8, aca: 0.7, snap: 0.85, nondefense: 0.6, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
-    }),
-  },
-  {
-    id: 'balanced',
-    name: 'Balanced plan',
-    blurb: 'Roughly half new revenue, half spending restraint. Enough to put debt-to-GDP on a falling path without a shock.',
-    build: make((s) => {
-      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'drug_neg', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15');
-      s.brackets.rates = [0.10, 0.12, 0.22, 0.24, 0.32, 0.37, 0.396];
-      s.capGainsTopRate = 0.28;
-      s.ssWageBase = 600000;
-      s.corporateRate = 0.25;
-      progs(s, { defense: 0.9, nondefense: 0.88, medicare: 0.97 });
     }),
   },
 ];
