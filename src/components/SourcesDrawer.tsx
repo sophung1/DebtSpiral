@@ -33,7 +33,7 @@ export function SourcesDrawer() {
       <h3>Polls behind the popularity meter</h3>
       <p>{pollingNote}</p>
       <ul>
-        {Object.entries(polls).map(([k, p]) => <li key={k}>{p.label}: {p.support}% support. <a href={p.url} target="_blank" rel="noreferrer">{p.source}</a></li>)}
+        {Object.entries(polls).map(([k, p]) => <li key={k}>{p.label}: {p.support}% support.{p.note && ` ${p.note}`} <a href={p.url} target="_blank" rel="noreferrer">{p.source}</a></li>)}
       </ul>
       <h3>Model baseline</h3>
       <p>{manual.meta.baseline}. {manual.meta.note}</p>

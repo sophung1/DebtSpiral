@@ -119,6 +119,12 @@ describe('buckets', () => {
     expect(ids.length).toBe(b.receipts.length + b.outlays.length);
     expect(policies.every((p) => BUCKETS.some((d) => d.id === p.bucket))).toBe(true);
   });
+  it('infrastructure renewal counts in the energy & infrastructure card', async () => {
+    const { BUCKETS, bucketDelta } = await import('./buckets');
+    const scn = currentLaw(); setPolicy(scn, 'renew_iija', true);
+    const energy = BUCKETS.find((d) => d.id === 'energy')!;
+    expect(bucketDelta(computeBudget(scn, base), scn, energy)).toBeCloseTo(110, 6);
+  });
 });
 
 describe('Social Security cash flow', () => {
