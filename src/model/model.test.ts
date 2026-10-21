@@ -162,11 +162,12 @@ describe('presets', () => {
   it('each preset does what its name claims', async () => {
     const { PRESETS } = await import('./presets');
     const run = (id: string) => { const b = computeBudget(PRESETS.find((p) => p.id === id)!.build(), base); return { b, o: computeOutcomes(b) }; };
-    // Hawk balances on a static score; with severity-scaled feedback the slump leaves a deficit.
-    const hawkStatic = PRESETS.find((p) => p.id === 'hawk')!.build(); hawkStatic.multiplier = 0;
-    expect(computeBudget(hawkStatic, base).deficit).toBeLessThanOrEqual(0);
-    expect(run('hawk').b.multiplierUsed).toBeGreaterThan(0.8);
-    expect(run('hawk').b.gdpGap).toBeLessThan(-0.05);
+    // Hawk assumes a normal economy (no severity scaling) and balances.
+    expect(run('hawk').b.deficit).toBeLessThanOrEqual(0);
+    expect(run('hawk').b.multiplierUsed).toBeCloseTo(0.5, 9);
+    const doom = run('doomsday');
+    expect(doom.b.deficit).toBeGreaterThan(3000);
+    expect(doom.o.debtToGdp10).toBeGreaterThan(1.4);
     const bal = run('balanced');
     expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
     expect(run('socialism').b.totalOutlays).toBeGreaterThan(computeBudget(base, base).totalOutlays * 1.1);
@@ -257,5 +258,14 @@ describe('severity-scaled multiplier', () => {
     expect(b.multiplierUsed).toBeLessThanOrEqual(2);
     big.multiplierScales = false;
     expect(computeBudget(big, base).multiplierUsed).toBeCloseTo(0.5, 9);
+  });
+});
+
+describe('economic shock', () => {
+  it('a crash cuts revenue ~2.5x as much as GDP and shows in the GDP gap', () => {
+    const s = currentLaw(); s.gdpShock = -0.06;
+    const b = computeBudget(s, base), b0 = computeBudget(base, base);
+    expect(b.gdpGap).toBeCloseTo(-0.06, 6);
+    expect(1 - b.totalReceipts / b0.totalReceipts).toBeCloseTo(0.15, 6);
   });
 });

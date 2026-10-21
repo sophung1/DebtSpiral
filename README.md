@@ -45,7 +45,7 @@ npm run build
 - **Layout**: every card can be collapsed (click its title) and reordered (drag ⠿, or focus it and press ↑/↓). The layout is saved in the browser; 'Reset layout' restores it.
 - **Where the money goes**: a Sankey diagram (taxes + borrowing + policy savings → budget → spending) and two donuts (how it's paid for, what it's spent on) with changes vs current law.
 - **Wild ideas**: a stimulus-check slider (one-time or yearly) and proposals from leaders of both parties. Policies marked `oneTime` count only in year 1 of the 10-year outlook.
-- **Presets**: four sample plans in `src/model/presets.ts`, all with behavioral responses on.
+- **Presets**: five sample plans (including a Doomsday market-crash stress test) in `src/model/presets.ts`, all with behavioral responses on.
 - **Income tax**: your brackets are applied to IRS SOI income bins. Within each bin, income is spread evenly; the open top bin uses a Pareto tail. The result is scaled so current law reproduces actual receipts. An optional switch adds behavioral responses (taxable income elasticity 0.25, capital gains 0.7, corporate 0.2).
 - **Payroll cap**: the effect of the cap is estimated from the same income bins.
 - **Programs**: outlays scale with the benefit level. The EITC and CTC are scored on their full cost, including the part that reduces income tax.
