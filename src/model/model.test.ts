@@ -180,7 +180,7 @@ describe('presets', () => {
   });
 });
 
-describe('debt, inflation & wild ideas', () => {
+describe('debt, inflation & headline proposals', () => {
   const b0 = computeBudget(base, base);
   it('a one-time item adds to year 1 only; a recurring one every year', () => {
     const s = currentLaw(); s.multiplier = 0; s.stimulusPerAdult = 5000;
