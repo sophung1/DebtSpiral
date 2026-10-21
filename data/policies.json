@@ -317,6 +317,22 @@
       "households": {}
     },
     {
+      "id": "abolish_ss",
+      "bucket": "social_security",
+      "label": "Abolish Social Security (end benefits and the 12.4% payroll tax)",
+      "who": "Libertarian",
+      "deltaB": 0,
+      "setsSliders": true,
+      "source": "Sets the benefit slider to 0 and the Social Security tax rate to 0%, so the card scores it. Benefits cost more than the payroll tax brings in, so the deficit falls, but every retiree, disabled worker and survivor loses their check.",
+      "households": {},
+      "excludes": [
+        "chained_cpi",
+        "fra70",
+        "no_tax_ss",
+        "ss_means_test"
+      ]
+    },
+    {
       "id": "ma_bench",
       "bucket": "health",
       "label": "Cut Medicare Advantage benchmarks",
@@ -480,6 +496,17 @@
       "deltaB": -50,
       "source": "Sanders' College for All Act (2021): ~$47B/yr federal share.",
       "households": {}
+    },
+    {
+      "id": "end_college_funding",
+      "bucket": "safety_net",
+      "label": "End all federal funding for colleges (Pell, work-study, campus research grants)",
+      "deltaB": 90,
+      "source": "Low confidence. Pell grants ~$33B (FY2026), work-study/SEOG/TRIO ~$4B, and federal research grants to universities ~$55B (NSF HERD survey). Excludes federal student loans and the GI Bill.",
+      "households": {},
+      "excludes": [
+        "free_college"
+      ]
     },
     {
       "id": "childcare",

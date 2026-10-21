@@ -19,6 +19,7 @@ export function changes(scn: Scenario): Change[] {
 
   for (const p of activePolicies(scn)) add(p.id, p.label);
   for (const p of programs) {
+    if (scn.policies.abolish_ss && p.id === 'social_security') continue;
     const f = scn.programs[p.id] ?? 1;
     add(dir(f, 1, `program:${p.id}:up`, `program:${p.id}:down`), `${p.name} ${f > 1 ? 'increased' : 'cut'}`);
   }
@@ -33,7 +34,7 @@ export function changes(scn: Scenario): Change[] {
   add(dir(scn.capGainsTopRate, base.capGainsTopRate, 'capGains:up', 'capGains:down'), 'Capital gains rate changed');
   const cap = (c: number | null) => c ?? Infinity;
   add(dir(cap(scn.ssWageBase), cap(base.ssWageBase), 'ssCap:raise', 'ssCap:lower'), 'Social Security wage cap changed');
-  add(dir(scn.ssRate, base.ssRate, 'ssRate:up', 'ssRate:down'), 'Social Security tax rate changed');
+  if (!scn.policies.abolish_ss) add(dir(scn.ssRate, base.ssRate, 'ssRate:up', 'ssRate:down'), 'Social Security tax rate changed');
   add(dir(scn.hiRate, base.hiRate, 'hiRate:up', 'hiRate:down'), 'Medicare tax rate changed');
   add(dir(scn.estateRate, base.estateRate, 'estate:up', 'estate:down'), 'Estate tax rate changed');
   add(dir(scn.stimulusPerAdult, 0, 'stimulus:up', 'stimulus:down'), 'Stimulus checks');
