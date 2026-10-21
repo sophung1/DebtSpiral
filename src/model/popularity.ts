@@ -3,7 +3,7 @@ import { programs } from './data';
 import { currentLaw, type Scenario } from './scenario';
 import { activePolicies } from './policies';
 
-export interface Poll { support: number; label: string; source: string; url: string }
+export interface Poll { support: number; label: string; source: string; url: string; note?: string }
 export const polls: Record<string, Poll> = pollingJson.polls;
 export const pollingNote = pollingJson.note;
 

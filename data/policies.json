@@ -158,7 +158,7 @@
     {
       "id": "gas15",
       "bucket": "business",
-      "label": "Raise fuel taxes 15\u00a2/gal",
+      "label": "Raise fuel taxes 15¢/gal",
       "deltaB": 22,
       "source": "CBO Options (annualized)",
       "households": {
@@ -173,7 +173,7 @@
     {
       "id": "diesel_zero",
       "bucket": "business",
-      "label": "Eliminate the federal diesel tax (24.4\u00a2/gal)",
+      "label": "Eliminate the federal diesel tax (24.4¢/gal)",
       "deltaB": -11,
       "source": "Tax Policy Center: diesel excise raised ~$10.8B (FY2023). An Oct 2026 executive order defers it through Dec 31; this makes it permanent.",
       "households": {}
@@ -237,6 +237,15 @@
       "deltaB": 30,
       "oneTime": true,
       "source": "Low confidence. Reported plans to sell ~5% for ~$30B.",
+      "households": {}
+    },
+    {
+      "id": "chips_repeal",
+      "bucket": "business",
+      "label": "Repeal remaining CHIPS Act subsidies (unspent grants + 35% chip-factory credit)",
+      "who": "Trump has called for repeal",
+      "deltaB": 8,
+      "source": "Low confidence. CHIPS (2022) gave $39B in factory grants, mostly awarded, and a 25% investment credit CBO scored at ~$24B/10yr; OBBBA raised it to 35% for projects started by end-2026, with no published JCT score.",
       "households": {}
     },
     {
@@ -390,6 +399,24 @@
       "households": {}
     },
     {
+      "id": "ukraine_aid",
+      "bucket": "defense_other",
+      "label": "Resume Ukraine aid at the 2022–24 pace",
+      "who": "Biden",
+      "deltaB": -45,
+      "source": "Low confidence. Congress appropriated ~$175B for Ukraine over 2022–24 (about half military); little new aid is in the FY2026 baseline. Outlays lag appropriations.",
+      "households": {}
+    },
+    {
+      "id": "end_israel_aid",
+      "bucket": "defense_other",
+      "label": "End military aid to Israel",
+      "who": "Progressive left",
+      "deltaB": 3.8,
+      "source": "2016 U.S.–Israel MOU: $3.3B/yr in Foreign Military Financing plus $0.5B for missile defense (FY2019–28). Excludes one-time wartime supplementals.",
+      "households": {}
+    },
+    {
       "id": "abolish_ed",
       "bucket": "defense_other",
       "label": "Abolish the Department of Education (programs move elsewhere)",
@@ -418,7 +445,7 @@
     },
     {
       "id": "renew_iija",
-      "bucket": "defense_other",
+      "bucket": "energy",
       "label": "Renew the 2021 infrastructure law's funding",
       "who": "Bipartisan",
       "deltaB": -110,
@@ -522,7 +549,7 @@
     {
       "id": "student_debt",
       "bucket": "wild",
-      "label": "Forgive $10k\u2013$20k of student debt",
+      "label": "Forgive $10k–$20k of student debt",
       "who": "Biden 2022",
       "deltaB": -400,
       "source": "CBO (2022): ~$400B one-time cost. Struck down by the Supreme Court in 2023.",
@@ -552,10 +579,10 @@
     {
       "id": "perot_gas",
       "bucket": "wild",
-      "label": "50\u00a2/gal gas tax increase",
+      "label": "50¢/gal gas tax increase",
       "who": "Perot 1992",
       "deltaB": 65,
-      "source": "Scaled from CBO's 15\u00a2 option (~$22B/yr), allowing for lower demand.",
+      "source": "Scaled from CBO's 15¢ option (~$22B/yr), allowing for lower demand.",
       "households": {
         "min_wage": -300,
         "working_family": -750,

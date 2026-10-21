@@ -76,7 +76,7 @@ function PolicyList({ bucket }: { bucket: string }) {
         return (
           <Toggle key={p.id} checked={!!on[p.id] || !!by} disabled={!!by} onChange={(v) => set((s) => setPolicy(s, p.id, v))}
             label={<span title={p.source}>{p.label}{p.who && <em className="who"> — {p.who}</em>}{p.oneTime && <em className="tag">one-time</em>}{by && <em className="hint"> (included in the Big Beautiful Bill rollback, under Headline proposals)</em>}</span>}
-            aside={<span className="aside-stack"><span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>{polls[p.id] && <span className="support" title={`${polls[p.id].label}: ${polls[p.id].source}`}>{polls[p.id].support}% support</span>}</span>} />
+            aside={<span className="aside-stack"><span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>{polls[p.id] && <span className="support" title={`${polls[p.id].label}: ${polls[p.id].source}${polls[p.id].note ? `. ${polls[p.id].note}` : ''}`}>{polls[p.id].support}% support</span>}</span>} />
         );
       })}
     </div>
@@ -253,7 +253,7 @@ function WildIdeas() {
 function Energy() {
   return (
     <Bucket id="energy">
-      <p className="hint">Energy tax credits, carbon pricing and clean-energy spending. Opposite switches (restore vs. repeal credits, carbon tax vs. carbon dividend) turn each other off.</p>
+      <p className="hint">Energy tax credits, carbon pricing, clean-energy spending and roads, bridges and transit. Opposite switches (restore vs. repeal credits, carbon tax vs. carbon dividend) turn each other off.</p>
       <PolicyList bucket="energy" />
     </Bucket>
   );
