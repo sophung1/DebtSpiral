@@ -87,4 +87,15 @@ export const PRESETS: Preset[] = [
       progs(s, { unemployment: 4 });
     }),
   },
+  {
+    id: 'boom',
+    name: 'Post-war boom',
+    blurb: '1950s–60s conditions on today\'s budget: 4% real growth, ~3.7% inflation (+1.5 pts), interest rates held 2 pts lower (financial repression), and the economy 2% above normal. After WWII this took debt from ~106% to ~25% of GDP, but back then the budget ran primary surpluses. Today\'s doesn\'t, so debt only drifts down to ~90%.',
+    build: make((s) => {
+      s.realGrowth = 0.04;
+      s.inflationShock = 0.015;
+      s.rateShock = -0.02;
+      s.gdpShock = 0.02;
+    }),
+  },
 ];
