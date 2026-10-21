@@ -77,6 +77,8 @@ h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: v
 }
 .btn:hover { border-color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.reset { background: var(--warn); border-color: var(--warn); color: #fff; }
+@media (prefers-color-scheme: dark) { .btn.reset { color: #16181d; } }
 .icon { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 14px; }
 .icon:hover { color: var(--bad); }
 

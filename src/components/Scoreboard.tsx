@@ -52,7 +52,7 @@ export function Scoreboard() {
   return (
     <header className="scoreboard">
       <div className="brand">
-        <h1>Deficit<span>Dial</span></h1>
+        <h1>Debt<span>Spiral</span></h1>
         <p>Can you balance the federal budget?</p>
         <div className="actions">
           <label className="picker">
@@ -82,7 +82,7 @@ export function Scoreboard() {
               {REGIMES.map((r) => <option key={r.id} value={r.id} title={r.blurb}>{r.name}</option>)}
             </select>
           </label>
-          <button className="btn" onClick={reset}>Reset to default</button>
+          <button className="btn reset" onClick={reset}>Reset to default</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
       </div>

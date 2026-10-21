@@ -224,11 +224,12 @@ export const PRESETS: Preset[] = [
   {
     id: 'heritage',
     name: "Heritage 'Blueprint for Balance'",
-    blurb: "The Heritage Foundation's annual plan (core of recent editions): Medicare premium support, a Medicaid block grant and an end to the ACA expansion match, smaller ACA subsidies, retirement age 70 and chained-CPI COLAs, deep non-defense cuts (abolish the Education Department, end foreign aid, clean-energy credits and farm subsidies), slightly more defense, the 2025 tax cuts kept and the estate tax repealed. Heritage says it balances within ~10 years, partly through faster growth it expects from the plan; this model doesn't assume that growth.",
+    blurb: "The Heritage Foundation's annual plan (core of recent editions): Medicare premium support, an eligibility age of 67 and higher premiums for upper-income seniors, a Medicaid block grant and an end to the ACA expansion match, smaller ACA subsidies, retirement age 70 and chained-CPI COLAs, deep non-defense cuts (abolish the Education Department, end foreign aid, clean-energy credits and farm subsidies), slightly more defense, the 2025 tax cuts kept and the estate tax repealed. Heritage says it balances within ~10 years, partly through faster growth it expects from the plan; this model doesn't assume that growth.",
     build: make((s) => {
-      on(s, 'ma_bench', 'medicaid_caps', 'fra70', 'chained_cpi', 'abolish_ed', 'end_foreign_aid', 'repeal_clean', 'farm', 'fed_pay');
+      on(s, 'medicare_premium_support', 'medicare67', 'medicaid_caps', 'fra70', 'chained_cpi', 'abolish_ed', 'end_foreign_aid', 'repeal_clean', 'farm', 'fed_pay');
       s.estateRate = 0;
-      progs(s, { medicare: 0.9, medicaid: 0.85, aca: 0.5, nondefense: 0.65, defense: 1.05 });
+      // Plus higher premiums for upper-income seniors and a unified Medicare deductible.
+      progs(s, { medicare: 0.95, medicaid: 0.85, aca: 0.5, nondefense: 0.65, defense: 1.05 });
     }),
   },
   {
