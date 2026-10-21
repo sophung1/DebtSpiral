@@ -2,7 +2,7 @@ import { manual, live, programs } from './data';
 import { activePolicies, policyDelta, ctcLawFactor } from './policies';
 import type { Scenario } from './scenario';
 import { BILLS, TIPS, NOTES_ROLL1, YIELDS0, policyInflation, fiscalPremium, yields, inflationRiskPremium, dominanceInflation } from './macro';
-import { regimeOf } from './monetary';
+import { effectiveRegime, type Regime } from './monetary';
 import {
   individualOrdinaryReceipts, payrollSSReceipts, capitalGainsReceipts, corporateReceipts, estateReceipts,
 } from './incomeTax';
@@ -35,6 +35,8 @@ export interface Budget {
   monetizedInflation: number;
   /** monetary regime id */
   monetary: string;
+  /** the regime in force, including add-ons like reserve loss */
+  regime: Regime;
   /** market yields this year under the plan */
   yields: { y2: number; y10: number; y30: number };
   /** settings and inputs the outlook reuses */
@@ -124,7 +126,7 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
     - (sum(outlays, 'base') - sum(receipts, 'base'));
   const fb = manual.feedback;
   const tightening = -primaryChange / manual.gdpB.value; // share of GDP; + = austerity
-  const reg = regimeOf(scn.monetary);
+  const reg = effectiveRegime(scn);
   const m0 = scn.multiplier > 0 ? scn.multiplier + reg.multiplierAdd : 0;
   const multiplierUsed = scn.multiplierScales && m0 > 0
     ? Math.min(fb.maxMultiplier, m0 + fb.severitySlope * Math.max(0, tightening - fb.severityThreshold))
@@ -171,7 +173,7 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
     receipts, outlays, policyLines, netInterest: ni, totalReceipts, totalOutlays, oneTime,
     inflationInterest: netInterestAt(y, dPi) - netInterestAt(yields(0, 0, policyGap, fiscal, realShock, reg), 0),
     repricing1: repricingShare(), inflationShock: dPi, inflationSlider: trend, policyInflation: policyPi, priceBump,
-    premium, fiscalPremium: fiscal, inflationRiskPremium: inflRisk, dominanceInflation: dom, monetizedInflation: mon, monetary: reg.id,
+    premium, fiscalPremium: fiscal, inflationRiskPremium: inflRisk, dominanceInflation: dom, monetizedInflation: mon, monetary: scn.monetary, regime: reg,
     yields: y, rateShock: realShock, realGrowth: scn.realGrowth,
     inflationSensitivity: sens, marketFear: fear, policyGap, cyclicalB,
     nominalGrowth: scn.realGrowth + baselineInflation + dPi,

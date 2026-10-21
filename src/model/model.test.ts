@@ -574,7 +574,7 @@ describe('monetary regimes', () => {
     expect(projection(m.b).at(-1)!.interest!).toBeLessThan(projection(f.b).at(-1)!.interest!);
   });
   it('losing reserve status raises yields and interest', () => {
-    const r = run('reserve_loss');
+    const r = run('fed', (s) => { s.reserveLoss = true; });
     expect(r.b.yields.y10).toBeGreaterThan(fed.b.yields.y10 + 0.005);
     expect(r.o.debtToGdp10).toBeGreaterThan(fed.o.debtToGdp10);
   });
@@ -627,7 +627,15 @@ describe('regimeEffects', () => {
     const { REGIMES, regimeEffects, regimeOf } = await import('./monetary');
     expect(regimeEffects(regimeOf('fed'))).toEqual([]);
     expect(regimeEffects(regimeOf('gold'))).toEqual(['inflation −2.2 pts/yr', 'real rates +1 pt', 'no rate cuts in a slump', 'cuts hit the economy harder (multiplier +0.3)']);
-    expect(regimeEffects(regimeOf('reserve_loss'))).toContain('long yields +75 bp');
+    const { RESERVE_LOSS, effectiveRegime } = await import('./monetary');
+    expect(regimeEffects(RESERVE_LOSS)).toContain('long yields +75 bp');
+    // Reserve loss stacks on any regime: gold + reserve loss keeps gold's deflation and adds the yield shifts.
+    const gr = effectiveRegime({ monetary: 'gold', reserveLoss: true });
+    expect(gr.trendPi).toBeCloseTo(-0.017, 9);
+    expect(gr.longShift).toBeCloseTo(0.0075, 9);
+    expect(effectiveRegime({ monetary: 'mmt', reserveLoss: true }).fearScale).toBe(0);
+    const { sanitizeScenario } = await import('./scenario');
+    expect(sanitizeScenario({ monetary: 'reserve_loss' })).toMatchObject({ monetary: 'fed', reserveLoss: true });
     for (const r of REGIMES.filter((x) => x.id !== 'fed')) expect(regimeEffects(r).length).toBeGreaterThan(0);
   });
 });

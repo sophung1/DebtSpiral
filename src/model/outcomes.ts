@@ -2,7 +2,6 @@ import { manual, live } from './data';
 import { computeBudget, baselineInflation, type Budget } from './budget';
 import { currentLaw } from './scenario';
 import { BILLS, TIPS, NOTES_RATE0, policyInflation, fiscalPremium, yields, inflationRiskPremium, dominanceInflation, anchorDrift } from './macro';
-import { regimeOf } from './monetary';
 
 export interface Outcomes {
   balanced: boolean;
@@ -67,7 +66,7 @@ export function projection(b: Budget, years = 10): YearPoint[] {
   const base = b.marketFear > 0 ? basePath(years) : null;
   let extraDeficit = 0, extraDebt = 0, prevDeficitShare = 0, monetized = 0;
   lastPremium = 0;
-  const reg = regimeOf(b.monetary);
+  const reg = b.regime;
   const pts: YearPoint[] = [{ fy: START_FY, debt: d, gdp: y, deficit: null, interest: null, rate: null, y2: null, y10: null, inflation: null, growth: null }];
   for (let t = 1; t <= years; t++) {
     const gap = b.policyGap * fade(t);

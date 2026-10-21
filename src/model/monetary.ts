@@ -44,11 +44,25 @@ export const REGIMES: Regime[] = [
     { trendPi: 0.013, targetShift: 0.013 }),
   r('mmt', 'Fed-financed deficits (MMT-style)', 'The central bank pays for deficits above 3% of GDP by creating money at no interest. Interest costs fall and bond markets stop mattering, but inflation reacts twice as strongly plus ~0.25 pts per point of GDP financed. Low confidence: small, temporary monetization (Japan) was benign; large, lasting monetization (Weimar, Zimbabwe, Argentina) ended in very high inflation.',
     { fearScale: 0, sensitivityScale: 2, monetizeAbove: 0.03, monetizeInflation: 0.25 }),
-  r('reserve_loss', 'Dollar loses reserve status', 'Foreign central banks and investors (who hold ~30% of the public debt) shift away from the dollar. The "exorbitant privilege" that keeps Treasury yields low, estimated at ~0.5–1 pt (Krishnamurthy & Vissing-Jorgensen), fades; a weaker dollar adds ~0.5 pts of inflation a year; and markets get jumpier (1.5× fear). Illustrative: no major currency has lost reserve status quickly (sterling took decades).',
-    { longShift: 0.0075, billsShift: 0.005, trendPi: 0.005, fearScale: 1.5 }),
 ];
 
 export const regimeOf = (id: string | undefined): Regime => REGIMES.find((x) => x.id === id) ?? REGIMES[0];
+
+/** Losing reserve status isn't a central-bank choice, so it's an add-on that stacks on any regime. */
+export const RESERVE_LOSS = r('reserve_loss', 'Dollar loses reserve status', 'Foreign central banks and investors (who hold ~30% of the public debt) shift away from the dollar. The "exorbitant privilege" that keeps Treasury yields low, estimated at ~0.5–1 pt (Krishnamurthy & Vissing-Jorgensen), fades; a weaker dollar adds ~0.5 pts of inflation a year; and markets get jumpier (1.5× fear). Illustrative: no major currency has lost reserve status quickly (sterling took decades).',
+  { longShift: 0.0075, billsShift: 0.005, trendPi: 0.005, fearScale: 1.5 });
+
+/** The regime in force: the picked regime plus, optionally, reserve loss (shifts add, scales multiply). */
+export function effectiveRegime(s: { monetary?: string; reserveLoss?: boolean }): Regime {
+  const g = regimeOf(s.monetary);
+  if (!s.reserveLoss) return g;
+  const x = RESERVE_LOSS;
+  return {
+    ...g, id: `${g.id}+reserve_loss`, name: `${g.name} + ${x.name.toLowerCase()}`,
+    trendPi: g.trendPi + x.trendPi, billsShift: g.billsShift + x.billsShift, longShift: g.longShift + x.longShift,
+    fearScale: g.fearScale * x.fearScale,
+  };
+}
 
 const signedPts = (v: number) => `${v > 0 ? '+' : '−'}${+(Math.abs(v) * 100).toFixed(2)} pt${Math.abs(v) === 0.01 ? '' : 's'}`;
 const bp = (v: number) => `${v > 0 ? '+' : '−'}${Math.round(Math.abs(v) * 1e4)} bp`;

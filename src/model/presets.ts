@@ -50,7 +50,7 @@ export const CONDITIONS: Condition[] = [
     blurb: 'Everything at once: 1970s-style inflation (+5 pts/yr), 10-yr yields near 8% (+3 pts), a 2009-sized crash, then a lost decade (−1.5%/yr), with Greece-level feedback (1.5×). Add your own emergency response on top.' },
 ];
 
-const policyOf = (s: Scenario) => { const p: Partial<Scenario> = { ...s }; for (const k of CONDITION_KEYS) delete p[k]; delete p.monetary; return p; };
+const policyOf = (s: Scenario) => { const p: Partial<Scenario> = { ...s }; for (const k of CONDITION_KEYS) delete p[k]; delete p.monetary; delete p.reserveLoss; return p; };
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Which policy preset the scenario matches ('current' = current law), or null if it's been customized. */
@@ -67,7 +67,7 @@ export function activeConditions(s: Scenario): string | null {
 /** Load a policy preset but keep the current economic conditions. */
 export function applyPreset(current: Scenario, id: string): Scenario {
   const next = id === 'current' ? currentLaw() : PRESETS.find((p) => p.id === id)!.build();
-  return { ...next, ...conditionsOf(current), monetary: current.monetary };
+  return { ...next, ...conditionsOf(current), monetary: current.monetary, reserveLoss: current.reserveLoss };
 }
 
 /** Change the economic conditions but keep the current policies. */

@@ -235,6 +235,8 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 .scoreboard select.btn { appearance: auto; }
 .picker { display: inline-flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .picker select { text-transform: none; letter-spacing: 0; font-size: 14px; color: var(--text); }
+.picker-check { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; text-transform: none; letter-spacing: 0; font-size: 12px; cursor: pointer; }
+.picker-check input { width: 18px; height: 18px; margin: 3px; }
 .actions { align-items: flex-end; }
 .toggle-aside .hint { white-space: normal; }
 .bucket-income_tax .toggle:has(.hint) { grid-template-columns: auto 1fr; }
