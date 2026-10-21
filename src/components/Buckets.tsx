@@ -248,6 +248,15 @@ function WildIdeas() {
   );
 }
 
+function Energy() {
+  return (
+    <Bucket id="energy">
+      <p className="hint">Energy tax credits, carbon pricing and clean-energy spending. Opposite switches (restore vs. repeal credits, carbon tax vs. carbon dividend) turn each other off.</p>
+      <PolicyList bucket="energy" />
+    </Bucket>
+  );
+}
+
 /** Area cards by bucket id, for the sortable layout. */
 export const BUCKET_CARDS: Record<string, () => JSX.Element> = {
   income_tax: IncomeTax,
@@ -256,6 +265,7 @@ export const BUCKET_CARDS: Record<string, () => JSX.Element> = {
   safety_net: SafetyNet,
   defense_other: DefenseOther,
   business: Business,
+  energy: Energy,
   debt: DebtInflation,
   wild: WildIdeas,
 };

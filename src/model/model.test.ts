@@ -324,3 +324,28 @@ describe('historical economies', () => {
     expect(CONDITIONS.length).toBe(12);
   });
 });
+
+describe('new headline switches', () => {
+  it('opposites turn each other off; restore-all includes the EV credits', () => {
+    const s = currentLaw(); s.multiplier = 0;
+    setPolicy(s, 'repeal_clean', true);
+    setPolicy(s, 'restore_clean', true);
+    expect(s.policies.repeal_clean).toBe(false);
+    setPolicy(s, 'carbon25', true); setPolicy(s, 'carbon_dividend', true);
+    expect(s.policies.carbon25).toBe(false);
+    setPolicy(s, 'ev_restore', true);
+    const both = computeBudget(s, base).deficit;
+    setPolicy(s, 'ev_restore', false);
+    expect(computeBudget(s, base).deficit).toBeCloseTo(both, 6);
+  });
+  it('every switch moves the static deficit by exactly its score', async () => {
+    const { policies } = await import('./data');
+    const { policyDelta } = await import('./policies');
+    const s0 = currentLaw(); s0.multiplier = 0;
+    const d0 = computeBudget(s0, base).deficit;
+    for (const p of policies.filter((x) => x.id !== 'obbba_rollback')) {
+      const s = currentLaw(); s.multiplier = 0; setPolicy(s, p.id, true);
+      expect(d0 - computeBudget(s, base).deficit).toBeCloseTo(policyDelta(p), 6);
+    }
+  });
+});
