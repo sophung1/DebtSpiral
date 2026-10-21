@@ -182,16 +182,18 @@ describe('presets', () => {
     expect(doom.o.debtToGdp10).toBeGreaterThan(1.3);
     const bal = run('balanced');
     expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
-    // Socialism's biggest spending (Medicare for All, jobs guarantee) comes through switches, so count their costs too.
-    const soc = run('socialism').b;
+    // Sanders' biggest spending (Medicare for All) comes through switches, so count their costs too.
+    const soc = run('sanders').b;
     const switchSpending = soc.policyLines.filter((l) => l.value < 0).reduce((a, l) => a - l.value, 0);
     expect(soc.totalOutlays + switchSpending).toBeGreaterThan(computeBudget(base, base).totalOutlays * 1.3);
-    expect(run('libertarian').b.totalOutlays).toBeLessThan(computeBudget(base, base).totalOutlays * 0.85);
-    // "Paid for" plans end no higher than current law; the libertarian plan shrinks the debt ratio.
+    // Rand Paul: everything but Social Security ~26% lower.
+    expect(run('rand_paul').b.totalOutlays).toBeLessThan(computeBudget(base, base).totalOutlays * 0.85);
+    // "Paid for" plans end no higher than current law; the spending-cut plans shrink the debt ratio.
     const lawDeficit = computeBudget(base, base).deficit;
-    for (const id of ['socialism', 'sanders']) expect(run(id).b.deficit).toBeLessThanOrEqual(lawDeficit);
-    const lib = run('libertarian');
-    expect(lib.o.debtToGdp10).toBeLessThan(lib.o.debtToGdpNow - 0.1);
+    for (const id of ['sanders', 'peoples_budget']) expect(run(id).b.deficit).toBeLessThanOrEqual(lawDeficit);
+    expect(run('peoples_budget').b.deficit).toBeLessThan(lawDeficit - 100);
+    expect(run('rand_paul').o.debtToGdp10).toBeLessThan(run('rand_paul').o.debtToGdpNow - 0.1);
+    expect(run('heritage').o.debtToGdp10).toBeLessThan(run('heritage').o.debtToGdpNow);
     // The 3%-of-GDP plans.
     for (const id of ['balanced', 'simpson_bowles']) {
       const pct = run(id).o.deficitPctGdp;

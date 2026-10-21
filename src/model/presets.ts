@@ -201,34 +201,34 @@ export const PRESETS: Preset[] = [
     }),
   },
   {
-    id: 'socialism',
-    name: 'Total socialism',
-    blurb: 'Everything in the Sanders plan plus a jobs guarantee, reparations, baby bonds, restored clean-energy credits, much bigger safety-net programs and a smaller military. Paid for Nordic-style: a 90% top rate, a VAT, a carbon tax, higher payroll taxes and every wealth tax on the menu. Built so the new programs are paid for: the deficit ends no higher than current law.',
+    id: 'peoples_budget',
+    name: "Progressive Caucus 'People's Budget'",
+    blurb: "The House Progressive Caucus's recurring alternative budget (no 2025–26 edition yet; this follows its usual themes): higher rates above ~$250K, capital gains taxed like wages at the top, a 28% corporate rate, a carbon tax, a financial transactions tax and closing investor loopholes, paying for infrastructure, childcare, paid leave, the 2021 child credit, enhanced ACA subsidies and free public college, with a 10% smaller military. No Medicare for All, unlike the Sanders platform. Its scored editions cut deficits modestly (CRFB: ~$2.3T over 10 years); here it lands modestly below current law.",
     build: make((s) => {
-      on(s, 'obbba_rollback', 'm4a', 'free_college', 'childcare', 'paid_leave', 'jobs_guarantee', 'wealth_sanders', 'ftt', 'carbon25', 'stepup', 'carried', 'irs_enforce', 'ctc_2021', 'prek', 'drug_neg', 'buyback_tax4', 'end_iorb', 'gnd_climate', 'restore_clean', 'renew_iija', 'baby_bonds', 'housing_supply', 'min_wage15', 'reparations', 'end_israel_aid', 'close_bases', 'fossil_breaks', 'vat5');
-      rates(s, [0.10, 0.20, 0.30, 0.40, 0.60, 0.75, 0.90]);
-      s.capGainsTopRate = 0.50;
-      s.ssWageBase = null;
-      s.hiRate = 0.26;
-      s.ssRate = 0.16;
-      s.corporateRate = 0.40;
-      s.estateRate = 0.70;
-      s.estateExemption = 3.5e6;
-      progs(s, { social_security: 1.15, medicaid: 1.2, snap: 1.5, ssi: 1.5, unemployment: 1.5, eitc: 1.5, nondefense: 1.3, defense: 0.75 });
+      on(s, 'renew_iija', 'childcare', 'paid_leave', 'ctc_2021', 'enhanced_aca', 'drug_neg', 'free_college', 'carbon25', 'ftt', 'buyback_tax4', 'stepup', 'carried', 'irs_enforce');
+      rates(s, [0.10, 0.12, 0.22, 0.24, 0.32, 0.39, 0.43]);
+      s.capGainsTopRate = 0.396;
+      s.corporateRate = 0.28;
+      progs(s, { defense: 0.9 });
     }),
   },
   {
-    id: 'libertarian',
-    name: 'Libertarian minimal state',
-    blurb: 'A flat-ish 15% income tax, no estate tax or tariffs, personal Social Security accounts, and a much smaller federal government: no Education Department, no college or foreign aid, no overseas bases or aid to Israel, no CHIPS or clean-energy subsidies, the Fannie/Freddie stakes sold, open legal immigration and Gold Card visas, and deep safety-net cuts. Its claim: smaller government and a falling debt.',
+    id: 'rand_paul',
+    name: "Rand Paul 'Six Penny Plan'",
+    blurb: "Sen. Rand Paul's plan (reintroduced Sept 2025; rejected in the Senate with 35 Republicans in favor): cut 6 cents from every federal dollar each year for five years, sparing Social Security, with no tax changes. Shown fully phased in: everything except Social Security ~26% below today. Its goal is to balance the budget excluding Social Security (the dial's \"excl. SS\" figure). Here it falls short: cuts this big shrink the economy and with it tax revenue (the multiplier), which the plan's arithmetic leaves out.",
     build: make((s) => {
-      on(s, 'tariffs_repeal', 'privatize_ss', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'farm', 'fed_pay', 'abolish_ed', 'end_college_funding', 'end_foreign_aid', 'close_bases', 'repeal_clean', 'fossil_breaks', 'chips_repeal', 'gse_sale', 'end_israel_aid', 'immigration_reform', 'gold_card');
-      s.dieselTaxCents = 0;
-      rates(s, [0.10, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]);
-      s.capGainsTopRate = 0.15;
-      s.corporateRate = 0.15;
+      const cut = 0.74;
+      progs(s, { medicare: cut, medicaid: cut, aca: cut, snap: cut, eitc: cut, ssi: cut, unemployment: cut, veterans: cut, fed_retirement: cut, other_mandatory: cut, defense: cut, nondefense: cut });
+    }),
+  },
+  {
+    id: 'heritage',
+    name: "Heritage 'Blueprint for Balance'",
+    blurb: "The Heritage Foundation's annual plan (core of recent editions): Medicare premium support, a Medicaid block grant and an end to the ACA expansion match, smaller ACA subsidies, retirement age 70 and chained-CPI COLAs, deep non-defense cuts (abolish the Education Department, end foreign aid, clean-energy credits and farm subsidies), slightly more defense, the 2025 tax cuts kept and the estate tax repealed. Heritage says it balances within ~10 years, partly through faster growth it expects from the plan; this model doesn't assume that growth.",
+    build: make((s) => {
+      on(s, 'ma_bench', 'medicaid_caps', 'fra70', 'chained_cpi', 'abolish_ed', 'end_foreign_aid', 'repeal_clean', 'farm', 'fed_pay');
       s.estateRate = 0;
-      progs(s, { social_security: 0.85, medicare: 0.8, medicaid: 0.5, aca: 0, snap: 0.4, ssi: 0.7, unemployment: 0.5, eitc: 0.4, ctc: 0.5, nondefense: 0.4, other_mandatory: 0.5, defense: 0.8 });
+      progs(s, { medicare: 0.9, medicaid: 0.85, aca: 0.5, nondefense: 0.65, defense: 1.05 });
     }),
   },
   {
