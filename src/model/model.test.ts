@@ -498,10 +498,14 @@ describe('inflation and interest-rate feedback', () => {
 });
 
 describe('overlapping switches', () => {
-  it('lets you pick one minimum tax and one gas-tax hike', () => {
+  it('lets you pick one wealth-or-minimum tax and one gas-tax hike', () => {
     const s = currentLaw();
     setPolicy(s, 'billionaire_min_tax', true); setPolicy(s, 'buffett_rule', true);
     expect([s.policies.billionaire_min_tax, s.policies.buffett_rule]).toEqual([false, true]);
+    setPolicy(s, 'wealth_sanders', true);
+    expect([s.policies.wealth_sanders, s.policies.buffett_rule]).toEqual([true, false]);
+    setPolicy(s, 'billionaire_min_tax', true);
+    expect([s.policies.wealth_sanders, s.policies.billionaire_min_tax]).toEqual([false, true]);
     setPolicy(s, 'gas15', true); setPolicy(s, 'perot_gas', true);
     expect([s.policies.gas15, s.policies.perot_gas]).toEqual([false, true]);
   });
