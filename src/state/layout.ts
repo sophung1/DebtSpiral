@@ -26,8 +26,14 @@ function load(): Pick<Layout, 'order' | 'collapsed'> {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
     if (saved && Array.isArray(saved.order)) {
-      // Keep the saved order for known cards, append any new ones, drop removed ones.
-      const order = [...saved.order.filter((id: string) => DEFAULT_ORDER.includes(id)), ...DEFAULT_ORDER.filter((id) => !saved.order.includes(id))];
+      // Keep the saved order for known cards, drop removed ones, and slot new cards in right after
+      // their default predecessor (e.g. a new card listed after 'business' lands next to it).
+      const order: string[] = saved.order.filter((id: string) => DEFAULT_ORDER.includes(id));
+      DEFAULT_ORDER.forEach((id, i) => {
+        if (order.includes(id)) return;
+        const prev = DEFAULT_ORDER.slice(0, i).reverse().find((p) => order.includes(p));
+        order.splice(prev ? order.indexOf(prev) + 1 : 0, 0, id);
+      });
       return { order, collapsed: { ...DEFAULT_COLLAPSED, ...saved.collapsed } };
     }
   } catch { /* storage unavailable or corrupt: use defaults */ }

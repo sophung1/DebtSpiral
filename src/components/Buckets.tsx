@@ -5,6 +5,7 @@ import { programs, policies, live, manual } from '../model/data';
 import { BUCKETS, bucketDelta, ssCashFlow } from '../model/buckets';
 import { baselineInflation } from '../model/budget';
 import { setPolicy } from '../model/scenario';
+import { polls } from '../model/popularity';
 import { BracketEditor } from './BracketEditor';
 import { Panel, Slider, Toggle } from './Controls';
 import { fmtB, fmt$, fmtK, pct } from '../format';
@@ -42,7 +43,8 @@ function ProgramSlider({ id }: { id: string }) {
       <Slider label={<>{p.name} <span className={`delta ${line.value < line.base - 0.5 ? 'pos' : line.value > line.base + 0.5 ? 'neg' : ''}`}>{fmtB(line.value)}</span></>}
         value={scn.programs[id]} base={1} min={0} max={Math.max(2, Math.ceil(scn.programs[id]))} step={0.01}
         format={(v) => (v === 1 ? 'current law' : `${v > 1 ? '+' : '−'}${Math.round(Math.abs(v - 1) * 100)}% benefits`)}
-        onChange={(v) => set((s) => { s.programs[id] = v; })} />
+        onChange={(v) => set((s) => { s.programs[id] = v; })}
+        hint={(() => { const f = scn.programs[id]; const pl = f === 1 ? null : polls[`program:${id}:${f > 1 ? 'up' : 'down'}`]; return pl ? <span title={pl.source}>{pl.support}% support this ({pl.source})</span> : undefined; })()} />
       {who.length > 0 && (
         <ul className="per-hh">
           {who.map(({ a, base, now }) => {
@@ -74,7 +76,7 @@ function PolicyList({ bucket }: { bucket: string }) {
         return (
           <Toggle key={p.id} checked={!!on[p.id] || !!by} disabled={!!by} onChange={(v) => set((s) => setPolicy(s, p.id, v))}
             label={<span title={p.source}>{p.label}{p.who && <em className="who"> — {p.who}</em>}{p.oneTime && <em className="tag">one-time</em>}{by && <em className="hint"> (included in the Big Beautiful Bill rollback, under Headline proposals)</em>}</span>}
-            aside={<span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>} />
+            aside={<span className="aside-stack"><span className={`delta ${p.deltaB > 0 ? 'pos' : 'neg'}`}>{fmtB(p.deltaB, true)}/yr</span>{polls[p.id] && <span className="support" title={`${polls[p.id].label}: ${polls[p.id].source}`}>{polls[p.id].support}% support</span>}</span>} />
         );
       })}
     </div>
@@ -195,7 +197,7 @@ function DebtInflation() {
       <div className="ledger">
         <div><span>Net interest</span><strong>{fmtB(budget.netInterest)}</strong></div>
         <div><span>Debt held by public</span><strong>{fmtB(debt)}</strong></div>
-        <div className={o.inflationToHoldRatio <= 0 ? 'pos' : 'neg'}><span>Inflation to stand still</span><strong>{o.inflationToHoldRatio <= 0 ? 'none' : `+${pct(o.inflationToHoldRatio)}/yr`}</strong></div>
+        <div className={o.inflationToHoldRatio <= 0 ? 'pos' : 'neg'}><span>Inflation to stand still</span><strong>{o.inflationToHoldRatio <= 0 ? 'none' : `${pct(baselineInflation + scn.inflationShock + o.inflationToHoldRatio)}/yr (+${pct(o.inflationToHoldRatio)} over now)`}</strong></div>
       </div>
       <p className="hint">Yields: 2-yr {pct(live.yield2y.value, 2)} · 10-yr {pct(live.yield10y.value, 2)} · 30-yr {pct(live.yield30y.value, 2)} · average on all debt {pct(live.avgInterestRate.value, 2)}</p>
       <div className="debt-cols">

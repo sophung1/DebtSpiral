@@ -1,5 +1,6 @@
 import { live, manual, policyMeta } from '../model/data';
 import { fmtB, pct } from '../format';
+import { polls, pollingNote } from '../model/popularity';
 
 const liveRows: [keyof typeof live, string, (v: number) => string][] = [
   ['totalDebtB', 'Total public debt', fmtB],
@@ -29,6 +30,11 @@ export function SourcesDrawer() {
           })}
         </tbody>
       </table>
+      <h3>Polls behind the popularity meter</h3>
+      <p>{pollingNote}</p>
+      <ul>
+        {Object.entries(polls).map(([k, p]) => <li key={k}>{p.label}: {p.support}% support. <a href={p.url} target="_blank" rel="noreferrer">{p.source}</a></li>)}
+      </ul>
       <h3>Model baseline</h3>
       <p>{manual.meta.baseline}. {manual.meta.note}</p>
       <ul>

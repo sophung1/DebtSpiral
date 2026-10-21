@@ -4,6 +4,8 @@ import { useResults } from '../state/results';
 import { live, manual } from '../model/data';
 import { Dial } from './Dial';
 import { ssCashFlow } from '../model/buckets';
+import { popularity } from '../model/popularity';
+import { baselineInflation } from '../model/budget';
 import { PRESETS, CONDITIONS, activePreset, activeConditions, applyPreset, applyConditions } from '../model/presets';
 import { fmtB, pct } from '../format';
 
@@ -26,6 +28,8 @@ export function Scoreboard() {
   const deficit = budget.deficit;
   const change = budget.baseDeficit - deficit;
   const onBudget = deficit + ssCashFlow(budget, scn).balance;
+  const pop = popularity(scn);
+  const inflNow = baselineInflation + scn.inflationShock;
 
   const share = async () => {
     try { await navigator.clipboard.writeText(location.href); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard unavailable */ }
@@ -74,7 +78,12 @@ export function Scoreboard() {
           hint={`Inflation shrinks old debt, but new deficits add debt in inflated dollars. Inflation also raises interest: short-term bills (~${pct(manual.debtComposition.billsShare, 0)} of the debt) reprice within months, TIPS are inflation-protected, and once markets expect inflation, all new borrowing costs more. That's why it only works as a surprise, and why it stops working as the debt rolls over (average maturity ~${manual.debtComposition.avgMaturityYears} years). Today's inflation already erodes ~${fmtB(o.inflationErosionNow)} of real debt a year, against a ${fmtB(Math.max(0, budget.deficit))} deficit. The U.S. has had ~2-3% inflation for 30 years, and debt-to-GDP still went from ~47% (1995) to over 100%.`}>
           {o.inflationToHoldRatio <= 0
             ? <>Not needed<small>debt-to-GDP already falling</small></>
-            : <>No: +{pct(o.inflationToHoldRatio)}/yr<small>just to hold debt-to-GDP flat</small></>}
+            : <>No: needs {pct(inflNow + o.inflationToHoldRatio)}/yr<small>vs {pct(inflNow)} now (+{pct(o.inflationToHoldRatio)}), just to hold debt-to-GDP flat</small></>}
+        </Badge>
+        <Badge ok={pop.approval === null ? null : pop.approval >= 50} title="Popularity"
+          hint={pop.least ? `Least popular change: ${pop.least.poll!.label} (${pop.least.poll!.support}% support, ${pop.least.poll!.source}). Simple average over changes that have national polling; changes without a poll aren't counted.` : 'Average public support for your changes, from national polls.'}>
+          {pop.approval === null ? (pop.total ? 'no polls yet' : '—') : `${Math.round(pop.approval)}% support`}
+          <small>{pop.total ? `${pop.counted} of ${pop.total} changes polled` : 'make a change to see it'}</small>
         </Badge>
         <Badge ok={null} title="National debt">{fmtB(live.totalDebtB.value)} <small>as of {live.totalDebtB.asOf}</small></Badge>
       </div>
