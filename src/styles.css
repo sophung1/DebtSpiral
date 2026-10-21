@@ -301,8 +301,9 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 .chart .plan-label { fill: var(--series-plan); font-weight: 600; }
 .ledger small { font-weight: 400; color: var(--muted); font-size: 11px; }
 .dial .mark line { stroke: var(--text); stroke-width: 2; stroke-dasharray: 3 2; }
-.dial .mark-num { fill: var(--text); font-size: 9px; font-weight: 700; }
+.dial .mark-num { fill: var(--text); font-size: 8.5px; font-weight: 700; }
 .dial-marks { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 10px; font-size: 11px; color: var(--muted); margin-top: 4px; }
 .dial-marks .pos { color: var(--good); font-weight: 600; }
 .mid { color: var(--warn); }
 .dial .arc.grad { opacity: .8; }
+.dial .arc.grad path { fill: none; stroke-width: 14; }

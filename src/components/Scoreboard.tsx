@@ -6,6 +6,7 @@ import { Dial } from './Dial';
 import { ssCashFlow } from '../model/buckets';
 import { popularity } from '../model/popularity';
 import { baselineInflation } from '../model/budget';
+import { REGIMES, regimeOf } from '../model/monetary';
 import { PRESETS, CONDITIONS, activePreset, activeConditions, applyPreset, applyConditions } from '../model/presets';
 import { fmtB, pct } from '../format';
 
@@ -36,8 +37,8 @@ export function Scoreboard() {
   // around a 3% deficit; red from 5% (today's is ~6%).
   const dialStops = [[-0.03, 'var(--warn)'], [-0.015, 'var(--good)'], [0.01, 'var(--good)'], [0.03, 'var(--warn)'], [0.05, 'var(--bad)']]
     .map(([p, color]) => ({ value: (p as number) * gdp, color: color as string }));
-  const milestones = [0.03, 0.02, 0.01].map((p) => ({
-    value: p * gdp, short: p === 0.03 ? '3% of GDP' : pct(p, 0),
+  const milestones = [0.01, 0.02, 0.03].map((p) => ({
+    value: p * gdp, short: pct(p, 0),
     label: `A ${pct(p, 0)}-of-GDP deficit: debt-to-GDP falls ~${pct(holdAt - p, 0)} a year${p === 0.03 ? ". Ray Dalio's target and the EU's deficit rule" : ''}`,
   }));
 
@@ -74,6 +75,13 @@ export function Scoreboard() {
               <option value="custom" disabled>Custom</option>
             </select>
           </label>
+          <label className="picker">
+            <span>Monetary regime</span>
+            <select className="btn" value={regimeOf(scn.monetary).id} title={regimeOf(scn.monetary).blurb}
+              onChange={(e) => load({ ...scn, monetary: e.target.value })}>
+              {REGIMES.map((r) => <option key={r.id} value={r.id} title={r.blurb}>{r.name}</option>)}
+            </select>
+          </label>
           <button className="btn" onClick={reset}>Reset to current law</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
@@ -82,7 +90,7 @@ export function Scoreboard() {
         arcTitle="Green: a deficit near balance. Amber: a 3% deficit, or a big surplus (it drags on the economy and shrinks the supply of Treasuries). Red: 5%+ deficits."
         label={deficit > 0 ? 'Annual deficit' : 'Annual surplus'} display={fmtB(Math.abs(deficit))}
         sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${Math.abs(change) < 0.5 ? 'current law' : `${change > 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} · excl. SS ${onBudget > 0 ? '' : '+'}${fmtB(Math.abs(onBudget))}`}>
-        <span className="dial-marks">{milestones.map((m, k) => <span key={m.label} title={m.label} className={deficit <= m.value ? 'pos' : ''}>{'①②③'[k]} {m.short} {fmtB(m.value)}{deficit <= m.value && ' ✓'}</span>)}</span>
+        <span className="dial-marks">{milestones.map((m, k) => <span key={m.label} title={m.label} className={deficit <= m.value ? 'pos' : ''}>{m.short}{k === 0 ? ' of GDP' : ''} {fmtB(m.value)}{deficit <= m.value && ' ✓'}</span>)}</span>
       </Dial>
       <div className="badges">
         <Badge ok={o.balanced} title="Balanced budget">{o.balanced ? '✅ Yes!' : `❌ ${fmtB(deficit)} short`}</Badge>

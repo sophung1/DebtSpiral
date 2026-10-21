@@ -40,6 +40,8 @@ export function changes(scn: Scenario): Change[] {
   if (!ft) add(dir(scn.hiRate, base.hiRate, 'hiRate:up', 'hiRate:down'), 'Medicare tax rate changed');
   if (!ft) add(dir(scn.estateRate, base.estateRate, 'estate:up', 'estate:down'), 'Estate tax rate changed');
   add(dir(scn.stimulusPerAdult, 0, 'stimulus:up', 'stimulus:down'), 'Stimulus checks');
+  add(dir(scn.gasTaxCents, base.gasTaxCents, 'gasTax:up', 'gasTax:down'), 'Gas tax changed');
+  add(dir(scn.dieselTaxCents, base.dieselTaxCents, 'dieselTax:up', 'dieselTax:down'), 'Diesel tax changed');
   return out;
 }
 

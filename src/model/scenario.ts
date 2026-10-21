@@ -36,6 +36,11 @@ export interface Scenario {
   inflationSensitivity: number;
   /** scales the bond market's fiscal risk premium (0 = off, 1 = normal, 3 = stressed) */
   marketFear: number;
+  /** monetary regime (see monetary.ts); 'fed' = today's Fed */
+  monetary: string;
+  /** federal gas and diesel taxes (cents per gallon) */
+  gasTaxCents: number;
+  dieselTaxCents: number;
   /** stimulus check per adult ($) */
   stimulusPerAdult: number;
   /** repeat the check every year (UBI-style) instead of once */
@@ -117,6 +122,9 @@ export function currentLaw(): Scenario {
     gdpShock: 0,
     inflationSensitivity: 1,
     marketFear: 1,
+    monetary: 'fed',
+    gasTaxCents: manual.fuelTax.gasCents,
+    dieselTaxCents: manual.fuelTax.dieselCents,
     stimulusPerAdult: 0,
     stimulusRecurring: false,
     behavioral: false,

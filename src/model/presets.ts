@@ -26,11 +26,11 @@ export const CONDITIONS: Condition[] = [
     blurb: '~4.5% real growth with flat prices (no inflation), slightly lower rates, the economy 2% above normal. Flat prices mean no inflation erodes the debt.' },
   { id: 'depression', name: 'Great Depression (1930s)', values: ep({ inflationSensitivity: 0.5, realGrowth: 0.01, inflationShock: -0.042, rateShock: 0.032, gdpShock: -0.1, multiplier: 1.5 }),
     blurb: 'GDP 10% below normal this year (it actually fell ~26% by 1933, beyond this model), ~1%/yr growth over the decade, prices falling ~2%/yr on average (deflation makes the debt heavier), and high multipliers (1.5×) with rates near zero.' },
-  { id: 'boom', name: 'Post-war boom (1950s–60s)', values: ep({ realGrowth: 0.04, inflationShock: 0.015, rateShock: -0.035, gdpShock: 0.02 }),
+  { id: 'boom', name: 'Post-war boom (1950s–60s)', values: ep({ realGrowth: 0.04, inflationShock: 0.015, rateShock: -0.0386, gdpShock: 0.02 }),
     blurb: '4% real growth, ~3.7% inflation, interest rates held 2 pts lower (financial repression), the economy 2% above normal. After WWII this took debt from ~106% to ~25% of GDP, but back then the budget ran primary surpluses.' },
-  { id: 'stagflation', name: "'70s stagflation (1973–82)", values: ep({ inflationSensitivity: 2, marketFear: 1.5, realGrowth: 0.02, inflationShock: 0.065, rateShock: -0.025, gdpShock: -0.02, multiplier: 0.7 }),
+  { id: 'stagflation', name: "'70s stagflation (1973–82)", values: ep({ inflationSensitivity: 2, marketFear: 1.5, realGrowth: 0.02, inflationShock: 0.065, rateShock: -0.0529, gdpShock: -0.02, multiplier: 0.7 }),
     blurb: '~2% growth, ~8.7% average inflation, 10-yr yields ~4 pts above today, and the 1974–75 recession (GDP 2% below normal).' },
-  { id: 'volcker', name: 'Volcker shock (1980–82)', values: ep({ marketFear: 2, realGrowth: 0.025, inflationShock: 0.035, rateShock: 0.025, gdpShock: -0.03, multiplier: 0.8 }),
+  { id: 'volcker', name: 'Volcker shock (1980–82)', values: ep({ marketFear: 2, realGrowth: 0.025, inflationShock: 0.035, rateShock: 0.0058, gdpShock: -0.03, multiplier: 0.8 }),
     blurb: 'The Fed pushed rates to ~15% to break inflation: 10-yr yields ~6 pts above today, a double-dip recession (GDP 3% below normal), then a decade of ~3% growth with inflation falling from 13% to ~4% (~5.7% average).' },
   { id: 'nineties', name: "'90s boom (1995–2000)", values: ep({ realGrowth: 0.04, inflationShock: 0.003, rateShock: 0.007, gdpShock: 0.02 }),
     blurb: '4% real growth from the tech/productivity boom, ~2.5% inflation, rates a bit above today. Booming revenue plus spending restraint produced the last balanced budgets (1998–2001).' },
@@ -38,15 +38,17 @@ export const CONDITIONS: Condition[] = [
     blurb: 'GDP ~6% below normal and revenue collapsing, then a slow ~1.4%/yr recovery with ~1.7% inflation. Rates fell ~2.5 pts as the Fed cut to zero, which is also why multipliers were high (1×).' },
   { id: 'covid', name: 'COVID shock (2020)', values: ep({ realGrowth: 0.025, inflationShock: 0, rateShock: -0.02, gdpShock: -0.04, multiplier: 1 }),
     blurb: 'A sharp, short collapse (GDP ~4% below normal for the year) with rates cut to near zero, then a fast rebound (~2.5% growth).' },
-  { id: 'inflation2021', name: '2021–22 inflation surge', values: ep({ inflationSensitivity: 2, realGrowth: 0.02, inflationShock: 0.025, rateShock: -0.015, gdpShock: 0.01 }),
+  { id: 'inflation2021', name: '2021–22 inflation surge', values: ep({ inflationSensitivity: 2, realGrowth: 0.02, inflationShock: 0.025, rateShock: -0.0216, gdpShock: 0.01 }),
     blurb: 'Prices jump (inflation peaked ~9%; ~4.7% averaged over 2021–24), rates rise after them, and the economy runs a little hot.' },
+  { id: 'wwii', name: 'WWII wartime economy (1942–45)', values: ep({ marketFear: 0, inflationSensitivity: 0.5, realGrowth: 0.04, inflationShock: 0.045, rateShock: -0.071, gdpShock: 0.04, multiplier: 0.7 }),
+    blurb: 'The economy running flat out, ~6.7% average inflation over 1942–48 despite price controls and rationing (dampened 0.5× here), and the Fed pegging the 10-yr near 2.5%, so real rates were deeply negative and markets couldn\'t price in fear. Wartime spending itself is policy: raise the defense slider yourself (it peaked at ~37% of GDP, ~12× today). Debt rose from ~45% to ~106% of GDP, then fell through growth, inflation and the rate cap.' },
   { id: 'forced_austerity', name: 'Forced austerity (debt crisis)', values: ep({ marketFear: 3, rateShock: 0.02, gdpShock: -0.03, multiplier: 1.2 }),
     blurb: 'Bond markets force cuts in the middle of a crisis (Greece 2010, the UK in 2022): real rates already 2 pts higher with markets panicking (3× fear), the economy 3% below normal, and a high multiplier (1.2×) because the Fed can\'t offset the cuts. Pair it with Fiscal hawk to see austerity by force vs. by choice.' },
-  { id: 'doomsday', name: 'Doomsday (hypothetical)', values: ep({ inflationSensitivity: 2, marketFear: 3, rateShock: -0.02, inflationShock: 0.05, realGrowth: -0.015, gdpShock: -0.06, multiplier: 1.5 }),
+  { id: 'doomsday', name: 'Doomsday (hypothetical)', values: ep({ inflationSensitivity: 2, marketFear: 3, rateShock: -0.05, inflationShock: 0.05, realGrowth: -0.015, gdpShock: -0.06, multiplier: 1.5 }),
     blurb: 'Everything at once: 1970s-style inflation (+5 pts/yr), 10-yr yields near 8% (+3 pts), a 2009-sized crash, then a lost decade (−1.5%/yr), with Greece-level feedback (1.5×). Add your own emergency response on top.' },
 ];
 
-const policyOf = (s: Scenario) => { const p: Partial<Scenario> = { ...s }; for (const k of CONDITION_KEYS) delete p[k]; return p; };
+const policyOf = (s: Scenario) => { const p: Partial<Scenario> = { ...s }; for (const k of CONDITION_KEYS) delete p[k]; delete p.monetary; return p; };
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Which policy preset the scenario matches ('current' = current law), or null if it's been customized. */
@@ -63,7 +65,7 @@ export function activeConditions(s: Scenario): string | null {
 /** Load a policy preset but keep the current economic conditions. */
 export function applyPreset(current: Scenario, id: string): Scenario {
   const next = id === 'current' ? currentLaw() : PRESETS.find((p) => p.id === id)!.build();
-  return { ...next, ...conditionsOf(current) };
+  return { ...next, ...conditionsOf(current), monetary: current.monetary };
 }
 
 /** Change the economic conditions but keep the current policies. */
@@ -175,7 +177,8 @@ export const PRESETS: Preset[] = [
     name: 'Trump agenda',
     blurb: 'Tariffs stay, mass deportation, no tax on Social Security benefits, a $1.5T defense budget, abolish the Education Department, Gold Card visas, end foreign aid, Trump Accounts, no diesel tax, a $2,000 "tariff dividend" check, selling the Fannie/Freddie stakes, ending CHIPS subsidies, and the FY2026 budget request\'s ~23% cut to non-defense spending. No deficit target was claimed beyond "tariffs and growth".',
     build: make((s) => {
-      on(s, 'mass_deportation', 'no_tax_ss', 'defense_15t', 'abolish_ed', 'gold_card', 'end_foreign_aid', 'trump_accounts', 'diesel_zero', 'repeal_clean', 'gse_sale', 'chips_repeal');
+      on(s, 'mass_deportation', 'no_tax_ss', 'defense_15t', 'abolish_ed', 'gold_card', 'end_foreign_aid', 'trump_accounts', 'repeal_clean', 'gse_sale', 'chips_repeal');
+      s.dieselTaxCents = 0;
       s.stimulusPerAdult = 2000; // the proposed $2,000 "tariff dividend" check
       progs(s, { nondefense: 0.77 });
     }),
@@ -219,7 +222,8 @@ export const PRESETS: Preset[] = [
     name: 'Libertarian minimal state',
     blurb: 'A flat-ish 15% income tax, no estate tax or tariffs, personal Social Security accounts, and a much smaller federal government: no Education Department, no college or foreign aid, no overseas bases or aid to Israel, no CHIPS or clean-energy subsidies, the Fannie/Freddie stakes sold, open legal immigration and Gold Card visas, and deep safety-net cuts. Its claim: smaller government and a falling debt.',
     build: make((s) => {
-      on(s, 'tariffs_repeal', 'privatize_ss', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'farm', 'fed_pay', 'abolish_ed', 'end_college_funding', 'end_foreign_aid', 'close_bases', 'repeal_clean', 'fossil_breaks', 'chips_repeal', 'gse_sale', 'end_israel_aid', 'immigration_reform', 'gold_card', 'diesel_zero');
+      on(s, 'tariffs_repeal', 'privatize_ss', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'farm', 'fed_pay', 'abolish_ed', 'end_college_funding', 'end_foreign_aid', 'close_bases', 'repeal_clean', 'fossil_breaks', 'chips_repeal', 'gse_sale', 'end_israel_aid', 'immigration_reform', 'gold_card');
+      s.dieselTaxCents = 0;
       rates(s, [0.10, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]);
       s.capGainsTopRate = 0.15;
       s.corporateRate = 0.15;
@@ -232,7 +236,8 @@ export const PRESETS: Preset[] = [
     name: 'Simpson-Bowles (2010)',
     blurb: "The bipartisan deficit commission's mix, scaled to today: about 3 dollars of cuts per 1 of revenue. Chained-CPI COLAs, a slowly rising retirement age, a higher Social Security cap, a 15¢ gas tax, trimmed tax breaks, and caps on defense and non-defense spending. Its target was a ~2.5–3% of GDP deficit.",
     build: make((s) => {
-      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'farm', 'fed_pay', 'salt10', 'stepup', 'carried', 'gas15', 'tips_ot_repeal', 'irs_enforce');
+      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'farm', 'fed_pay', 'salt10', 'stepup', 'carried', 'tips_ot_repeal', 'irs_enforce');
+      s.gasTaxCents += 15;
       s.ssWageBase = 400000;
       progs(s, { defense: 0.8, nondefense: 0.7, medicare: 0.9, medicaid: 0.9, fed_retirement: 0.9, other_mandatory: 0.8 });
     }),
@@ -242,7 +247,8 @@ export const PRESETS: Preset[] = [
     name: 'Stabilize the debt',
     blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health reforms, a Social Security fix (no wage cap, +1 pt payroll tax, means-testing, retirement age 70), immigration reform and broadening the tax base, while still renewing infrastructure funding, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
     build: make((s) => {
-      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'renew_iija', 'billionaire_min_tax');
+      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'renew_iija', 'billionaire_min_tax');
+      s.gasTaxCents += 15;
       rates(s, [0.10, 0.12, 0.22, 0.24, 0.33, 0.39, 0.44]);
       s.capGainsTopRate = 0.28;
       s.ssWageBase = null; // no Social Security wage cap

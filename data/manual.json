@@ -49,9 +49,14 @@
       "source": "MTS FY2026 net ($318B gross less $145B refunds after tariffs were struck down)"
     },
     "excise": {
-      "label": "Excise taxes",
-      "value": 106.0,
-      "source": "MTS FY2026"
+      "label": "Other excise taxes",
+      "value": 70.0,
+      "source": "MTS FY2026 excise ($106B) less the fuel taxes"
+    },
+    "fuelExcise": {
+      "label": "Fuel taxes (gas & diesel)",
+      "value": 36.0,
+      "source": "Highway Trust Fund: ~$25B from the 18.4¢ gas tax and ~$11B from the 24.4¢ diesel tax (TPC, FY2023)"
     },
     "estate": {
       "label": "Estate & gift tax",
@@ -592,6 +597,28 @@
     "premiumCap": 0.04,
     "premiumFloor": -0.015,
     "capSource": "Capped at +4 pts: the U.S. borrows in its own reserve currency (Greece's spread passed 20 pts; the UK's 2022 gilt shock was ~1.5 pts in weeks).",
-    "thirtyYearPremiumScale": 1.2
+    "thirtyYearPremiumScale": 1.2,
+    "inflationRiskPerPt": 0.3,
+    "inflationRiskFloor": 0.025,
+    "inflationRiskCap": 0.03,
+    "inflationRiskSource": "Investors demand an inflation risk premium when inflation runs high: ~0.3 pts of yield per point of inflation above ~2.5% (term premia ran ~2-4 pts in the late 1970s-early 1980s). Capped at +3 pts.",
+    "dominancePerPremiumPt": 0.25,
+    "dominanceSource": "Fiscal dominance: when markets fear the debt, inflation expectations drift up too (~0.25 pts of inflation per point of fiscal risk premium; weak and uncertain)."
+  },
+  "fuelTax": {
+    "gasCents": 18.4,
+    "dieselCents": 24.4,
+    "gasPerCentB": 1.47,
+    "gasCurvature": 0.003,
+    "dieselPerCentB": 0.44,
+    "gasHouseholdPerCent": {
+      "min_wage": -6,
+      "working_family": -15.3,
+      "median": -16.7,
+      "retirees": -10,
+      "professional": -20,
+      "top1": -26.7
+    },
+    "source": "Gas: CBO's 15¢ option (~$22B/yr) and ~$65B at 50¢, as demand falls with price (≈1.47·Δ¢ − 0.003·Δ¢²). Diesel: ~$0.44B per cent. Household costs scaled from CBO's distribution of a gas-tax rise."
   }
 }

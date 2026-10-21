@@ -199,32 +199,6 @@
       "households": {}
     },
     {
-      "id": "gas15",
-      "bucket": "energy",
-      "label": "Raise fuel taxes 15¢/gal",
-      "deltaB": 22,
-      "source": "CBO Options (annualized)",
-      "households": {
-        "min_wage": -90,
-        "working_family": -230,
-        "median": -250,
-        "retirees": -150,
-        "professional": -300,
-        "top1": -400
-      },
-      "excludes": [
-        "perot_gas"
-      ]
-    },
-    {
-      "id": "diesel_zero",
-      "bucket": "energy",
-      "label": "Eliminate the federal diesel tax (24.4¢/gal)",
-      "deltaB": -11,
-      "source": "Tax Policy Center: diesel excise raised ~$10.8B (FY2023). An Oct 2026 executive order defers it through Dec 31; this makes it permanent.",
-      "households": {}
-    },
-    {
       "id": "tariffs_repeal",
       "bucket": "business",
       "label": "Repeal the remaining 2025 tariffs",
@@ -683,22 +657,6 @@
       "source": "JCT (2012): ~$47B over 10 years, scaled up for income growth.",
       "households": {
         "top1": -20000
-      }
-    },
-    {
-      "id": "perot_gas",
-      "bucket": "energy",
-      "label": "50¢/gal gas tax increase",
-      "who": "Perot 1992",
-      "deltaB": 65,
-      "source": "Scaled from CBO's 15¢ option (~$22B/yr), allowing for lower demand.",
-      "households": {
-        "min_wage": -300,
-        "working_family": -750,
-        "median": -830,
-        "retirees": -500,
-        "professional": -1000,
-        "top1": -1300
       }
     },
     {
