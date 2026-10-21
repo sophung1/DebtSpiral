@@ -200,10 +200,10 @@ function DebtInflation() {
       <p className="hint">Yields: 2-yr {pct(live.yield2y.value, 2)} · 10-yr {pct(live.yield10y.value, 2)} · 30-yr {pct(live.yield30y.value, 2)} · average on all debt {pct(live.avgInterestRate.value, 2)}</p>
       <div className="debt-cols">
       <Slider label="Change in market interest rates" value={scn.rateShock} base={BASE.rateShock}
-        min={-0.03} max={0.05} step={0.0025} format={pts} onChange={(v) => set((s) => { s.rateShock = v; })}
+        min={-0.03} max={0.08} step={0.0025} format={pts} onChange={(v) => set((s) => { s.rateShock = v; })}
         hint={`In year 1 only about ${pct(manual.rateRepricingShareYear1, 0)} of the debt reprices (new borrowing and rollovers).`} />
-      <Slider label="Extra inflation, every year" value={scn.inflationShock} base={BASE.inflationShock}
-        min={0} max={0.1} step={0.0025} format={pts} onChange={(v) => set((s) => { s.inflationShock = v; })}
+      <Slider label="Extra inflation (or deflation), every year" value={scn.inflationShock} base={BASE.inflationShock}
+        min={-0.05} max={0.1} step={0.0025} format={pts} onChange={(v) => set((s) => { s.inflationShock = v; })}
         hint={<>On top of ~{pct(baseInfl, 1)} normal inflation, which already erodes ~{fmtB(baseInfl * debt)} of real debt a year. {scn.inflationShock > 0 && <>This year it adds {fmtB(budget.inflationInterest)} of interest ({pct(budget.repricing1, 0)} of the debt reprices or is inflation-indexed). </>} Watch the 10-year charts: debt-to-GDP dips, then climbs again as the rest of the debt reprices (average maturity ~{manual.debtComposition.avgMaturityYears} yrs).</>} />
       <Slider label="This year's economy (crash or boom)" value={scn.gdpShock} base={BASE.gdpShock}
         min={-0.1} max={0.05} step={0.005} format={(v) => (Math.abs(v) < 0.0005 ? 'normal' : `GDP ${v > 0 ? '+' : '−'}${pct(Math.abs(v))}`)} onChange={(v) => set((s) => { s.gdpShock = v; })}
