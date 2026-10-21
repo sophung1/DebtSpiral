@@ -18,6 +18,29 @@
       }
     },
     {
+      "id": "fairtax",
+      "bucket": "business",
+      "label": "FairTax: replace income, payroll, corporate & estate taxes with a 30% national sales tax + prebate",
+      "who": "House Freedom Caucus bills",
+      "deltaB": 4018,
+      "setsSliders": true,
+      "source": "Zeroes every income, payroll, corporate and estate tax slider; the sales tax nets ~$4.0T (the 3.8% investment-income surtax has no slider and stays). Tax Policy Center (Gale & Pomerleau): the advertised 23% tax-inclusive rate would need to be ~28% to break even (with perfect compliance), so it adds ~$10T over 10 years. Household effects (sales tax minus prebate) are rough.",
+      "households": {
+        "min_wage": 600,
+        "working_family": -4600,
+        "median": -11300,
+        "retirees": -9300,
+        "professional": -28600,
+        "top1": -112600
+      },
+      "excludes": [
+        "vat5",
+        "tariffs_for_income_tax",
+        "obbba_rollback",
+        "abolish_ss"
+      ]
+    },
+    {
       "id": "carbon25",
       "bucket": "energy",
       "label": "$25/ton carbon tax (no rebate)",
@@ -128,6 +151,20 @@
       "deltaB": 200,
       "source": "Advocates' estimate; heavily contested (valuation, avoidance)",
       "households": {}
+    },
+    {
+      "id": "wealth_sanders",
+      "bucket": "income_tax",
+      "label": "Sanders wealth tax (1% over $32M rising to 8% over $10B)",
+      "who": "Sanders 2020",
+      "deltaB": 300,
+      "source": "Low confidence. Saez & Zucman scored it at ~$435B/yr; this assumes more avoidance and lower valuations, as most outside estimates do.",
+      "households": {
+        "top1": -60000
+      },
+      "excludes": [
+        "wealth2"
+      ]
     },
     {
       "id": "stepup",
@@ -330,6 +367,18 @@
         "fra70",
         "no_tax_ss",
         "ss_means_test"
+      ]
+    },
+    {
+      "id": "privatize_ss",
+      "bucket": "social_security",
+      "label": "Privatize Social Security: 4 points of payroll tax go to personal accounts",
+      "who": "Bush 2005",
+      "deltaB": -150,
+      "source": "Low confidence. Diverting 4 of the 12.4 points (~$430B/yr when fully phased in) while current benefits continue; early-year transition cost is lower because accounts phase in by age. Benefit offsets come decades later.",
+      "households": {},
+      "excludes": [
+        "abolish_ss"
       ]
     },
     {
@@ -667,6 +716,15 @@
       "who": "Green New Deal",
       "deltaB": -450,
       "source": "Low confidence. Outside estimates ~$400-500B/yr, depending on take-up and wages.",
+      "households": {}
+    },
+    {
+      "id": "reparations",
+      "bucket": "wild",
+      "label": "Reparations for slavery (~$12T paid over 10 years)",
+      "who": "Darity & Mullen",
+      "deltaB": -1200,
+      "source": "Low confidence. Academic estimates range ~$10–14T (Darity & Mullen, 'From Here to Equality'); assumes equal payments over 10 years.",
       "households": {}
     },
     {

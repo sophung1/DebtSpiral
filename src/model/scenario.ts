@@ -68,7 +68,7 @@ export const lawFor = (scn: Scenario): TaxLaw => (scn.policies.obbba_rollback ? 
 
 /** Flip a policy switch. The OBBBA rollback also swaps the bracket schedule to that law's. */
 export function setPolicy(s: Scenario, id: string, on: boolean) {
-  const abolished = !!s.policies.abolish_ss;
+  const abolished = !!s.policies.abolish_ss, fair = !!s.policies.fairtax;
   s.policies[id] = on;
   if (on) {
     // Opposites can't both be on: turn off anything this excludes, or that excludes this.
@@ -80,6 +80,16 @@ export function setPolicy(s: Scenario, id: string, on: boolean) {
   if (abolished !== !!s.policies.abolish_ss) {
     s.programs.social_security = s.policies.abolish_ss ? 0 : 1;
     s.ssRate = s.policies.abolish_ss ? 0 : tax.payroll.ssRate;
+  }
+  // The FairTax zeroes every income, payroll, corporate and estate tax (its sales tax is the switch's score).
+  if (fair !== !!s.policies.fairtax) {
+    const law = currentLaw(), off = !s.policies.fairtax;
+    s.brackets.rates = off ? law.brackets.rates : s.brackets.rates.map(() => 0);
+    s.capGainsTopRate = off ? law.capGainsTopRate : 0;
+    s.ssRate = off ? law.ssRate : 0;
+    s.hiRate = off ? law.hiRate : 0;
+    s.corporateRate = off ? law.corporateRate : 0;
+    s.estateRate = off ? law.estateRate : 0;
   }
 }
 

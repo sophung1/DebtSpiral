@@ -23,20 +23,22 @@ export function changes(scn: Scenario): Change[] {
     const f = scn.programs[p.id] ?? 1;
     add(dir(f, 1, `program:${p.id}:up`, `program:${p.id}:down`), `${p.name} ${f > 1 ? 'increased' : 'cut'}`);
   }
+  // The FairTax switch replaces every rate below; count it once, as itself.
+  const ft = !!scn.policies.fairtax;
   // Income tax: the top rate has a poll; other bracket changes are counted but unpolled.
-  if (!scn.policies.obbba_rollback) {
+  if (!scn.policies.obbba_rollback && !ft) {
     const top = (s: Scenario) => s.brackets.rates.at(-1)!;
     add(dir(top(scn), top(base), 'topRate:up', 'topRate:down'), 'Top income tax rate changed');
     const lower = (s: Scenario) => JSON.stringify([s.brackets.rates.slice(0, -1), s.brackets.single]);
     if (lower(scn) !== lower(base)) add('brackets:other', 'Other tax brackets changed');
   }
-  add(dir(scn.corporateRate, base.corporateRate, 'corporateRate:up', 'corporateRate:down'), 'Corporate tax rate changed');
-  add(dir(scn.capGainsTopRate, base.capGainsTopRate, 'capGains:up', 'capGains:down'), 'Capital gains rate changed');
+  if (!ft) add(dir(scn.corporateRate, base.corporateRate, 'corporateRate:up', 'corporateRate:down'), 'Corporate tax rate changed');
+  if (!ft) add(dir(scn.capGainsTopRate, base.capGainsTopRate, 'capGains:up', 'capGains:down'), 'Capital gains rate changed');
   const cap = (c: number | null) => c ?? Infinity;
   add(dir(cap(scn.ssWageBase), cap(base.ssWageBase), 'ssCap:raise', 'ssCap:lower'), 'Social Security wage cap changed');
-  if (!scn.policies.abolish_ss) add(dir(scn.ssRate, base.ssRate, 'ssRate:up', 'ssRate:down'), 'Social Security tax rate changed');
-  add(dir(scn.hiRate, base.hiRate, 'hiRate:up', 'hiRate:down'), 'Medicare tax rate changed');
-  add(dir(scn.estateRate, base.estateRate, 'estate:up', 'estate:down'), 'Estate tax rate changed');
+  if (!scn.policies.abolish_ss && !ft) add(dir(scn.ssRate, base.ssRate, 'ssRate:up', 'ssRate:down'), 'Social Security tax rate changed');
+  if (!ft) add(dir(scn.hiRate, base.hiRate, 'hiRate:up', 'hiRate:down'), 'Medicare tax rate changed');
+  if (!ft) add(dir(scn.estateRate, base.estateRate, 'estate:up', 'estate:down'), 'Estate tax rate changed');
   add(dir(scn.stimulusPerAdult, 0, 'stimulus:up', 'stimulus:down'), 'Stimulus checks');
   return out;
 }
