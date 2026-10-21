@@ -5,7 +5,12 @@ export const DEFAULT_ORDER = [
   'households', 'debt', 'outlook', 'moneyflow',
   'income_tax', 'social_security', 'health', 'safety_net', 'defense_other', 'business', 'energy', 'wild',
 ];
-const DEFAULT_COLLAPSED: Record<string, boolean> = { moneyflow: true };
+/** Phones (the one-column layout) start with every card collapsed; wider screens only fold Money flow. */
+const defaultCollapsed = (): Record<string, boolean> => {
+  let phone = false;
+  try { phone = window.matchMedia('(max-width: 860px)').matches; } catch { /* no window */ }
+  return phone ? Object.fromEntries(DEFAULT_ORDER.map((id) => [id, true])) : { moneyflow: true };
+};
 const KEY = 'deficit-dial-layout-v2';
 
 export interface DropTarget { id: string; after: boolean }
@@ -42,10 +47,10 @@ function load(): Pick<Layout, 'order' | 'collapsed' | 'header'> {
         order.splice(prev ? order.indexOf(prev) + 1 : 0, 0, id);
       });
       const header: HeaderMode = ['full', 'compact', 'hidden'].includes(saved.header) ? saved.header : 'full';
-      return { order, collapsed: { ...DEFAULT_COLLAPSED, ...saved.collapsed }, header };
+      return { order, collapsed: { ...defaultCollapsed(), ...saved.collapsed }, header };
     }
   } catch { /* storage unavailable or corrupt: use defaults */ }
-  return { order: DEFAULT_ORDER, collapsed: DEFAULT_COLLAPSED, header: 'full' };
+  return { order: DEFAULT_ORDER, collapsed: defaultCollapsed(), header: 'full' };
 }
 
 const save = (s: Pick<Layout, 'order' | 'collapsed' | 'header'>) => {
@@ -65,5 +70,5 @@ export const useLayout = create<Layout>((set, get) => ({
     order.splice(Math.max(0, Math.min(to, order.length)), 0, id);
     set({ order }); save(get());
   },
-  reset: () => { set({ order: DEFAULT_ORDER, collapsed: DEFAULT_COLLAPSED, header: 'full' }); try { localStorage.removeItem(KEY); } catch { /* ignore */ } },
+  reset: () => { set({ order: DEFAULT_ORDER, collapsed: defaultCollapsed(), header: 'full' }); try { localStorage.removeItem(KEY); } catch { /* ignore */ } },
 }));

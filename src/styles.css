@@ -135,7 +135,7 @@ h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: v
 .chart-table table { border-collapse: collapse; margin-top: 6px; font-variant-numeric: tabular-nums; }
 .chart-table th, .chart-table td { padding: 3px 8px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; }
 
-/* Where the money goes */
+/* Money flow */
 .sankey-scroll { overflow-x: auto; margin-top: 6px; }
 .sankey { width: 100%; min-width: 640px; max-width: 980px; display: block; margin: 0 auto; }
 .sankey path { transition: opacity .15s; cursor: default; }
