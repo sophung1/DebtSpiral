@@ -1,4 +1,5 @@
 import { tax, programs, policies, manual } from './data';
+import { REGIMES } from './monetary';
 
 export interface BracketSchedule {
   rates: number[];
@@ -138,4 +139,47 @@ export function thresholds(s: BracketSchedule, filing: 'single' | 'mfj'): number
 /** After bracket `i` changes, push neighbors so rates never fall as income rises (higher brackets up, lower ones down). */
 export function enforceProgressive(rates: number[], i: number): number[] {
   return rates.map((r, j) => (j > i ? Math.max(r, rates[i]) : j < i ? Math.min(r, rates[i]) : r));
+}
+
+// --- Share links -------------------------------------------------------------------------------------------
+// A shared link carries a whole scenario, so anyone can hand-craft one. Only known fields with sane, in-range
+// values get through; anything else falls back to current law. Ranges cover every slider and economy option.
+const NUM_RANGES: Partial<Record<keyof Scenario, [number, number]>> = {
+  capGainsTopRate: [0, 0.6], ssRate: [0, 0.3], hiRate: [0, 0.3], corporateRate: [0, 0.6],
+  estateRate: [0, 0.8], estateExemption: [0, 5e7], rateShock: [-0.1, 0.1], inflationShock: [-0.08, 0.15],
+  realGrowth: [-0.05, 0.08], multiplier: [0, 2], gdpShock: [-0.15, 0.15], inflationSensitivity: [0, 2], marketFear: [0, 3],
+  gasTaxCents: [0, 100], dieselTaxCents: [0, 100], stimulusPerAdult: [0, 12000],
+};
+const BOOLS = ['multiplierScales', 'stimulusRecurring', 'behavioral'] as const;
+const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const clampTo = (v: number, [lo, hi]: [number, number]) => Math.min(hi, Math.max(lo, v));
+
+function cleanBrackets(raw: unknown): BracketSchedule | null {
+  const b = raw as Partial<BracketSchedule> | null;
+  if (!b || !Array.isArray(b.rates) || !Array.isArray(b.single) || !Array.isArray(b.mfjRatio)) return null;
+  const n = b.rates.length;
+  if (n < 1 || n > 12 || b.single.length !== n || b.mfjRatio.length !== n) return null;
+  if (![...b.rates, ...b.single, ...b.mfjRatio].every(finite)) return null;
+  if (b.single[0] !== 0 || b.single.some((t, i) => i > 0 && t <= b.single![i - 1])) return null;
+  return { rates: b.rates.map((r) => clampTo(r, [0, 0.99])), single: [...b.single], mfjRatio: b.mfjRatio.map((r) => clampTo(r, [1, 3])) };
+}
+
+/** Rebuild a scenario from untrusted JSON, keeping only valid, clamped values. */
+export function sanitizeScenario(raw: unknown): Scenario | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const r = raw as Record<string, unknown>, s = currentLaw();
+  for (const [k, range] of Object.entries(NUM_RANGES) as [keyof Scenario, [number, number]][]) {
+    if (finite(r[k])) (s as unknown as Record<string, number>)[k] = clampTo(r[k] as number, range);
+  }
+  for (const k of BOOLS) if (typeof r[k] === 'boolean') s[k] = r[k] as boolean;
+  if (r.ssWageBase === null) s.ssWageBase = null;
+  else if (finite(r.ssWageBase)) s.ssWageBase = clampTo(r.ssWageBase, [0, 1e8]);
+  if (typeof r.monetary === 'string' && REGIMES.some((x) => x.id === r.monetary)) s.monetary = r.monetary;
+  const progs = r.programs as Record<string, unknown> | undefined;
+  if (progs && typeof progs === 'object') for (const id of Object.keys(s.programs)) if (finite(progs[id])) s.programs[id] = clampTo(progs[id] as number, [0, 20]);
+  const pols = r.policies as Record<string, unknown> | undefined;
+  if (pols && typeof pols === 'object') for (const id of Object.keys(s.policies)) if (typeof pols[id] === 'boolean') s.policies[id] = pols[id] as boolean;
+  const br = cleanBrackets(r.brackets);
+  if (br) s.brackets = br;
+  return s;
 }
