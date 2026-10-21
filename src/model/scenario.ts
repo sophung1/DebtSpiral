@@ -32,6 +32,10 @@ export interface Scenario {
   multiplierScales: boolean;
   /** this year's GDP vs normal from outside events (crash/boom), decimal; fades like the multiplier gap */
   gdpShock: number;
+  /** scales how much policy-driven demand raises inflation (0 = static, 1 = normal, 2 = tight economy) */
+  inflationSensitivity: number;
+  /** scales the bond market's fiscal risk premium (0 = off, 1 = normal, 3 = stressed) */
+  marketFear: number;
   /** stimulus check per adult ($) */
   stimulusPerAdult: number;
   /** repeat the check every year (UBI-style) instead of once */
@@ -111,6 +115,8 @@ export function currentLaw(): Scenario {
     multiplier: manual.feedback.defaultMultiplier,
     multiplierScales: true,
     gdpShock: 0,
+    inflationSensitivity: 1,
+    marketFear: 1,
     stimulusPerAdult: 0,
     stimulusRecurring: false,
     behavioral: false,

@@ -576,5 +576,22 @@
     "shockNote": "Recessions hit revenue harder than GDP: capital gains and corporate profits collapse. In FY2009 receipts fell ~17% with GDP ~6% below potential, an elasticity of ~2.5-3.",
     "wageLossPerGdpGap": 0.5,
     "wageLossNote": "Rough Okun's-law average: each 1% of GDP below normal costs ~0.5% of wage income (job losses plus fewer hours). Averages hide that some lose everything and most lose nothing."
+  },
+  "macro": {
+    "phillipsUp": 0.35,
+    "phillipsDown": 0.15,
+    "phillipsSource": "Inflation rises ~0.35 pts per 1% of GDP above potential and falls less when below (a convex Phillips curve). Recent U.S. estimates run 0.1-0.4; the 2021-22 surge showed the steep side when the economy is tight.",
+    "taylorInflation": 1.5,
+    "taylorGap": 0.5,
+    "taylorSource": "Short rates follow the Taylor rule: +1.5 pts per pt of inflation, +0.5 per pt of GDP gap.",
+    "longInflationPassThrough": 0.6,
+    "longSource": "Long yields price in ~60% of a jump in current inflation as expected inflation (it's partly seen as temporary).",
+    "premiumPerDeficitPt": 0.0025,
+    "premiumPerDebtPt": 0.0003,
+    "premiumSource": "Laubach (2009): each 1 pt of GDP of projected deficit raises the 10-yr yield ~20-30 bp; each 1 pt of debt-to-GDP ~3-4 bp. Measured against the current-law path, so cutting the deficit lowers rates.",
+    "premiumCap": 0.04,
+    "premiumFloor": -0.015,
+    "capSource": "Capped at +4 pts: the U.S. borrows in its own reserve currency (Greece's spread passed 20 pts; the UK's 2022 gilt shock was ~1.5 pts in weeks).",
+    "thirtyYearPremiumScale": 1.2
   }
 }

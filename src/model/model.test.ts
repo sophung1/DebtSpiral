@@ -140,7 +140,7 @@ describe('Social Security cash flow', () => {
 describe('OBBBA rollback', () => {
   const d0 = computeBudget(base, base).deficit;
   // Static scoring (multiplier 0) so the CBO total can be checked exactly.
-  const rolled = () => { const s = currentLaw(); s.multiplier = 0; setPolicy(s, 'obbba_rollback', true); return s; };
+  const rolled = () => { const s = currentLaw(); s.multiplier = 0; s.inflationSensitivity = 0; s.marketFear = 0; setPolicy(s, 'obbba_rollback', true); return s; };
   it('cuts the deficit by CBO\'s FY2026 total, split between modeled taxes and a lump sum', () => {
     const s = rolled();
     expect(d0 - computeBudget(s, base).deficit).toBeCloseTo(manual.tax.preObbba.cboFy2026DeficitIncreaseB, 6);
@@ -159,7 +159,8 @@ describe('OBBBA rollback', () => {
     expect(computeHousehold(top, s).incomeTax).toBeGreaterThan(computeHousehold(top, base).incomeTax);
   });
   it('turning it back off restores current law exactly', () => {
-    const s = rolled(); setPolicy(s, 'obbba_rollback', false); s.multiplier = base.multiplier;
+    const s = rolled(); setPolicy(s, 'obbba_rollback', false);
+    Object.assign(s, { multiplier: base.multiplier, inflationSensitivity: base.inflationSensitivity, marketFear: base.marketFear });
     expect(s).toEqual(base);
   });
 });
@@ -215,10 +216,10 @@ describe('presets', () => {
 
 describe('FairTax', () => {
   it('zeroes the replaced taxes, scores the sales tax, and restores current law when off', () => {
-    const s = currentLaw(); s.multiplier = 0;
+    const s = currentLaw(); s.multiplier = 0; s.inflationSensitivity = 0; s.marketFear = 0;
     setPolicy(s, 'fairtax', true);
     expect([s.ssRate, s.hiRate, s.corporateRate, s.estateRate, s.capGainsTopRate, Math.max(...s.brackets.rates)]).toEqual([0, 0, 0, 0, 0, 0]);
-    const s0 = currentLaw(); s0.multiplier = 0;
+    const s0 = currentLaw(); s0.multiplier = 0; s0.inflationSensitivity = 0; s0.marketFear = 0;
     // Tax Policy Center: the advertised rate falls short by roughly $1T a year.
     const gap = computeBudget(s, base).deficit - computeBudget(s0, base).deficit;
     expect(gap).toBeGreaterThan(700);
@@ -231,7 +232,7 @@ describe('FairTax', () => {
 describe('debt, inflation & headline proposals', () => {
   const b0 = computeBudget(base, base);
   it('a one-time item adds to year 1 only; a recurring one every year', () => {
-    const s = currentLaw(); s.multiplier = 0; s.stimulusPerAdult = 5000;
+    const s = currentLaw(); s.multiplier = 0; s.inflationSensitivity = 0; s.marketFear = 0; s.stimulusPerAdult = 5000;
     const one = projection(computeBudget(s, base));
     s.stimulusRecurring = true;
     const rec = projection(computeBudget(s, base));
@@ -255,7 +256,7 @@ describe('debt, inflation & headline proposals', () => {
     expect(computeOutcomes(b).inflationToHoldRatio).toBeLessThan(computeOutcomes(b0).inflationToHoldRatio);
   });
   it('one-time policies are flagged and excluded from later years', () => {
-    const s = currentLaw(); s.multiplier = 0; setPolicy(s, 'student_debt', true);
+    const s = currentLaw(); s.multiplier = 0; s.inflationSensitivity = 0; s.marketFear = 0; setPolicy(s, 'student_debt', true);
     const p = projection(computeBudget(s, base)), p0 = projection(b0);
     expect(p[1].deficit! - p0[1].deficit!).toBeCloseTo(400, 0);
     expect(p[3].deficit! - p0[3].deficit!).toBeLessThan(40);
@@ -265,7 +266,7 @@ describe('debt, inflation & headline proposals', () => {
 describe('economic feedback (fiscal multiplier)', () => {
   it('austerity with a high multiplier shrinks GDP, loses revenue and raises debt-to-GDP at first', async () => {
     const { PRESETS } = await import('./presets');
-    const hawk = (m: number) => { const s = PRESETS.find((p) => p.id === 'hawk')!.build(); s.multiplier = m; return computeBudget(s, base); };
+    const hawk = (m: number) => { const s = PRESETS.find((p) => p.id === 'hawk')!.build(); s.multiplier = m; s.inflationSensitivity = 0; s.marketFear = 0; return computeBudget(s, base); };
     const s0 = hawk(0), s15 = hawk(1.5);
     expect(s15.gdpGap).toBeLessThan(-0.05);
     expect(s15.deficit).toBeGreaterThan(s0.deficit + 300);
@@ -279,7 +280,8 @@ describe('economic feedback (fiscal multiplier)', () => {
     expect(b.deficit).toBeCloseTo(computeBudget(base, base).deficit, 6);
   });
   it('stimulus with a multiplier boosts GDP and claws back some revenue', () => {
-    const s = currentLaw(); s.stimulusPerAdult = 2000;
+    // Multiplier channel only: inflation and rate feedback are tested separately.
+    const s = currentLaw(); s.stimulusPerAdult = 2000; s.inflationSensitivity = 0; s.marketFear = 0;
     const st = computeBudget(s, base).deficit;
     s.multiplier = 1;
     const b = computeBudget(s, base);
@@ -365,17 +367,19 @@ describe('historical economies', () => {
     const { applyConditions, CONDITIONS } = await import('./presets');
     const d10 = (id: string) => computeOutcomes(computeBudget(applyConditions(currentLaw(), id), base)).debtToGdp10;
     const now = d10('today');
-    for (const id of ['depression', 'great_recession', 'volcker', 'doomsday']) expect(d10(id)).toBeGreaterThan(now);
+    for (const id of ['depression', 'volcker', 'doomsday']) expect(d10(id)).toBeGreaterThan(now);
     for (const id of ['roaring20s', 'boom', 'nineties', 'nominal']) expect(d10(id)).toBeLessThan(now);
-    // Stagflation: huge deficits, but ~8.7% inflation grows nominal GDP so fast that debt-to-GDP barely moves (as in the 1970s).
-    expect(Math.abs(d10('stagflation') - now)).toBeLessThan(0.05);
+    // Great Recession: a deep first-year hole, but a decade of near-zero rates holds interest down (as in the 2010s).
+    expect(Math.abs(d10('great_recession') - now)).toBeLessThan(0.06);
+    // Stagflation: big deficits, but ~8.7% inflation with negative real rates erodes the debt (as in the 1970s).
+    expect(d10('stagflation')).toBeLessThan(now);
     expect(CONDITIONS.length).toBe(12);
   });
 });
 
 describe('new headline switches', () => {
   it('opposites turn each other off; restore-all includes the EV credits', () => {
-    const s = currentLaw(); s.multiplier = 0;
+    const s = currentLaw(); s.multiplier = 0; s.inflationSensitivity = 0; s.marketFear = 0;
     setPolicy(s, 'repeal_clean', true);
     setPolicy(s, 'restore_clean', true);
     expect(s.policies.repeal_clean).toBe(false);
@@ -389,10 +393,10 @@ describe('new headline switches', () => {
   it('every switch moves the static deficit by exactly its score', async () => {
     const { policies } = await import('./data');
     const { policyDelta } = await import('./policies');
-    const s0 = currentLaw(); s0.multiplier = 0;
+    const s0 = currentLaw(); s0.multiplier = 0; s0.inflationSensitivity = 0; s0.marketFear = 0;
     const d0 = computeBudget(s0, base).deficit;
     for (const p of policies.filter((x) => x.id !== 'obbba_rollback' && !x.setsSliders)) {
-      const s = currentLaw(); s.multiplier = 0; setPolicy(s, p.id, true);
+      const s = currentLaw(); s.multiplier = 0; s.inflationSensitivity = 0; s.marketFear = 0; setPolicy(s, p.id, true);
       expect(d0 - computeBudget(s, base).deficit).toBeCloseTo(policyDelta(p), 6);
     }
   });
@@ -445,5 +449,50 @@ describe('abolish Social Security', () => {
     expect(scn.policies.abolish_ss).toBe(false);
     expect(scn.programs.social_security).toBe(1);
     expect(scn.ssRate).toBe(currentLaw().ssRate);
+  });
+});
+
+describe('inflation and interest-rate feedback', () => {
+  const run = (f: (s: ReturnType<typeof currentLaw>) => void) => { const s = currentLaw(); f(s); return computeBudget(s, base); };
+  it('leaves current law calibrated to the FY2026 actuals', () => {
+    const b = run(() => {});
+    expect(b.deficit).toBeCloseTo(b.baseDeficit, 6);
+    expect([b.inflationShock, b.premium]).toEqual([0, 0]);
+  });
+  it('loosening raises inflation, short and long rates; tightening lowers them', () => {
+    const loose = run((s) => { s.stimulusPerAdult = 3000; s.stimulusRecurring = true; });
+    expect(loose.inflationShock).toBeGreaterThan(0.002);
+    expect(loose.yields.y2).toBeGreaterThan(computeBudget(base, base).yields.y2);
+    expect(loose.premium).toBeGreaterThan(0);
+    const tight = run((s) => { s.programs.nondefense = 0.6; s.programs.defense = 0.7; });
+    expect(tight.premium).toBeLessThan(0);
+    expect(tight.netInterest).toBeLessThan(computeBudget(base, base).netInterest);
+  });
+  it('keeps the risk premium inside its caps', () => {
+    const huge = run((s) => { s.stimulusPerAdult = 20000; s.stimulusRecurring = true; s.marketFear = 3; });
+    expect(huge.premium).toBeLessThanOrEqual(manual.macro.premiumCap + 1e-12);
+    const cuts = run((s) => { for (const k of Object.keys(s.programs)) s.programs[k] = 0.3; s.marketFear = 3; });
+    expect(cuts.premium).toBeGreaterThanOrEqual(manual.macro.premiumFloor - 1e-12);
+  });
+  it('Smoot-Hawley tariffs lift prices about 1% at once', () => {
+    const b = run((s) => { s.multiplier = 0; setPolicy(s, 'smoot_hawley', true); });
+    expect(b.priceBump).toBeCloseTo(0.011, 6);
+  });
+  it('turning both settings off removes the feedback', () => {
+    const b = run((s) => { s.inflationSensitivity = 0; s.marketFear = 0; s.stimulusPerAdult = 3000; });
+    expect([b.policyInflation, b.premium]).toEqual([0, 0]);
+  });
+  it('the average rate on the debt drifts up toward market yields at current law', () => {
+    const p = projection(computeBudget(base, base));
+    expect(p[1].rate!).toBeGreaterThan(manual.netInterestB.value / p[0].debt);
+    expect(p.at(-1)!.rate!).toBeGreaterThan(0.044);
+    expect(p.at(-1)!.rate!).toBeLessThan(0.052);
+  });
+  it('flags a spiral in doomsday with stressed markets, not for the hawk in normal times', async () => {
+    const { PRESETS, applyConditions } = await import('./presets');
+    const hawk = computeOutcomes(computeBudget(PRESETS.find((p) => p.id === 'hawk')!.build(), base));
+    expect(hawk.spiral).toBe('falling');
+    const doom = computeOutcomes(computeBudget(applyConditions(currentLaw(), 'doomsday'), base));
+    expect(doom.spiral).toBe('spiral');
   });
 });

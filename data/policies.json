@@ -228,7 +228,8 @@
         "retirees": 850,
         "professional": 2000,
         "top1": 5000
-      }
+      },
+      "priceLevelPts": -0.003
     },
     {
       "id": "smoot_hawley",
@@ -236,7 +237,7 @@
       "label": "Raise tariffs to a ~20% average on all imports (Smoot-Hawley's 1932 level)",
       "who": "Smoot-Hawley (1930)",
       "deltaB": 295,
-      "source": "Low confidence. ~$3.3T of imports at a 20% average, with imports falling ~14% in response, less the usual 25% offset for lower income and payroll taxes. Retaliation is not modeled: in 1930–33 trading partners retaliated and world trade fell by about two-thirds.",
+      "source": "Low confidence. ~$3.3T of imports at a 20% average, with imports falling ~14% in response, less the usual 25% offset for lower income and payroll taxes. Retaliation is not modeled: in 1930–33 trading partners retaliated and world trade fell by about two-thirds. Prices jump ~1.1% once (11% import share × 15-pt tariff rise × 70% pass-through).",
       "households": {
         "min_wage": -1150,
         "working_family": -2650,
@@ -247,7 +248,8 @@
       },
       "excludes": [
         "tariffs_repeal"
-      ]
+      ],
+      "priceLevelPts": 0.011
     },
     {
       "id": "buyback_tax4",
@@ -703,7 +705,8 @@
       "who": "Trump 2024",
       "deltaB": -2066,
       "source": "Loses $2.85T of individual income tax. Clausing & Obstfeld (2024) put the revenue-maximizing tariff at ~$780B/yr. Household effects not shown.",
-      "households": {}
+      "households": {},
+      "priceLevelPts": 0.04
     },
     {
       "id": "obbba_rollback",

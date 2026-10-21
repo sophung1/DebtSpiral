@@ -7,6 +7,7 @@ import { baselineInflation } from '../model/budget';
 import { setPolicy } from '../model/scenario';
 import { polls } from '../model/popularity';
 import { BracketEditor } from './BracketEditor';
+import { YieldCurve } from './YieldCurve';
 import { Panel, Slider, Toggle } from './Controls';
 import { fmtB, fmt$, fmtK, pct } from '../format';
 
@@ -197,13 +198,16 @@ function DebtInflation() {
       <div className="ledger">
         <div><span>Net interest</span><strong>{fmtB(budget.netInterest)}</strong></div>
         <div><span>Debt held by public</span><strong>{fmtB(debt)}</strong></div>
-        <div className={o.inflationToHoldRatio <= 0 ? 'pos' : 'neg'}><span>Inflation to stand still</span><strong>{o.inflationToHoldRatio <= 0 ? 'none' : `${pct(baselineInflation + scn.inflationShock + o.inflationToHoldRatio)}/yr (+${pct(o.inflationToHoldRatio)} over now)`}</strong></div>
+        <div className={o.inflationToHoldRatio <= 0 ? 'pos' : 'neg'}><span>Inflation to stand still</span><strong>{o.inflationToHoldRatio <= 0 ? 'none' : `${pct(baselineInflation + budget.inflationShock + o.inflationToHoldRatio)}/yr (+${pct(o.inflationToHoldRatio)} over now)`}</strong></div>
+        <div className={budget.inflationShock > 0.0005 ? 'neg' : ''}><span>Inflation this year</span><strong>{pct(baseInfl + budget.inflationShock, 1)}{Math.abs(budget.policyInflation + budget.priceBump) >= 0.0005 && <small> ({budget.policyInflation + budget.priceBump > 0 ? '+' : '−'}{pct(Math.abs(budget.policyInflation + budget.priceBump), 1)} from your plan{budget.priceBump ? `, incl. ${pct(budget.priceBump, 1)} tariff price jump` : ''})</small>}</strong></div>
+        <div className={budget.premium > 0.00005 ? 'neg' : budget.premium < -0.00005 ? 'pos' : ''}><span>Market risk premium</span><strong>{Math.abs(budget.premium) < 0.00005 ? 'none' : `${budget.premium > 0 ? '+' : '−'}${Math.round(Math.abs(budget.premium) * 1e4)} bp on long yields`}</strong></div>
       </div>
+      <YieldCurve plan={budget.yields} />
       <p className="hint">Yields: 2-yr {pct(live.yield2y.value, 2)} · 10-yr {pct(live.yield10y.value, 2)} · 30-yr {pct(live.yield30y.value, 2)} · average on all debt {pct(live.avgInterestRate.value, 2)}</p>
       <div className="debt-cols">
-      <Slider label="Change in market interest rates" value={scn.rateShock} base={BASE.rateShock}
-        min={-0.03} max={0.08} step={0.0025} format={pts} onChange={(v) => set((s) => { s.rateShock = v; })}
-        hint={`In year 1 only about ${pct(manual.rateRepricingShareYear1, 0)} of the debt reprices (new borrowing and rollovers).`} />
+      <Slider label="Change in real interest rates (beyond inflation)" value={scn.rateShock} base={BASE.rateShock}
+        min={-0.04} max={0.06} step={0.0025} format={pts} onChange={(v) => set((s) => { s.rateShock = v; })}
+        hint={`Market yields already rise one-for-one with the inflation slider below; this moves them on top of that (Volcker-era real rates were high, the 1950s and 1970s negative). In year 1 only about ${pct(manual.rateRepricingShareYear1, 0)} of the debt reprices; the rest rolls over across ~${manual.debtComposition.avgMaturityYears} years.`} />
       <Slider label="Extra inflation (or deflation), every year" value={scn.inflationShock} base={BASE.inflationShock}
         min={-0.05} max={0.1} step={0.0025} format={pts} onChange={(v) => set((s) => { s.inflationShock = v; })}
         hint={<>On top of ~{pct(baseInfl, 1)} normal inflation, which already erodes ~{fmtB(baseInfl * debt)} of real debt a year. {scn.inflationShock > 0 && <>This year it adds {fmtB(budget.inflationInterest)} of interest ({pct(budget.repricing1, 0)} of the debt reprices or is inflation-indexed). </>} Watch the 10-year charts: debt-to-GDP dips, then climbs again as the rest of the debt reprices (average maturity ~{manual.debtComposition.avgMaturityYears} yrs).</>} />
@@ -217,6 +221,13 @@ function DebtInflation() {
         min={0} max={2} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.multiplier = v; })}
         hint={<>{scn.multiplier > 0 && <strong className={budget.gdpGap < -0.0005 ? 'neg' : budget.gdpGap > 0.0005 ? 'pos' : ''}>{Math.abs(budget.gdpGap) < 0.0005 ? 'No effect: your plan doesn\'t change the deficit before interest. ' : `At ${budget.multiplierUsed.toFixed(2)}×: GDP ${budget.gdpGap > 0 ? '+' : '−'}${pct(Math.abs(budget.gdpGap))} this year; revenue ${budget.feedbackB > 0 ? '−' : '+'}${fmtB(Math.abs(budget.feedbackB))}. `}</strong>}
           How much each $1 of spending cuts or tax hikes shrinks the economy (and each $1 of stimulus grows it). Smaller GDP means less revenue and a bigger debt-to-GDP. About 0.5 in normal times; 0.9–1.7 in Europe's 2010–13 austerity, when Greece cut its deficit and its debt-to-GDP still rose (Blanchard &amp; Leigh, IMF). The effect fades ~30%/yr. Starts at 0.5, the normal-times estimate. Set it to 0 for static scoring, like CBO's conventional scores.</>} />
+      <Slider label="Inflation sensitivity" value={scn.inflationSensitivity} base={BASE.inflationSensitivity}
+        min={0} max={2} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.inflationSensitivity = v; })}
+        hint={<>{Math.abs(budget.policyInflation) >= 0.0005 && <strong className={budget.policyInflation > 0 ? 'neg' : 'pos'}>Your plan {budget.policyInflation > 0 ? 'adds' : 'takes off'} {pct(Math.abs(budget.policyInflation), 1)} of inflation this year. </strong>}
+          How much your plan's boost (or drag) to the economy shows up as inflation: ~{manual.macro.phillipsUp} pts per 1% of GDP the economy runs hot, ~{manual.macro.phillipsDown} when it runs cold. 2× is a tight economy like 2021, when stimulus met supply shortages. The Fed answers with higher short rates (Taylor rule), and inflation erodes paychecks in the household cards. 0 = static.</>} />
+      <Slider label="Bond market fear" value={scn.marketFear} base={BASE.marketFear}
+        min={0} max={3} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.marketFear = v; })}
+        hint={<>Investors demand higher long yields when deficits and debt run above the current-law path: ~{Math.round(manual.macro.premiumPerDeficitPt * 1e4)} bp per point of GDP of extra deficit and ~{Math.round(manual.macro.premiumPerDebtPt * 1e4)} bp per point of debt (Laubach 2009). Cutting the deficit lowers rates the same way. Higher rates raise interest, which raises the deficit, which raises rates: that loop is how a debt spiral starts. 3× is stressed markets (the UK's 2022 gilt crisis); capped at +{manual.macro.premiumCap * 100} pts since the U.S. borrows in its own reserve currency. 0 = off.</>} />
       <Toggle label="Scale with severity (Greece effect)" checked={scn.multiplierScales} onChange={(v) => set((s) => { s.multiplierScales = v; })}
         aside={<span className="hint">{scn.multiplierScales && budget.multiplierUsed > scn.multiplier + 0.005 && <strong className="neg">Your plan's austerity raises it to {budget.multiplierUsed.toFixed(2)}×. </strong>}
           Big, fast austerity hits harder than small changes. Above a {pct(manual.feedback.severityThreshold, 0)}-of-GDP squeeze, the multiplier rises 0.1 per extra point of GDP (max {manual.feedback.maxMultiplier}×). A Greece-sized 13% squeeze gets ~1.6×. Turn off to use the slider value as-is.</span>} />
