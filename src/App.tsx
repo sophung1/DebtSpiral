@@ -36,7 +36,7 @@ export default function App() {
         </p>
         <SourcesDrawer />
       </main>
-      <footer className="site-foot">deficitdial.io · a simplified, one-year model with a 10-year outlook. It's an educational game, not an official score.</footer>
+      <footer className="site-foot">debtspiral.app · a simplified, one-year model with a 10-year outlook. It's an educational game, not an official score.</footer>
     </>
   );
 }

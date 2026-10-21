@@ -1,6 +1,6 @@
-# Deficit Dial
+# DebtSpiral
 
-**deficitdial.io**: a dashboard game where you try to balance the U.S. federal budget using real data.
+**[debtspiral.app](https://debtspiral.app)**: a budget simulator where you try to balance the U.S. federal budget using real data, and see what happens to the debt when you don't.
 
 - **Areas**: the budget is grouped into cards: income tax, Social Security, health, safety net, defense & other spending, business & trade, and interest. Each card has its own sliders and policy switches, and shows how much it adds to or saves from the deficit. Every line of the budget belongs to exactly one card. A policy's card is set by `bucket` in `data/policies.json`.
 - **Income tax**: a draggable 2D bracket editor. Drag a step up or down to change its rate, and drag a knob left or right to move where the bracket starts.
@@ -57,10 +57,11 @@ All figures are rounded approximations meant for exploring trade-offs. It's not 
 
 ## Deploy
 
-`.github/workflows/deploy.yml` builds and deploys to GitHub Pages. It runs on every push to `main`, and weekly to refresh the data. `public/CNAME` sets the custom domain to `deficitdial.io`.
+`.github/workflows/deploy.yml` builds and deploys to GitHub Pages. It runs on every push to `main`, and weekly to refresh the data. `public/CNAME` sets the custom domain to `debtspiral.app`.
 
 To set up:
 1. In repo Settings → Pages, set the source to **GitHub Actions**.
-2. Point DNS for `deficitdial.io` at GitHub Pages: A records `185.199.108–111.153`, or an ALIAS/ANAME record to `<user>.github.io`.
+2. Point DNS for `debtspiral.app` at GitHub Pages: A records `185.199.108.153`, `.109.153`, `.110.153`, `.111.153` (and AAAA `2606:50c0:8000::153` through `8003::153`), plus a `www` CNAME to `<user>.github.io`.
+3. In Settings → Pages, enter `debtspiral.app` as the custom domain, wait for the DNS check, then tick **Enforce HTTPS** (`.app` domains only work over HTTPS).
 
 Cloudflare Pages also works: build command `npm run build`, output directory `dist`.

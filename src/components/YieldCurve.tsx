@@ -1,7 +1,7 @@
 import { YIELDS0 } from '../model/macro';
 import { pct } from '../format';
 
-const W = 300, H = 130, PAD = { l: 40, r: 44, t: 10, b: 22 };
+const W = 300, H = 130, PAD = { l: 40, r: 22, t: 10, b: 22 };
 const TERMS = ['2-yr', '10-yr', '30-yr'] as const;
 
 /** Treasury yield curve today vs under the plan (2-, 10- and 30-year), with an inversion note. */
@@ -20,7 +20,8 @@ export function YieldCurve({ plan }: { plan: { y2: number; y10: number; y30: num
   const changed = mine.some((v, i) => Math.abs(v - today[i]) > 0.00005);
   return (
     <figure className="chart yield-curve">
-      <figcaption>Treasury yields {inverted && <em className="neg"> · inverted: short rates above long ones, a classic recession signal</em>}</figcaption>
+      <figcaption>Treasury yields by loan length (all borrowed today) {inverted && <em className="neg"> · inverted: short rates above long ones, a classic recession signal</em>}</figcaption>
+      <span className="legend"><span><i className="sw base" />Today's market</span>{changed && <span><i className="sw plan" />With your plan, this year</span>}</span>
       <svg viewBox={`0 0 ${W} ${H}`} role="img"
         aria-label={`Yield curve. Today: ${today.map((v, i) => `${TERMS[i]} ${pct(v, 1)}`).join(', ')}. Your plan: ${mine.map((v, i) => `${TERMS[i]} ${pct(v, 1)}`).join(', ')}.`}>
         {ticks.map((t) => (
@@ -31,8 +32,6 @@ export function YieldCurve({ plan }: { plan: { y2: number; y10: number; y30: num
         {changed && <path d={path(mine)} className="line plan" />}
         {today.map((v, i) => <circle key={`b${i}`} cx={X(i)} cy={Y(v)} r={3.5} className="dot base" />)}
         {changed && mine.map((v, i) => <circle key={`p${i}`} cx={X(i)} cy={Y(v)} r={3.5} className="dot plan" />)}
-        <text x={X(2) + 8} y={Y(today[2]) + 4} className="axis">Today</text>
-        {changed && <text x={X(2) + 8} y={Y(mine[2]) + (Math.abs(Y(mine[2]) - Y(today[2])) < 12 ? (mine[2] > today[2] ? -8 : 14) : 4)} className="axis plan-label">You</text>}
       </svg>
     </figure>
   );

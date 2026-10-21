@@ -191,12 +191,47 @@
       "households": {}
     },
     {
+      "id": "niit_passthrough",
+      "bucket": "income_tax",
+      "label": "Apply the 3.8% investment-income tax to high earners' business (pass-through) income",
+      "who": "Biden; Build Back Better",
+      "deltaB": 21,
+      "source": "JCT for CBO Options: ~$210B over 10 years. Closes the gap that lets active S-corp and partnership owners skip both Medicare taxes.",
+      "households": {
+        "top1": -6000
+      }
+    },
+    {
+      "id": "mortgage_credit",
+      "bucket": "income_tax",
+      "label": "Turn the mortgage interest deduction into a 15% credit",
+      "who": "Simpson-Bowles; CBO option",
+      "deltaB": 10,
+      "source": "Low confidence: rough annualized CBO option estimate after the 2017 law shrank the deduction. Helps homeowners who don't itemize; costs high-income itemizers.",
+      "households": {
+        "professional": -400,
+        "top1": -2500
+      }
+    },
+    {
       "id": "irs_enforce",
       "bucket": "business",
       "label": "+$10B/yr IRS enforcement",
       "deltaB": 15,
       "source": "CBO (net of cost; ramps up over time)",
       "households": {}
+    },
+    {
+      "id": "irs_cut",
+      "bucket": "business",
+      "label": "Cut IRS enforcement funding",
+      "who": "House GOP (2023–25)",
+      "deltaB": -11,
+      "source": "CBO (H.R. 23, 2023): rescinding IRS funding adds ~$114B to deficits over 10 years, because less enforcement collects less tax.",
+      "households": {},
+      "excludes": [
+        "irs_enforce"
+      ]
     },
     {
       "id": "tariffs_repeal",
@@ -281,12 +316,31 @@
       "households": {}
     },
     {
+      "id": "sell_federal_land",
+      "bucket": "business",
+      "label": "Sell federal land (BLM and Forest Service parcels)",
+      "who": "Western GOP members",
+      "deltaB": 20,
+      "oneTime": true,
+      "source": "Low confidence, one-time: values vary widely by parcel; most federal land is remote and worth little per acre.",
+      "households": {}
+    },
+    {
       "id": "chips_repeal",
       "bucket": "business",
       "label": "Repeal remaining CHIPS Act subsidies (unspent grants + 35% chip-factory credit)",
       "who": "Trump has called for repeal",
       "deltaB": 8,
       "source": "Low confidence. CHIPS (2022) gave $39B in factory grants, mostly awarded, and a 25% investment credit CBO scored at ~$24B/10yr; OBBBA raised it to 35% for projects started by end-2026, with no published JCT score.",
+      "households": {}
+    },
+    {
+      "id": "global_min_tax",
+      "bucket": "business",
+      "label": "Adopt the 15% global minimum corporate tax (OECD Pillar Two)",
+      "who": "Biden; OECD",
+      "deltaB": 30,
+      "source": "Low confidence: JCT estimates conflict on the sign. One scored adoption at ~+$319B over 10 years; another found the U.S. could lose revenue as other countries adopt.",
       "households": {}
     },
     {
@@ -435,6 +489,70 @@
       "deltaB": 18,
       "source": "CBO: site-neutral options ~$140B over 10 yrs; PBM reforms ~$5B/yr.",
       "households": {}
+    },
+    {
+      "id": "health_exclusion_cap",
+      "bucket": "health",
+      "label": "Cap the tax break for employer health insurance (at the median plan)",
+      "who": "CBO option; economists left and right",
+      "deltaB": 95,
+      "source": "CBO Options (2025–2034): taxing employer premiums above the 50th percentile raises ~$965B over 10 years (income and payroll taxes). Workers with pricier plans pay more tax.",
+      "households": {
+        "working_family": -300,
+        "median": -600,
+        "professional": -1200,
+        "top1": -1500
+      }
+    },
+    {
+      "id": "medicare_premium_support",
+      "bucket": "health",
+      "label": "Medicare premium support (a fixed federal payment toward private plans or Medicare)",
+      "who": "Heritage; Ryan budgets",
+      "deltaB": 60,
+      "source": "Low confidence. CBO (2017): $184–419B over five years depending on the benchmark, far less if current seniors are grandfathered. Shown at a midpoint, fully phased in.",
+      "households": {
+        "retirees": -1500
+      },
+      "excludes": [
+        "ma_bench"
+      ]
+    },
+    {
+      "id": "medicare67",
+      "bucket": "health",
+      "label": "Raise the Medicare eligibility age to 67",
+      "who": "CBO option; Heritage",
+      "deltaB": 2,
+      "source": "CBO (2013): only ~$19B over 10 years, since 65–66 year-olds are relatively healthy and many shift to Medicaid or ACA subsidies. Long-run savings are larger.",
+      "households": {},
+      "excludes": [
+        "medicare60"
+      ]
+    },
+    {
+      "id": "medicare60",
+      "bucket": "health",
+      "label": "Lower the Medicare eligibility age to 60",
+      "who": "Biden 2020",
+      "deltaB": -26,
+      "source": "CBO (2022): adds ~$155B over 2026–2031; Medicare spends ~$390B more, offset by $230B less on other federal health programs.",
+      "households": {},
+      "excludes": [
+        "medicare67"
+      ]
+    },
+    {
+      "id": "public_option",
+      "bucket": "health",
+      "label": "Public health insurance option on the ACA exchanges",
+      "who": "Biden 2020; Democrats",
+      "deltaB": -10,
+      "source": "Low confidence: no recent CBO score. Paying providers near Medicare rates can lower premiums and subsidy costs, but wider enrollment adds cost; net effect is small either way.",
+      "households": {},
+      "excludes": [
+        "m4a"
+      ]
     },
     {
       "id": "farm",

@@ -44,7 +44,7 @@ jobs:
         if: github.event_name != 'push'
         run: |
           if git diff --quiet data/live.json; then echo "No data changes"; exit 0; fi
-          git config user.name "deficit-dial-bot"
+          git config user.name "debtspiral-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "data: refresh live.json"
           git push
