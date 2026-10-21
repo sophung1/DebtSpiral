@@ -328,7 +328,6 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 @media (prefers-color-scheme: dark) { .seg button.active { background: #2f6fde; } }
 
 /* Scoreboard size controls */
-.scoreboard { position: sticky; }
 .sb-size { position: absolute; top: 8px; right: 10px; display: flex; gap: 4px; z-index: 1; }
 .icon-btn { width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); color: var(--muted); cursor: pointer; font: inherit; font-size: 13px; line-height: 1; }
 .icon-btn:hover { color: var(--text); }
