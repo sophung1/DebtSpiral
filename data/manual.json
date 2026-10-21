@@ -603,7 +603,16 @@
     "inflationRiskCap": 0.03,
     "inflationRiskSource": "Investors demand an inflation risk premium when inflation runs high: ~0.3 pts of yield per point of inflation above ~2.5% (term premia ran ~2-4 pts in the late 1970s-early 1980s). Capped at +3 pts.",
     "dominancePerPremiumPt": 0.25,
-    "dominanceSource": "Fiscal dominance: when markets fear the debt, inflation expectations drift up too (~0.25 pts of inflation per point of fiscal risk premium; weak and uncertain)."
+    "dominanceSource": "Fiscal dominance: when markets fear the debt, inflation expectations drift up too (~0.25 pts of inflation per point of fiscal risk premium; weak and uncertain).",
+    "anchorYields": {
+      "y2": 0.036,
+      "y10": 0.043,
+      "y30": 0.047
+    },
+    "anchorYears": 3,
+    "anchorSource": "CBO's February 2026 outlook: the 10-yr note averages ~4.3% over the decade (with the Fed cutting, short rates ~3.5%). Market yields drift from today's levels to that path over 3 years in the outlook.",
+    "primaryDriftPerYear": 0.0005,
+    "primaryDriftSource": "CBO's February 2026 baseline: the primary deficit falls from 2.6% of GDP in 2026 to 2.1% in 2036 (tariff revenue, discretionary caps)."
   },
   "fuelTax": {
     "gasCents": 18.4,

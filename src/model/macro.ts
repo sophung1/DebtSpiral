@@ -31,12 +31,19 @@ export const fiscalPremium = (fear: number, extraDeficit: number, extraDebt: num
  * `policyPi` is inflation the plan itself causes, which the Fed leans against (Taylor rule) and long yields
  * price in partly. `realShock` is the change in real rates (beyond inflation) from the economy setting.
  */
-export function yields(trendPi: number, policyPi: number, gap: number, premium: number, realShock: number, reg: Regime = REGIMES[0]) {
+/** How far yields have drifted from today's market toward CBO's projected path by outlook year t (0 = this year). */
+export const anchorDrift = (t: number) => {
+  const k = Math.min(1, t / M.anchorYears), a = M.anchorYields;
+  return { y2: (a.y2 - YIELDS0.y2) * k, y10: (a.y10 - YIELDS0.y10) * k, y30: (a.y30 - YIELDS0.y30) * k };
+};
+const NO_DRIFT = { y2: 0, y10: 0, y30: 0 };
+
+export function yields(trendPi: number, policyPi: number, gap: number, premium: number, realShock: number, reg: Regime = REGIMES[0], drift = NO_DRIFT) {
   const long = realShock + trendPi + M.longInflationPassThrough * policyPi + reg.longShift;
-  const y10 = Math.max(0, YIELDS0.y10 + long + premium);
-  const y30 = Math.max(0, YIELDS0.y30 + long + premium * M.thirtyYearPremiumScale);
+  const y10 = Math.max(0, YIELDS0.y10 + drift.y10 + long + premium);
+  const y30 = Math.max(0, YIELDS0.y30 + drift.y30 + long + premium * M.thirtyYearPremiumScale);
   return {
-    y2: Math.max(0, YIELDS0.y2 + realShock + trendPi + reg.billsShift + reg.taylorScale * (M.taylorInflation * policyPi + M.taylorGap * gap)),
+    y2: Math.max(0, YIELDS0.y2 + drift.y2 + realShock + trendPi + reg.billsShift + reg.taylorScale * (M.taylorInflation * policyPi + M.taylorGap * gap)),
     y10: reg.y10Cap === null ? y10 : Math.min(y10, reg.y10Cap),
     y30: reg.y10Cap === null ? y30 : Math.min(y30, reg.y10Cap + (YIELDS0.y30 - YIELDS0.y10)),
   };

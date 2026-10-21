@@ -112,7 +112,7 @@ export function Outlook() {
           </table>
         </div>
       </details>
-      <p className="hint">Your plan takes effect in FY2027. The primary balance (deficit before interest) stays fixed as a share of GDP, so it grows with prices too. As the debt rolls over, its average rate moves from today's ~3.2% toward market yields, which respond to inflation, the Fed, and a risk premium if your deficits run above current law. Nominal GDP grows {pct(budget.nominalGrowth, 1)}/yr this year (set real growth, inflation and market settings in the Debt card). It's a simple projection, not a CBO-style forecast.</p>
+      <p className="hint">Your plan takes effect in FY2027. Calibrated to CBO's February 2026 baseline: the deficit before interest grows with the economy (edging down ~0.05% of GDP a year, as CBO projects), and market yields drift from today's levels to CBO's path (10-yr ~4.3%) over 3 years. As the debt rolls over, its average rate moves from today's ~3.2% toward those yields, which also respond to inflation, the Fed, and a risk premium if your deficits run above current law. Nominal GDP grows {pct(budget.nominalGrowth, 1)}/yr this year (set real growth, inflation and market settings in the Debt card). It's a simple projection, not a CBO-style forecast.</p>
     </Panel>
   );
 }

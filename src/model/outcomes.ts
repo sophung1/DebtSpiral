@@ -1,7 +1,7 @@
 import { manual, live } from './data';
 import { computeBudget, baselineInflation, type Budget } from './budget';
 import { currentLaw } from './scenario';
-import { BILLS, TIPS, NOTES_RATE0, policyInflation, fiscalPremium, yields, inflationRiskPremium, dominanceInflation } from './macro';
+import { BILLS, TIPS, NOTES_RATE0, policyInflation, fiscalPremium, yields, inflationRiskPremium, dominanceInflation, anchorDrift } from './macro';
 import { regimeOf } from './monetary';
 
 export interface Outcomes {
@@ -79,13 +79,14 @@ export function projection(b: Budget, years = 10): YearPoint[] {
     const dPi = b.inflationSlider + endoPi;
     const premium = fiscal + inflationRiskPremium(b.marketFear, baselineInflation + dPi - reg.targetShift);
     lastPremium = premium;
-    const yl = yields(b.inflationSlider, endoPi, gap, premium, b.rateShock, reg);
+    const yl = yields(b.inflationSlider, endoPi, gap, premium, b.rateShock, reg, anchorDrift(t));
     notes += (yl.y10 - notes) / maturity;
     const rate = BILLS * yl.y2 + (1 - BILLS) * notes + TIPS * dPi;
     // Debt the central bank financed with money carries no interest.
     const interest = Math.max(0, d - monetized) * rate;
     // The multiplier's GDP gap and its revenue loss fade over time.
-    const deficit = interest + (primary + b.feedbackB * fade(t)) * (y / gdp0) + (t === 1 ? b.oneTime : 0);
+    // CBO's baseline has the primary deficit shrinking ~0.05% of GDP a year (tariffs, discretionary caps).
+    const deficit = interest + (primary + b.feedbackB * fade(t)) * (y / gdp0) - manual.macro.primaryDriftPerYear * t * y + (t === 1 ? b.oneTime : 0);
     const growth = b.realGrowth + baselineInflation + dPi;
     if (reg.monetizeAbove !== null) monetized += Math.max(0, deficit - reg.monetizeAbove * y);
     prevDeficitShare = deficit / y;

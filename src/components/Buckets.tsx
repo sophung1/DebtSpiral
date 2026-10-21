@@ -247,8 +247,8 @@ function WildIdeas() {
       <div className="split">
         <div>
           <h3>Checks for everyone</h3>
-          <Slider label={<>Stimulus check per adult <span className="delta">{fmtB(cost)}</span></>} value={scn.stimulusPerAdult} base={0}
-            min={0} max={12000} step={250} format={(v) => (v ? fmt$(v) : 'none')} onChange={(v) => set((s) => { s.stimulusPerAdult = v; })}
+          <Slider label={<>Stimulus check per adult: <strong>{scn.stimulusPerAdult ? fmt$(scn.stimulusPerAdult) : 'none'}</strong></>} value={scn.stimulusPerAdult} base={0}
+            min={0} max={12000} step={250} format={() => (cost ? `costs ${fmtB(cost)}` : '$0')} onChange={(v) => set((s) => { s.stimulusPerAdult = v; })}
             hint={`~${manual.stimulus.adultsM}M adults. For scale: 2008 rebates were $600, 2021 checks $1,400, and $12,000/yr is Andrew Yang's $1,000/month "Freedom Dividend".`} />
           <Toggle label="Pay it every year (universal basic income)" checked={scn.stimulusRecurring}
             onChange={(v) => set((s) => { s.stimulusRecurring = v; })}
