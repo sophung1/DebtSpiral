@@ -40,7 +40,7 @@ function ProgramSlider({ id }: { id: string }) {
   return (
     <div className="program">
       <Slider label={<>{p.name} <span className={`delta ${line.value < line.base - 0.5 ? 'pos' : line.value > line.base + 0.5 ? 'neg' : ''}`}>{fmtB(line.value)}</span></>}
-        value={scn.programs[id]} base={1} min={0} max={2} step={0.01}
+        value={scn.programs[id]} base={1} min={0} max={Math.max(2, Math.ceil(scn.programs[id]))} step={0.01}
         format={(v) => (v === 1 ? 'current law' : `${v > 1 ? '+' : '−'}${Math.round(Math.abs(v - 1) * 100)}% benefits`)}
         onChange={(v) => set((s) => { s.programs[id] = v; })} />
       {who.length > 0 && (
@@ -204,6 +204,9 @@ function DebtInflation() {
       <Slider label="Extra inflation, every year" value={scn.inflationShock} base={BASE.inflationShock}
         min={0} max={0.1} step={0.0025} format={pts} onChange={(v) => set((s) => { s.inflationShock = v; })}
         hint={<>On top of ~{pct(baseInfl, 1)} normal inflation, which already erodes ~{fmtB(baseInfl * debt)} of real debt a year. {scn.inflationShock > 0 && <>This year it adds {fmtB(budget.inflationInterest)} of interest ({pct(budget.repricing1, 0)} of the debt reprices or is inflation-indexed). </>} Watch the 10-year charts: debt-to-GDP dips, then climbs again as the rest of the debt reprices (average maturity ~{manual.debtComposition.avgMaturityYears} yrs).</>} />
+      <Slider label="This year's economy (crash or boom)" value={scn.gdpShock} base={BASE.gdpShock}
+        min={-0.1} max={0.05} step={0.005} format={(v) => (Math.abs(v) < 0.0005 ? 'normal' : `GDP ${v > 0 ? '+' : '−'}${pct(Math.abs(v))}`)} onChange={(v) => set((s) => { s.gdpShock = v; })}
+        hint={<>A recession or boom that isn't caused by your policies. Revenue swings ~{manual.feedback.shockRevenueElasticity}× as much as GDP, because capital gains and corporate profits collapse in a crash; in 2009 revenue fell 17% with GDP ~6% below normal. Fades ~30%/yr in the charts.</>} />
       <Slider label="Real GDP growth" value={scn.realGrowth} base={BASE.realGrowth}
         min={-0.02} max={0.05} step={0.001} format={(v) => `${pct(v)}/yr`} onChange={(v) => set((s) => { s.realGrowth = v; })}
         hint={<>Affects the 10-year charts, not this year's deficit. CBO's long-run estimate is ~{pct(manual.realGdpGrowth)}; the 1990s averaged ~3.5%, and 2009 was −2.5%. Faster growth shrinks debt-to-GDP because GDP grows faster than the debt. Revenue and spending grow with the economy here.</>} />

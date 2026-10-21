@@ -95,9 +95,11 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
   const multiplierUsed = scn.multiplierScales && scn.multiplier > 0
     ? Math.min(fb.maxMultiplier, scn.multiplier + fb.severitySlope * Math.max(0, tightening - fb.severityThreshold))
     : scn.multiplier;
-  const gdpGap = (multiplierUsed * primaryChange) / manual.gdpB.value;
+  const policyGap = (multiplierUsed * primaryChange) / manual.gdpB.value;
+  const gdpGap = policyGap + scn.gdpShock;
   const staticReceipts = sum(receipts, 'value');
-  for (const r of receipts) r.value *= 1 + manual.feedback.revenueElasticity * gdpGap;
+  // A crash hits revenue harder than policy-driven slowdowns (capital gains and profits collapse).
+  for (const r of receipts) r.value *= Math.max(0, 1 + fb.revenueElasticity * policyGap + fb.shockRevenueElasticity * scn.gdpShock);
   const totalReceipts = sum(receipts, 'value');
   const totalOutlays = sum(outlays, 'value');
   return {

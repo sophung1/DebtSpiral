@@ -30,6 +30,8 @@ export interface Scenario {
   multiplier: number;
   /** raise the multiplier for large austerity (Greece effect) instead of using it as-is */
   multiplierScales: boolean;
+  /** this year's GDP vs normal from outside events (crash/boom), decimal; fades like the multiplier gap */
+  gdpShock: number;
   /** stimulus check per adult ($) */
   stimulusPerAdult: number;
   /** repeat the check every year (UBI-style) instead of once */
@@ -87,6 +89,7 @@ export function currentLaw(): Scenario {
     realGrowth: manual.realGdpGrowth,
     multiplier: manual.feedback.defaultMultiplier,
     multiplierScales: true,
+    gdpShock: 0,
     stimulusPerAdult: 0,
     stimulusRecurring: false,
     behavioral: false,

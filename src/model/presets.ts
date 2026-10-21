@@ -49,8 +49,9 @@ export const PRESETS: Preset[] = [
   {
     id: 'hawk',
     name: 'Fiscal hawk: balance now',
-    blurb: 'Close the whole deficit in one year on paper, with broad cuts plus a VAT and higher top rates. With economic feedback on, the slump it causes eats part of the savings (the Greece effect).',
+    blurb: 'Close the whole deficit in one year with broad spending cuts plus a VAT and higher top rates. Assumes a normal economy (0.5× feedback, no severity scaling).',
     build: make((s) => {
+      s.multiplierScales = false;
       on(s, 'vat5', 'carbon25', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'drug_neg', 'farm', 'fed_pay', 'irs_enforce', 'salt10', 'tips_ot_repeal');
       s.brackets.rates = [0.10, 0.12, 0.24, 0.26, 0.35, 0.40, 0.45];
       s.ssWageBase = 400000;
@@ -69,6 +70,21 @@ export const PRESETS: Preset[] = [
       s.ssWageBase = 600000;
       s.corporateRate = 0.25;
       progs(s, { defense: 0.9, nondefense: 0.88, medicare: 0.97 });
+    }),
+  },
+  {
+    id: 'doomsday',
+    name: 'Doomsday: market crash',
+    blurb: 'Current law hit by a stagflationary crash: 1970s-style inflation (+5 pts/yr), 10-yr yields near 8% (+3 pts), GDP 6% below normal this year (like 2009) followed by a lost decade (−1.5%/yr real growth), unemployment benefits 4× normal, one-time $1,400 checks, and Greece-level feedback (1.5×, scaling with severity).',
+    build: make((s) => {
+      s.rateShock = 0.03;
+      s.inflationShock = 0.05;
+      s.realGrowth = -0.015;
+      s.gdpShock = -0.06;
+      s.multiplier = 1.5;
+      s.multiplierScales = true;
+      s.stimulusPerAdult = 1400;
+      progs(s, { unemployment: 4 });
     }),
   },
 ];
