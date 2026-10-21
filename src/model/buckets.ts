@@ -11,10 +11,10 @@ export interface BucketDef {
 
 /** Every receipt and outlay line belongs to exactly one bucket, so bucket changes sum to the total change. */
 export const BUCKETS: BucketDef[] = [
-  { id: 'income_tax', title: 'Individual income tax', receipts: ['individualOrdinary', 'capitalGains'], outlays: [] },
+  { id: 'income_tax', title: 'Individual income tax', receipts: ['individualOrdinary', 'capitalGains'], outlays: ['ctc'] },
   { id: 'social_security', title: 'Social Security', receipts: ['payrollSS'], outlays: ['social_security'] },
   { id: 'health', title: 'Health: Medicare, Medicaid & ACA', receipts: ['payrollHI'], outlays: ['medicare', 'medicaid', 'aca'] },
-  { id: 'safety_net', title: 'Safety net & family credits', receipts: [], outlays: ['snap', 'eitc', 'ctc', 'ssi', 'unemployment'] },
+  { id: 'safety_net', title: 'Safety net & family credits', receipts: [], outlays: ['snap', 'eitc', 'ssi', 'unemployment'] },
   { id: 'defense_other', title: 'Defense, veterans & other spending', receipts: [], outlays: ['defense', 'nondefense', 'veterans', 'fed_retirement', 'other_mandatory'] },
   { id: 'business', title: 'Business, trade & new taxes', receipts: ['corporate', 'estate', 'customs', 'excise', 'payrollOther', 'other'], outlays: [] },
   { id: 'energy', title: 'Energy & infrastructure', receipts: ['fuelExcise'], outlays: [] },

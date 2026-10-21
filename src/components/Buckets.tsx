@@ -4,7 +4,7 @@ import { useResults } from '../state/results';
 import { programs, policies, live, manual } from '../model/data';
 import { BUCKETS, bucketDelta, ssCashFlow } from '../model/buckets';
 import { baselineInflation } from '../model/budget';
-import { setPolicy } from '../model/scenario';
+import { setPolicy, lawFor } from '../model/scenario';
 import { polls } from '../model/popularity';
 import { BracketEditor } from './BracketEditor';
 import { YieldCurve } from './YieldCurve';
@@ -85,7 +85,7 @@ function PolicyList({ bucket }: { bucket: string }) {
 }
 
 function IncomeTax() {
-  const { scn, behavioralEffect } = useResults();
+  const { scn, budget, behavioralEffect } = useResults();
   const set = useStore((s) => s.set);
   return (
     <Bucket id="income_tax" className="wide">
@@ -95,6 +95,10 @@ function IncomeTax() {
           <BracketEditor />
         </div>
         <div>
+          <h3>Child Tax Credit {(() => { const l = budget.outlays.find((x) => x.id === 'ctc')!; const d = l.value - l.base; return Math.abs(d) >= 0.5 && <span className={`delta ${d > 0 ? 'neg' : 'pos'}`}>{d > 0 ? '+' : '−'}{fmtB(Math.abs(d))} cost</span>; })()}</h3>
+          <Slider label="Credit per child" value={Math.round(lawFor(scn).ctc.perChild * (scn.programs.ctc ?? 1))} base={lawFor(BASE).ctc.perChild}
+            min={0} max={6000} step={100} format={(v) => (v ? fmt$(v) : 'none')} onChange={(v) => set((s) => { s.programs.ctc = v / lawFor(s).ctc.perChild; })}
+            hint={`Current law: ${fmt$(lawFor(BASE).ctc.perChild)} per child under 17 (up to ${fmt$(manual.tax.ctc.refundableMax)} refundable), phasing out above $200K ($400K married). Each $1,000 per child costs ~${fmtB(programs.find((p) => p.id === 'ctc')!.fullCostB! / (lawFor(BASE).ctc.perChild / 1000))} a year. 2021's temporary expansion paid $3,000–$3,600, fully refundable (a switch in the Safety net card).`} />
           <h3>Investment income <RevDelta id="capitalGains" /></h3>
           <Slider label="Top capital gains & dividend rate" value={scn.capGainsTopRate} base={BASE.capGainsTopRate}
             min={0} max={0.5} step={0.005} format={(v) => pct(v)} onChange={(v) => set((s) => { s.capGainsTopRate = v; })}
@@ -155,7 +159,7 @@ function Health() {
 function SafetyNet() {
   return (
     <Bucket id="safety_net">
-      {['snap', 'eitc', 'ctc', 'ssi', 'unemployment'].map((id) => <ProgramSlider key={id} id={id} />)}
+      {['snap', 'eitc', 'ssi', 'unemployment'].map((id) => <ProgramSlider key={id} id={id} />)}
       <PolicyList bucket="safety_net" />
     </Bucket>
   );
