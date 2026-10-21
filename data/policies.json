@@ -146,7 +146,7 @@
     },
     {
       "id": "wealth2",
-      "bucket": "business",
+      "bucket": "income_tax",
       "label": "2% wealth tax above $50M",
       "deltaB": 200,
       "source": "Advocates' estimate; heavily contested (valuation, avoidance)",
@@ -194,7 +194,7 @@
     },
     {
       "id": "gas15",
-      "bucket": "business",
+      "bucket": "energy",
       "label": "Raise fuel taxes 15¢/gal",
       "deltaB": 22,
       "source": "CBO Options (annualized)",
@@ -205,11 +205,14 @@
         "retirees": -150,
         "professional": -300,
         "top1": -400
-      }
+      },
+      "excludes": [
+        "perot_gas"
+      ]
     },
     {
       "id": "diesel_zero",
-      "bucket": "business",
+      "bucket": "energy",
       "label": "Eliminate the federal diesel tax (24.4¢/gal)",
       "deltaB": -11,
       "source": "Tax Policy Center: diesel excise raised ~$10.8B (FY2023). An Oct 2026 executive order defers it through Dec 31; this makes it permanent.",
@@ -334,7 +337,10 @@
       "who": "Biden",
       "deltaB": 50,
       "source": "Treasury FY2025 Green Book: ~$500B over 10 years.",
-      "households": {}
+      "households": {},
+      "excludes": [
+        "buffett_rule"
+      ]
     },
     {
       "id": "chained_cpi",
@@ -664,7 +670,7 @@
     },
     {
       "id": "buffett_rule",
-      "bucket": "wild",
+      "bucket": "income_tax",
       "label": "Buffett Rule: 30% minimum tax on $1M+ incomes",
       "who": "Obama 2012",
       "deltaB": 6,
@@ -675,7 +681,7 @@
     },
     {
       "id": "perot_gas",
-      "bucket": "wild",
+      "bucket": "energy",
       "label": "50¢/gal gas tax increase",
       "who": "Perot 1992",
       "deltaB": 65,

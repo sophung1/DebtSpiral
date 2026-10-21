@@ -105,6 +105,7 @@ function IncomeTax() {
                 {Math.abs(behavioralEffect) < 0.5 ? 'No effect at current-law tax rates.' : `${behavioralEffect > 0 ? 'Costs' : 'Saves'} ${fmtB(Math.abs(behavioralEffect))} at your rates${scn.behavioral ? '' : ' (if turned on)'}.`}
               </strong>{' '}
               People and companies report less income when rates rise (and more when they fall). It only matters once you change a tax rate. Applies to all taxes. Taxable income elasticity 0.25, capital gains 0.7, corporate 0.2.</span>} />
+          <p className="hint">Taxes on the very rich come in layers, and you can pick one in each: a wealth tax, a minimum tax on top incomes, and taxing gains at death. Their estimates each assume the others don't exist.</p>
           <PolicyList bucket="income_tax" />
         </div>
       </div>
@@ -264,7 +265,7 @@ function WildIdeas() {
 function Energy() {
   return (
     <Bucket id="energy">
-      <p className="hint">Energy tax credits, carbon pricing, clean-energy spending and roads, bridges and transit. Opposite switches (restore vs. repeal credits, carbon tax vs. carbon dividend) turn each other off.</p>
+      <p className="hint">Energy tax credits, carbon pricing, fuel taxes, clean-energy spending, and roads, bridges and transit. Opposite or overlapping switches (restore vs. repeal credits, carbon tax vs. carbon dividend, 15¢ vs. 50¢ gas tax) turn each other off.</p>
       <PolicyList bucket="energy" />
     </Bucket>
   );
