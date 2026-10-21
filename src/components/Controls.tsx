@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useLayout } from '../state/layout';
 
 interface SliderProps {
@@ -9,19 +9,22 @@ interface SliderProps {
 export function Slider({ label, value, min, max, step, base, format, onChange, hint }: SliderProps) {
   const changed = base !== undefined && Math.abs(value - base) > step / 2;
   const basePct = base === undefined ? null : ((base - min) / (max - min)) * 100;
+  // Screen readers get the short label as the name, the formatted value, and the hint as a description.
+  const id = useId();
   return (
     <label className={`slider ${changed ? 'changed' : ''}`}>
       <span className="slider-head">
-        <span>{label}</span>
+        <span id={`${id}-l`}>{label}</span>
         <output>{format(value)}</output>
       </span>
       <span className="slider-track">
         <input type="range" min={min} max={max} step={step} value={value}
+          aria-labelledby={`${id}-l`} aria-valuetext={format(value)} aria-describedby={hint ? `${id}-h` : undefined}
           onChange={(e) => onChange(+e.target.value)}
           onDoubleClick={() => base !== undefined && onChange(base)} />
         {basePct !== null && <span className="base-tick" style={{ left: `${basePct}%` }} title={`Current law: ${format(base!)}`} />}
       </span>
-      {hint && <span className="hint">{hint}</span>}
+      {hint && <span className="hint" id={`${id}-h`}>{hint}</span>}
     </label>
   );
 }
