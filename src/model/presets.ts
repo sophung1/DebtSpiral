@@ -74,6 +74,8 @@ export interface Preset {
   name: string;
   blurb: string;
   build: () => Scenario;
+  /** a past era's policies applied to today's economy (grouped separately in the picker) */
+  era?: boolean;
 }
 
 // Presets include behavioral responses, so big rate changes aren't scored as pure static gains.
@@ -88,8 +90,72 @@ const progs = (s: Scenario, f: Record<string, number>) => Object.assign(s.progra
 
 // Rates as a list, lowest bracket first (7 brackets).
 const rates = (s: Scenario, r: number[]) => { s.brackets.rates = r; };
+/** A whole bracket schedule: [single-filer threshold in today's dollars, rate] rows, plus the married/single threshold ratio. */
+const sched = (s: Scenario, rows: [number, number][], mfj: number | number[]) => {
+  s.brackets = { single: rows.map((r) => r[0]), rates: rows.map((r) => r[1]), mfjRatio: rows.map((_, i) => (Array.isArray(mfj) ? mfj[i] : mfj)) };
+};
+// Era presets: that era's tax code (thresholds inflation-adjusted to 2026 dollars) and discretionary spending at its share
+// of GDP, applied to today's economy. Social Security, Medicare and Medicaid stay as they are today.
+// Today: defense ≈ 3.0% of GDP, non-defense discretionary ≈ 2.8%.
 
 export const PRESETS: Preset[] = [
+  {
+    id: 'era_hoover',
+    era: true,
+    name: 'Hoover, 1930–32',
+    blurb: "Smoot-Hawley tariffs (~20% on all imports) plus the 1932 Revenue Act, which raised the top rate from 25% to 63% to balance the budget in a depression, applied to today. A 13.75% corporate rate and 12.5% on long-held capital gains. Economists' consensus: the tariffs deepened the Depression through retaliation (not modeled here) but the Fed and the gold standard caused most of it; the 1932 tax hike was austerity in a slump. Then only ~5% of households paid income tax; here today's deductions apply.",
+    build: make((s) => {
+      on(s, 'smoot_hawley');
+      sched(s, [[0, 0.04], [92000, 0.08], [230000, 0.13], [460000, 0.20], [1150000, 0.39], [2300000, 0.56], [23000000, 0.63]], 1);
+      s.corporateRate = 0.1375;
+      s.capGainsTopRate = 0.125;
+      s.estateRate = 0.45;
+      s.estateExemption = 1150000;
+    }),
+  },
+  {
+    id: 'era_eisenhower',
+    era: true,
+    name: 'Eisenhower, 1953–60',
+    blurb: "The 1950s tax code applied to today: 20% bottom rate, 91% over ~$2.3M (married couples split income, so their brackets were double), 52% corporate, 25% capital gains, 77% estate tax over ~$690K. Defense at its 1950s level of ~9.6% of GDP (Korea and the Cold War), lean domestic spending, and an Interstate-Highway-style infrastructure push. Reality check: almost nobody paid 91% (the top 1% paid ~42% effective), and the 1950s debt drop came mostly from growth, inflation and capped interest rates.",
+    build: make((s) => {
+      on(s, 'renew_iija');
+      sched(s, [[0, 0.20], [46000, 0.26], [92000, 0.34], [161000, 0.47], [253000, 0.59], [690000, 0.75], [2300000, 0.91]], 2);
+      s.corporateRate = 0.52;
+      s.capGainsTopRate = 0.25;
+      s.estateRate = 0.77;
+      s.estateExemption = 690000;
+      progs(s, { defense: 3.2, nondefense: 0.72 });
+    }),
+  },
+  {
+    id: 'era_reagan',
+    era: true,
+    name: 'Reagan, 1981–88',
+    blurb: "The 1988 tax code (after the 1981 cuts and the 1986 reform) applied to today: 15% and 28% brackets with a 33% 'bubble' in between, capital gains taxed like wages (28%), a 34% corporate rate, 55% estate tax over ~$1.6M. Defense at the buildup's ~5.8% of GDP. Domestic discretionary spending was cut, but even after the cuts it was ~4% of GDP, more than today's 2.8%. Reality check: deficits widened and debt-to-GDP rose from ~25% to ~40%; Volcker's rates, not the budget, broke inflation.",
+    build: make((s) => {
+      sched(s, [[0, 0.15], [48000, 0.28], [117000, 0.33], [243000, 0.28]], 1.67);
+      s.corporateRate = 0.34;
+      s.capGainsTopRate = 0.28;
+      s.estateRate = 0.55;
+      s.estateExemption = 1650000;
+      progs(s, { defense: 1.93, nondefense: 1.4 });
+    }),
+  },
+  {
+    id: 'era_clinton',
+    era: true,
+    name: 'Clinton, 1993–2000',
+    blurb: "The 1993 tax code applied to today: 15/28/31/36% brackets and 39.6% over ~$556K, a 35% corporate rate, 20% capital gains (after 1997), 55% estate tax over ~$1.3M. Defense at the post-Cold War ~3.4% of GDP, domestic spending ~3.3%, the 1997 Medicare payment cuts and 1996 welfare reform. Reality check: the 1998–2001 surpluses were roughly half policy and half the dot-com boom's capital-gains windfall.",
+    build: make((s) => {
+      sched(s, [[0, 0.15], [49000, 0.28], [119000, 0.31], [256000, 0.36], [556000, 0.396]], [1, 1.67, 1.67, 1.22, 1]);
+      s.corporateRate = 0.35;
+      s.capGainsTopRate = 0.20;
+      s.estateRate = 0.55;
+      s.estateExemption = 1300000;
+      progs(s, { defense: 1.13, nondefense: 1.19, medicare: 0.95, snap: 0.88 });
+    }),
+  },
   {
     id: 'populist',
     name: 'Populist: only what polls 60%+',
