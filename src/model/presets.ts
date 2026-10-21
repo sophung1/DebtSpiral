@@ -250,14 +250,15 @@ export const PRESETS: Preset[] = [
   {
     id: 'balanced',
     name: 'Stabilize the debt',
-    blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health and Social Security reforms (including means-testing), immigration reform and broadening the tax base, while still renewing infrastructure funding, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
+    blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health reforms, a Social Security fix (no wage cap, +1 pt payroll tax, means-testing, retirement age 70), immigration reform and broadening the tax base, while still renewing infrastructure funding, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
     build: make((s) => {
-      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'medicaid_caps', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'renew_iija', 'billionaire_min_tax');
+      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'renew_iija', 'billionaire_min_tax');
       rates(s, [0.10, 0.12, 0.22, 0.24, 0.33, 0.39, 0.44]);
       s.capGainsTopRate = 0.28;
-      s.ssWageBase = 600000;
+      s.ssWageBase = null; // no Social Security wage cap
+      s.ssRate = 0.134; // +1 pt, split between worker and employer
       s.corporateRate = 0.25;
-      progs(s, { defense: 0.9, nondefense: 0.82, medicare: 0.92 });
+      progs(s, { defense: 0.95, nondefense: 0.92, medicare: 0.96 });
     }),
   },
   {
@@ -270,7 +271,7 @@ export const PRESETS: Preset[] = [
       s.brackets.rates = [0.10, 0.12, 0.24, 0.26, 0.35, 0.40, 0.45];
       s.ssWageBase = 400000;
       s.corporateRate = 0.25;
-      progs(s, { social_security: 0.97, medicare: 0.88, medicaid: 0.9, aca: 0.8, snap: 0.95, nondefense: 0.75, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
+      progs(s, { medicare: 0.88, medicaid: 0.9, aca: 0.8, snap: 0.95, nondefense: 0.75, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
     }),
   },
 ];

@@ -361,7 +361,7 @@
     {
       "id": "fra70",
       "bucket": "social_security",
-      "label": "Raise full retirement age to 70 (phased in)",
+      "label": "Raise full retirement age to 70 (phased in; long-run savings not shown)",
       "deltaB": 10,
       "source": "CBO Options (small at first; large long-run savings)",
       "households": {}
