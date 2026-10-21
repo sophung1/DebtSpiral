@@ -299,7 +299,7 @@ describe('policy presets vs market conditions', () => {
   it('are independent and detected from the scenario', async () => {
     const { applyPreset, applyConditions, activePreset, activeConditions } = await import('./presets');
     let s = currentLaw();
-    expect([activePreset(s), activeConditions(s)]).toEqual(['current', 'nominal']);
+    expect([activePreset(s), activeConditions(s)]).toEqual(['current', 'today']);
     s = applyConditions(s, 'doomsday');
     s = applyPreset(s, 'balanced');
     expect([activePreset(s), activeConditions(s)]).toEqual(['balanced', 'doomsday']);
@@ -309,5 +309,18 @@ describe('policy presets vs market conditions', () => {
     expect([activePreset(s), activeConditions(s)]).toEqual([null, 'boom']);
     s.rateShock = 0.011;
     expect(activeConditions(s)).toBeNull();
+  });
+});
+
+describe('historical economies', () => {
+  it('busts raise debt-to-GDP, booms lower it, relative to today', async () => {
+    const { applyConditions, CONDITIONS } = await import('./presets');
+    const d10 = (id: string) => computeOutcomes(computeBudget(applyConditions(currentLaw(), id), base)).debtToGdp10;
+    const now = d10('today');
+    for (const id of ['depression', 'great_recession', 'volcker', 'doomsday']) expect(d10(id)).toBeGreaterThan(now);
+    for (const id of ['roaring20s', 'boom', 'nineties', 'nominal']) expect(d10(id)).toBeLessThan(now);
+    // Stagflation: huge deficits, but ~8.7% inflation grows nominal GDP so fast that debt-to-GDP barely moves (as in the 1970s).
+    expect(Math.abs(d10('stagflation') - now)).toBeLessThan(0.05);
+    expect(CONDITIONS.length).toBe(12);
   });
 });
