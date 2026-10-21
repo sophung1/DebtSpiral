@@ -269,3 +269,23 @@ describe('economic shock', () => {
     expect(1 - b.totalReceipts / b0.totalReceipts).toBeCloseTo(0.15, 6);
   });
 });
+
+describe('households feel inflation and recessions', () => {
+  it('Doomsday leaves working households worse off despite the checks', async () => {
+    const { PRESETS } = await import('./presets');
+    const s = PRESETS.find((p) => p.id === 'doomsday')!.build();
+    const b = computeBudget(s, base);
+    const macro = { gdpGap: b.gdpGap, inflationShock: b.inflationShock };
+    for (const id of ['working_family', 'median', 'professional']) {
+      const a = arch(id);
+      expect(computeHousehold(a, s, macro).net).toBeLessThan(computeHousehold(a, base).net);
+    }
+    const ret = computeHousehold(arch('retirees'), s, macro);
+    expect(-ret.inflationCost).toBeLessThan(0.05 * ret.totalIncome); // Social Security is indexed
+  });
+  it('current law has no inflation or recession effect', () => {
+    const r = computeHousehold(arch('median'), base);
+    expect(r.inflationCost).toBe(-0);
+    expect(r.recessionPay).toBe(0);
+  });
+});

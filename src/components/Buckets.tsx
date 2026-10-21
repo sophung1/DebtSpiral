@@ -198,6 +198,7 @@ function DebtInflation() {
         <div className={o.inflationToHoldRatio <= 0 ? 'pos' : 'neg'}><span>Inflation to stand still</span><strong>{o.inflationToHoldRatio <= 0 ? 'none' : `+${pct(o.inflationToHoldRatio)}/yr`}</strong></div>
       </div>
       <p className="hint">Yields: 2-yr {pct(live.yield2y.value, 2)} · 10-yr {pct(live.yield10y.value, 2)} · 30-yr {pct(live.yield30y.value, 2)} · average on all debt {pct(live.avgInterestRate.value, 2)}</p>
+      <div className="debt-cols">
       <Slider label="Change in market interest rates" value={scn.rateShock} base={BASE.rateShock}
         min={-0.03} max={0.05} step={0.0025} format={pts} onChange={(v) => set((s) => { s.rateShock = v; })}
         hint={`In year 1 only about ${pct(manual.rateRepricingShareYear1, 0)} of the debt reprices (new borrowing and rollovers).`} />
@@ -217,6 +218,7 @@ function DebtInflation() {
       <Toggle label="Scale with severity (Greece effect)" checked={scn.multiplierScales} onChange={(v) => set((s) => { s.multiplierScales = v; })}
         aside={<span className="hint">{scn.multiplierScales && budget.multiplierUsed > scn.multiplier + 0.005 && <strong className="neg">Your plan's austerity raises it to {budget.multiplierUsed.toFixed(2)}×. </strong>}
           Big, fast austerity hits harder than small changes. Above a {pct(manual.feedback.severityThreshold, 0)}-of-GDP squeeze, the multiplier rises 0.1 per extra point of GDP (max {manual.feedback.maxMultiplier}×). A Greece-sized 13% squeeze gets ~1.6×. Turn off to use the slider value as-is.</span>} />
+      </div>
     </Bucket>
   );
 }

@@ -21,7 +21,7 @@ export function useResults() {
       outcomes: computeOutcomes(budget),
       projection: projection(budget),
       baseProjection,
-      households: archetypes.map((a, i) => ({ a, now: computeHousehold(a, scn), base: baseHouseholds[i] })),
+      households: archetypes.map((a, i) => ({ a, now: computeHousehold(a, scn, { gdpGap: budget.gdpGap, inflationShock: budget.inflationShock }), base: baseHouseholds[i] })),
     };
   }, [scn]);
 }
