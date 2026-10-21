@@ -68,6 +68,7 @@ export const lawFor = (scn: Scenario): TaxLaw => (scn.policies.obbba_rollback ? 
 
 /** Flip a policy switch. The OBBBA rollback also swaps the bracket schedule to that law's. */
 export function setPolicy(s: Scenario, id: string, on: boolean) {
+  const abolished = !!s.policies.abolish_ss;
   s.policies[id] = on;
   if (on) {
     // Opposites can't both be on: turn off anything this excludes, or that excludes this.
@@ -75,6 +76,11 @@ export function setPolicy(s: Scenario, id: string, on: boolean) {
     for (const p of policies) if (self?.excludes?.includes(p.id) || p.excludes?.includes(id)) s.policies[p.id] = false;
   }
   if (id === 'obbba_rollback') s.brackets = schedule(on ? pre.brackets : tax.brackets);
+  // Abolishing Social Security zeroes its benefits and payroll tax; switching it off (directly or via an exclusion) restores them.
+  if (abolished !== !!s.policies.abolish_ss) {
+    s.programs.social_security = s.policies.abolish_ss ? 0 : 1;
+    s.ssRate = s.policies.abolish_ss ? 0 : tax.payroll.ssRate;
+  }
 }
 
 export function currentLaw(): Scenario {

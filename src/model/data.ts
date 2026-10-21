@@ -24,6 +24,8 @@ export interface Policy {
   replaces?: string[];
   /** opposite switches: turning this on turns them off (and vice versa) */
   excludes?: string[];
+  /** scored by moving sliders (see setPolicy), not by deltaB */
+  setsSliders?: boolean;
   /** whose idea it was (wild-ideas card) */
   who?: string;
   /** a one-time cost or saving: counts in year 1 of the 10-year outlook only */

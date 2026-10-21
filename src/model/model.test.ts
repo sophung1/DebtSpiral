@@ -349,7 +349,7 @@ describe('new headline switches', () => {
     const { policyDelta } = await import('./policies');
     const s0 = currentLaw(); s0.multiplier = 0;
     const d0 = computeBudget(s0, base).deficit;
-    for (const p of policies.filter((x) => x.id !== 'obbba_rollback')) {
+    for (const p of policies.filter((x) => x.id !== 'obbba_rollback' && !x.setsSliders)) {
       const s = currentLaw(); s.multiplier = 0; setPolicy(s, p.id, true);
       expect(d0 - computeBudget(s, base).deficit).toBeCloseTo(policyDelta(p), 6);
     }
@@ -386,5 +386,22 @@ describe('enforceProgressive', () => {
   });
   it('leaves an already progressive schedule alone', () => {
     expect(enforceProgressive([0.1, 0.12, 0.22], 1)).toEqual([0.1, 0.12, 0.22]);
+  });
+});
+
+describe('abolish Social Security', () => {
+  it('zeroes benefits and the payroll tax, and restores them when excluded', async () => {
+    const { popularity } = await import('./popularity');
+    const scn = currentLaw();
+    setPolicy(scn, 'abolish_ss', true);
+    expect(scn.programs.social_security).toBe(0);
+    expect(scn.ssRate).toBe(0);
+    expect(popularity(scn)).toMatchObject({ approval: 6, counted: 1, total: 1 });
+    const b = computeBudget(scn, base);
+    expect(b.deficit).toBeLessThan(b.baseDeficit);
+    setPolicy(scn, 'fra70', true);
+    expect(scn.policies.abolish_ss).toBe(false);
+    expect(scn.programs.social_security).toBe(1);
+    expect(scn.ssRate).toBe(currentLaw().ssRate);
   });
 });
