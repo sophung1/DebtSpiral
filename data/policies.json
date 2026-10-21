@@ -231,6 +231,25 @@
       }
     },
     {
+      "id": "smoot_hawley",
+      "bucket": "business",
+      "label": "Raise tariffs to a ~20% average on all imports (Smoot-Hawley's 1932 level)",
+      "who": "Smoot-Hawley (1930)",
+      "deltaB": 295,
+      "source": "Low confidence. ~$3.3T of imports at a 20% average, with imports falling ~14% in response, less the usual 25% offset for lower income and payroll taxes. Retaliation is not modeled: in 1930–33 trading partners retaliated and world trade fell by about two-thirds.",
+      "households": {
+        "min_wage": -1150,
+        "working_family": -2650,
+        "median": -3300,
+        "retirees": -2800,
+        "professional": -6600,
+        "top1": -16500
+      },
+      "excludes": [
+        "tariffs_repeal"
+      ]
+    },
+    {
       "id": "buyback_tax4",
       "bucket": "business",
       "label": "Raise the stock-buyback tax from 1% to 4%",

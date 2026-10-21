@@ -49,7 +49,10 @@ export function Scoreboard() {
             <select className="btn" value={preset ?? 'custom'} title={PRESETS.find((p) => p.id === preset)?.blurb ?? ''}
               onChange={(e) => load(applyPreset(scn, e.target.value))}>
               <option value="current">Current law</option>
-              {PRESETS.map((p) => <option key={p.id} value={p.id} title={p.blurb}>{p.name}</option>)}
+              {PRESETS.filter((p) => !p.era).map((p) => <option key={p.id} value={p.id} title={p.blurb}>{p.name}</option>)}
+              <optgroup label="Past eras, applied today">
+                {PRESETS.filter((p) => p.era).map((p) => <option key={p.id} value={p.id} title={p.blurb}>{p.name}</option>)}
+              </optgroup>
               <option value="custom" disabled>Custom</option>
             </select>
           </label>
