@@ -179,7 +179,7 @@ describe('presets', () => {
     expect(boom.o.debtToGdp10).toBeLessThan(boom.o.debtToGdpNow);
     const doom = runC('doomsday');
     expect(doom.b.deficit).toBeGreaterThan(3000);
-    expect(doom.o.debtToGdp10).toBeGreaterThan(1.4);
+    expect(doom.o.debtToGdp10).toBeGreaterThan(1.3);
     const bal = run('balanced');
     expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
     // Socialism's biggest spending (Medicare for All, jobs guarantee) comes through switches, so count their costs too.
@@ -485,11 +485,11 @@ describe('inflation and interest-rate feedback', () => {
     const b = run((s) => { s.inflationSensitivity = 0; s.marketFear = 0; s.stimulusPerAdult = 3000; });
     expect([b.policyInflation, b.premium]).toEqual([0, 0]);
   });
-  it('the average rate on the debt drifts up toward market yields at current law', () => {
+  it('the average rate on the debt drifts up toward CBO projected yields at current law', () => {
     const p = projection(computeBudget(base, base));
     expect(p[1].rate!).toBeGreaterThan(manual.netInterestB.value / p[0].debt);
-    expect(p.at(-1)!.rate!).toBeGreaterThan(0.044);
-    expect(p.at(-1)!.rate!).toBeLessThan(0.052);
+    expect(p.at(-1)!.rate!).toBeGreaterThan(0.037);
+    expect(p.at(-1)!.rate!).toBeLessThan(0.045);
   });
   it('flags a spiral in doomsday with stressed markets, not for the hawk in normal times', async () => {
     const { PRESETS, applyConditions } = await import('./presets');
@@ -580,5 +580,15 @@ describe('monetary regimes', () => {
     const r = run('reserve_loss');
     expect(r.b.yields.y10).toBeGreaterThan(fed.b.yields.y10 + 0.005);
     expect(r.o.debtToGdp10).toBeGreaterThan(fed.o.debtToGdp10);
+  });
+});
+
+describe('CBO calibration', () => {
+  it("current law's 10-year outlook lands near CBO's February 2026 baseline (120% of GDP, ~$2.1T interest)", () => {
+    const p = projection(computeBudget(base, base)).at(-1)!;
+    expect(p.debt / p.gdp).toBeGreaterThan(1.15);
+    expect(p.debt / p.gdp).toBeLessThan(1.28);
+    expect(p.interest!).toBeGreaterThan(1900);
+    expect(p.interest!).toBeLessThan(2400);
   });
 });

@@ -82,7 +82,7 @@ export function Scoreboard() {
               {REGIMES.map((r) => <option key={r.id} value={r.id} title={r.blurb}>{r.name}</option>)}
             </select>
           </label>
-          <button className="btn" onClick={reset}>Reset to current law</button>
+          <button className="btn" onClick={reset}>Reset to default</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
       </div>
