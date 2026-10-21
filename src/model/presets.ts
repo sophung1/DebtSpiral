@@ -1,5 +1,63 @@
 import { currentLaw, setPolicy, type Scenario } from './scenario';
 
+/** Economic conditions, separate from policy: these fields are set by the Economy picker, the rest by policy presets. */
+export const CONDITION_KEYS = ['rateShock', 'inflationShock', 'realGrowth', 'gdpShock', 'multiplier'] as const;
+type ConditionKey = (typeof CONDITION_KEYS)[number];
+export type Conditions = Pick<Scenario, ConditionKey>;
+
+export const conditionsOf = (s: Scenario): Conditions =>
+  Object.fromEntries(CONDITION_KEYS.map((k) => [k, s[k]])) as Conditions;
+
+export interface Condition { id: string; name: string; blurb: string; values: Conditions }
+
+const NOMINAL = conditionsOf(currentLaw());
+
+export const CONDITIONS: Condition[] = [
+  {
+    id: 'nominal',
+    name: 'Nominal',
+    blurb: 'Today\'s outlook: ~1.8% real growth, ~2.2% inflation, today\'s interest rates, and normal economic feedback (0.5×).',
+    values: NOMINAL,
+  },
+  {
+    id: 'boom',
+    name: 'Post-war boom',
+    blurb: '1950s–60s conditions: 4% real growth, ~3.7% inflation (+1.5 pts), interest rates held 2 pts lower (financial repression), and the economy 2% above normal. After WWII this took debt from ~106% to ~25% of GDP, but back then the budget ran primary surpluses.',
+    values: { ...NOMINAL, realGrowth: 0.04, inflationShock: 0.015, rateShock: -0.02, gdpShock: 0.02 },
+  },
+  {
+    id: 'doomsday',
+    name: 'Doomsday: market crash',
+    blurb: 'A stagflationary crash: 1970s-style inflation (+5 pts/yr), 10-yr yields near 8% (+3 pts), GDP 6% below normal this year (like 2009), then a lost decade (−1.5%/yr real growth), with Greece-level feedback (1.5×). Add your own emergency response (stimulus checks, unemployment benefits) on top.',
+    values: { ...NOMINAL, rateShock: 0.03, inflationShock: 0.05, realGrowth: -0.015, gdpShock: -0.06, multiplier: 1.5 },
+  },
+];
+
+const policyOf = (s: Scenario) => { const p: Partial<Scenario> = { ...s }; for (const k of CONDITION_KEYS) delete p[k]; return p; };
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+/** Which policy preset the scenario matches ('current' = current law), or null if it's been customized. */
+export function activePreset(s: Scenario): string | null {
+  if (same(policyOf(s), policyOf(currentLaw()))) return 'current';
+  return PRESETS.find((p) => same(policyOf(s), policyOf(p.build())))?.id ?? null;
+}
+
+/** Which economic conditions the scenario matches, or null if customized. */
+export function activeConditions(s: Scenario): string | null {
+  return CONDITIONS.find((c) => same(conditionsOf(s), c.values))?.id ?? null;
+}
+
+/** Load a policy preset but keep the current economic conditions. */
+export function applyPreset(current: Scenario, id: string): Scenario {
+  const next = id === 'current' ? currentLaw() : PRESETS.find((p) => p.id === id)!.build();
+  return { ...next, ...conditionsOf(current) };
+}
+
+/** Change the economic conditions but keep the current policies. */
+export function applyConditions(current: Scenario, id: string): Scenario {
+  return { ...current, ...CONDITIONS.find((c) => c.id === id)!.values };
+}
+
 export interface Preset {
   id: string;
   name: string;
@@ -70,32 +128,6 @@ export const PRESETS: Preset[] = [
       s.ssWageBase = 600000;
       s.corporateRate = 0.25;
       progs(s, { defense: 0.9, nondefense: 0.88, medicare: 0.97 });
-    }),
-  },
-  {
-    id: 'doomsday',
-    name: 'Doomsday: market crash',
-    blurb: 'Current law hit by a stagflationary crash: 1970s-style inflation (+5 pts/yr), 10-yr yields near 8% (+3 pts), GDP 6% below normal this year (like 2009) followed by a lost decade (−1.5%/yr real growth), unemployment benefits 4× normal, one-time $1,400 checks, and Greece-level feedback (1.5×, scaling with severity).',
-    build: make((s) => {
-      s.rateShock = 0.03;
-      s.inflationShock = 0.05;
-      s.realGrowth = -0.015;
-      s.gdpShock = -0.06;
-      s.multiplier = 1.5;
-      s.multiplierScales = true;
-      s.stimulusPerAdult = 1400;
-      progs(s, { unemployment: 4 });
-    }),
-  },
-  {
-    id: 'boom',
-    name: 'Post-war boom',
-    blurb: '1950s–60s conditions on today\'s budget: 4% real growth, ~3.7% inflation (+1.5 pts), interest rates held 2 pts lower (financial repression), and the economy 2% above normal. After WWII this took debt from ~106% to ~25% of GDP, but back then the budget ran primary surpluses. Today\'s doesn\'t, so debt only drifts down to ~90%.',
-    build: make((s) => {
-      s.realGrowth = 0.04;
-      s.inflationShock = 0.015;
-      s.rateShock = -0.02;
-      s.gdpShock = 0.02;
     }),
   },
 ];

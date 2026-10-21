@@ -223,6 +223,9 @@ main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; display: flex; fle
 .bucket-wild .toggle:has(.hint), .bucket-debt .toggle:has(.hint) { grid-template-columns: auto 1fr; }
 .bucket-wild .toggle:has(.hint) .toggle-aside, .bucket-debt .toggle:has(.hint) .toggle-aside { grid-column: 2; }
 .scoreboard select.btn { appearance: auto; }
+.picker { display: inline-flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.picker select { text-transform: none; letter-spacing: 0; font-size: 14px; color: var(--text); }
+.actions { align-items: flex-end; }
 .toggle-aside .hint { white-space: normal; }
 .bucket-income_tax .toggle:has(.hint) { grid-template-columns: auto 1fr; }
 .bucket-income_tax .toggle:has(.hint) .toggle-aside { grid-column: 2; }

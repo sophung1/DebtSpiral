@@ -4,7 +4,7 @@ import { useResults } from '../state/results';
 import { live, manual } from '../model/data';
 import { Dial } from './Dial';
 import { ssCashFlow } from '../model/buckets';
-import { PRESETS } from '../model/presets';
+import { PRESETS, CONDITIONS, activePreset, activeConditions, applyPreset, applyConditions } from '../model/presets';
 import { fmtB, pct } from '../format';
 
 function Badge({ ok, title, hint, children }: { ok: boolean | null; title: string; hint?: string; children: React.ReactNode }) {
@@ -20,6 +20,8 @@ export function Scoreboard() {
   const { budget, scn, outcomes: o } = useResults();
   const reset = useStore((s) => s.reset);
   const load = useStore((s) => s.load);
+  const preset = activePreset(scn);
+  const cond = activeConditions(scn);
   const [copied, setCopied] = useState(false);
   const deficit = budget.deficit;
   const change = budget.baseDeficit - deficit;
@@ -38,11 +40,23 @@ export function Scoreboard() {
         <h1>Deficit<span>Dial</span></h1>
         <p>Can you balance the federal budget?</p>
         <div className="actions">
-          <select className="btn" value="" aria-label="Load a preset plan"
-            onChange={(e) => { const p = PRESETS.find((x) => x.id === e.target.value); if (p) load(p.build()); }}>
-            <option value="" disabled>Try a preset…</option>
-            {PRESETS.map((p) => <option key={p.id} value={p.id} title={p.blurb}>{p.name}</option>)}
-          </select>
+          <label className="picker">
+            <span>Policy plan</span>
+            <select className="btn" value={preset ?? 'custom'} title={PRESETS.find((p) => p.id === preset)?.blurb ?? ''}
+              onChange={(e) => load(applyPreset(scn, e.target.value))}>
+              <option value="current">Current law</option>
+              {PRESETS.map((p) => <option key={p.id} value={p.id} title={p.blurb}>{p.name}</option>)}
+              <option value="custom" disabled>Custom</option>
+            </select>
+          </label>
+          <label className="picker">
+            <span>Economy</span>
+            <select className="btn" value={cond ?? 'custom'} title={CONDITIONS.find((c) => c.id === cond)?.blurb ?? ''}
+              onChange={(e) => load(applyConditions(scn, e.target.value))}>
+              {CONDITIONS.map((c) => <option key={c.id} value={c.id} title={c.blurb}>{c.name}</option>)}
+              <option value="custom" disabled>Custom</option>
+            </select>
+          </label>
           <button className="btn" onClick={reset}>Reset to current law</button>
           <button className="btn primary" onClick={share}>{copied ? 'Link copied ✓' : 'Share scenario'}</button>
         </div>
