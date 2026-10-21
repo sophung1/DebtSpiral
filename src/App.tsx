@@ -40,7 +40,6 @@ export default function App() {
         <hr />
         <p>Not affiliated with or endorsed by any government agency, party, candidate or organization named here; presets are approximations of their published plans and are not exhaustive.</p>
         <p>DebtSpiral.app does not endorse any policy, party or candidate.</p>
-        <p className="motto">Bipartisanship is hard. We got here together; now let's blame everyone else!</p>
       </footer>
     </>
   );
