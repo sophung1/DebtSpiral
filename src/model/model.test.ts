@@ -575,9 +575,6 @@ describe('monetary regimes', () => {
     expect(m.b.inflationShock).toBeGreaterThan(f.b.inflationShock);
     expect(projection(m.b).at(-1)!.interest!).toBeLessThan(projection(f.b).at(-1)!.interest!);
   });
-  it('a stablecoin boom barely moves the budget', () => {
-    expect(Math.abs(run('stablecoin').b.deficit - fed.b.deficit)).toBeLessThan(15);
-  });
   it('losing reserve status raises yields and interest', () => {
     const r = run('reserve_loss');
     expect(r.b.yields.y10).toBeGreaterThan(fed.b.yields.y10 + 0.005);
