@@ -35,7 +35,7 @@ export default function App() {
       </main>
       <footer className="site-foot">
         <p>debtspiral.app · A simplified educational simulator, not an official estimate. Policy scores are rough first-year figures, mostly from CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10; hover a switch for its source. These may be out of date by the time you read this.</p>
-        <p>Not affiliated with or endorsed by any government agency, party, candidate or organization named here; presets are approximations of their published plans and may be inaccurate.</p>
+        <p>Not affiliated with or endorsed by any government agency, party, candidate or organization named here; presets are approximations of their published plans, not recommendations, and may be inaccurate.</p>
         <p>Bipartisanship is hard, but united we stand!</p>
         <p>Not financial, tax or legal advice; household figures are illustrative.</p>
         <p>Data: Treasury, CBO, public polls (dated in Sources). No cookies or tracking.</p>
