@@ -6,6 +6,8 @@ interface Props {
   marks?: { value: number; label: string }[];
   /** color the arc as a gradient through these values (green → yellow → red) instead of a two-tone split */
   stops?: { value: number; color: string }[];
+  /** tooltip for the gradient arc */
+  arcTitle?: string;
   /** class for the big number (defaults to pos/neg around the pivot) */
   tone?: string;
   /** extra content under the caption (e.g. a milestone legend) */
@@ -23,7 +25,7 @@ const arc = (cx: number, cy: number, r: number, t0: number, t1: number) => {
   return `M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}`;
 };
 
-export function Dial({ value, min, max, label, display, pivot, size = 220, sub, marks = [], stops, tone, children }: Props) {
+export function Dial({ value, min, max, label, display, pivot, size = 220, sub, marks = [], stops, tone, arcTitle, children }: Props) {
   const clamp = (v: number) => Math.min(1, Math.max(0, (v - min) / (max - min)));
   const t = clamp(value);
   const tp = clamp(pivot);
@@ -40,7 +42,7 @@ export function Dial({ value, min, max, label, display, pivot, size = 220, sub, 
                 {stops.map((s) => <stop key={s.value} offset={(82 - 82 * Math.cos(Math.PI * clamp(s.value))) / 164} stopColor={s.color} />)}
               </linearGradient>
             </defs>
-            <path d={arc(100, 100, 82, 0, 1)} className="arc grad" stroke="url(#dial-grad)" />
+            <path d={arc(100, 100, 82, 0, 1)} className="arc grad" stroke="url(#dial-grad)">{arcTitle && <title>{arcTitle}</title>}</path>
           </>
         ) : (
           <>
