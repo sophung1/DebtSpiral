@@ -20,7 +20,7 @@ const ep = (v: Partial<Conditions>): Conditions => ({ ...NOMINAL, ...v });
 export const CONDITIONS: Condition[] = [
   { id: 'today', name: 'Current (today)', values: NOMINAL,
     blurb: 'Today\'s actual conditions: 10-yr yield ~5.1% (high by historical standards), ~1.8% real growth, ~2.2% inflation, normal feedback (0.5×).' },
-  { id: 'nominal', name: 'Nominal (normal times)', values: ep({ rateShock: -0.008, inflationShock: -0.002 }),
+  { id: 'nominal', name: 'Normal times (CBO long run)', values: ep({ rateShock: -0.008, inflationShock: -0.002 }),
     blurb: 'A calm long-run economy like CBO\'s long-term projections: 10-yr yield ~4.1% (1 pt below today), 2% inflation, 1.8% real growth, no boom or bust.' },
   { id: 'roaring20s', name: "Roaring '20s (1922–29)", values: ep({ realGrowth: 0.045, inflationShock: -0.022, rateShock: 0.012, gdpShock: 0.02 }),
     blurb: '~4.5% real growth with flat prices (no inflation), slightly lower rates, the economy 2% above normal. Flat prices mean no inflation erodes the debt.' },
@@ -42,6 +42,8 @@ export const CONDITIONS: Condition[] = [
     blurb: 'Prices jump (inflation peaked ~9%; ~4.7% averaged over 2021–24), rates rise after them, and the economy runs a little hot.' },
   { id: 'wwii', name: 'WWII wartime economy (1942–45)', values: ep({ marketFear: 0, inflationSensitivity: 0.5, realGrowth: 0.04, inflationShock: 0.045, rateShock: -0.071, gdpShock: 0.04, multiplier: 0.7 }),
     blurb: 'The economy running flat out, ~6.7% average inflation over 1942–48 despite price controls and rationing (dampened 0.5× here), and the Fed pegging the 10-yr near 2.5%, so real rates were deeply negative and markets couldn\'t price in fear. Wartime spending itself is policy: raise the defense slider yourself (it peaked at ~37% of GDP, ~12× today). Debt rose from ~45% to ~106% of GDP, then fell through growth, inflation and the rate cap.' },
+  { id: 'japan', name: "Japan-style stagnation (1991–2012)", values: ep({ inflationSensitivity: 0.5, marketFear: 0.5, realGrowth: 0.008, inflationShock: -0.022, rateShock: -0.014, gdpShock: -0.01, multiplier: 1 }),
+    blurb: "Japan's 'lost decades': ~0.8% real growth, prices flat (~0% inflation), and 10-yr yields that sank toward ~1.5% as the central bank held rates at zero. Interest stays cheap and markets stay calm (debt held at home by patient savers), yet with deficits continuing and almost no nominal growth, debt-to-GDP still climbs: Japan's went from ~65% to ~230%." },
   { id: 'forced_austerity', name: 'Forced austerity (debt crisis)', values: ep({ marketFear: 3, rateShock: 0.02, gdpShock: -0.03, multiplier: 1.2 }),
     blurb: 'Bond markets force cuts in the middle of a crisis (Greece 2010, the UK in 2022): real rates already 2 pts higher with markets panicking (3× fear), the economy 3% below normal, and a high multiplier (1.2×) because the Fed can\'t offset the cuts. Pair it with Fiscal hawk to see austerity by force vs. by choice.' },
   { id: 'doomsday', name: 'Doomsday (hypothetical)', values: ep({ inflationSensitivity: 2, marketFear: 3, rateShock: -0.05, inflationShock: 0.05, realGrowth: -0.015, gdpShock: -0.06, multiplier: 1.5 }),
@@ -161,18 +163,6 @@ export const PRESETS: Preset[] = [
     }),
   },
   {
-    id: 'populist',
-    name: 'Populist: only what polls 60%+',
-    blurb: 'Every change here has majority support of 60% or more in national polls. It shows the catch: the popular menu tilts toward spending, so it does little for the deficit.',
-    build: make((s) => {
-      on(s, 'drug_neg', 'ss_means_test', 'enhanced_aca', 'renew_iija', 'childcare', 'wealth_sanders', 'carbon25', 'tariffs_repeal', 'immigration_reform', 'free_college');
-      s.capGainsTopRate = 0.28;
-      s.ssWageBase = 400000;
-      s.corporateRate = 0.28;
-      progs(s, { social_security: 1.1 });
-    }),
-  },
-  {
     id: 'trump',
     name: 'Trump agenda',
     blurb: 'Tariffs stay, mass deportation, no tax on Social Security benefits, a $1.5T defense budget, abolish the Education Department, Gold Card visas, end foreign aid, Trump Accounts, no diesel tax, a $2,000 "tariff dividend" check, selling the Fannie/Freddie stakes, ending CHIPS subsidies, and the FY2026 budget request\'s ~23% cut to non-defense spending. No deficit target was claimed beyond "tariffs and growth".',
@@ -181,6 +171,17 @@ export const PRESETS: Preset[] = [
       s.dieselTaxCents = 0;
       s.stimulusPerAdult = 2000; // the proposed $2,000 "tariff dividend" check
       progs(s, { nondefense: 0.77 });
+    }),
+  },
+  {
+    id: 'biden_fy25',
+    name: 'Biden FY2025 budget',
+    blurb: "President Biden's last budget request (March 2024), applied to today's law: a 28% corporate rate, the 15% global minimum tax and a 4% buyback tax; a 39.6% top rate and capital gains taxed like wages above ~$1M; a 25% billionaire minimum tax, taxing gains at death and carried interest; the investment-income tax extended to business income; more IRS enforcement and an end to fossil-fuel breaks. Pays for the 2021 child credit, childcare and pre-K, paid leave, permanent ACA subsidies, wider drug-price negotiation, housing and $25K down-payment aid, with defense and other spending roughly flat. No tax increase below $400K. The White House claimed ~$3T of deficit cuts over 10 years (~$300B a year); with behavioral responses it cuts about half that here. Not modeled: raising the Medicare tax to 5% above $400K and the $10K mortgage relief credit.",
+    build: make((s) => {
+      on(s, 'global_min_tax', 'buyback_tax4', 'billionaire_min_tax', 'stepup', 'carried', 'niit_passthrough', 'irs_enforce', 'fossil_breaks', 'drug_neg', 'ctc_2021', 'childcare', 'prek', 'paid_leave', 'enhanced_aca', 'housing_supply', 'homebuyer25k');
+      rates(s, [0.10, 0.12, 0.22, 0.24, 0.32, 0.35, 0.396]);
+      s.capGainsTopRate = 0.396;
+      s.corporateRate = 0.28;
     }),
   },
   {
@@ -241,21 +242,6 @@ export const PRESETS: Preset[] = [
       s.gasTaxCents += 15;
       s.ssWageBase = 400000;
       progs(s, { defense: 0.8, nondefense: 0.7, medicare: 0.9, medicaid: 0.9, fed_retirement: 0.9, other_mandatory: 0.8 });
-    }),
-  },
-  {
-    id: 'balanced',
-    name: 'Stabilize the debt',
-    blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health reforms, a Social Security fix (no wage cap, +1 pt payroll tax, means-testing, retirement age 70), immigration reform and broadening the tax base, while still renewing infrastructure funding, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
-    build: make((s) => {
-      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'renew_iija', 'billionaire_min_tax');
-      s.gasTaxCents += 15;
-      rates(s, [0.10, 0.12, 0.22, 0.24, 0.33, 0.39, 0.44]);
-      s.capGainsTopRate = 0.28;
-      s.ssWageBase = null; // no Social Security wage cap
-      s.ssRate = 0.134; // +1 pt, split between worker and employer
-      s.corporateRate = 0.25;
-      progs(s, { defense: 0.95, nondefense: 0.92, medicare: 0.96 });
     }),
   },
   {
