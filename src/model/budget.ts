@@ -21,6 +21,8 @@ export interface Budget {
   nominalGrowth: number;
   /** GDP gap from the multiplier this year (−0.03 = GDP 3% below trend) */
   gdpGap: number;
+  /** multiplier actually applied (after severity scaling) */
+  multiplierUsed: number;
   /** revenue lost (+) or gained (−) from that GDP gap ($B), already in the receipt lines */
   feedbackB: number;
   /** one-time items in this year's deficit, which the 10-year outlook doesn't repeat ($B; + = cost) */
@@ -88,7 +90,12 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
   // and every tax line falls with GDP. Static scoring when the multiplier is 0.
   const primaryChange = (sum(outlays, 'value') - ni - sum(receipts, 'value') - policyNet)
     - (sum(outlays, 'base') - manual.netInterestB.value - sum(receipts, 'base'));
-  const gdpGap = (scn.multiplier * primaryChange) / manual.gdpB.value;
+  const fb = manual.feedback;
+  const tightening = -primaryChange / manual.gdpB.value; // share of GDP; + = austerity
+  const multiplierUsed = scn.multiplierScales && scn.multiplier > 0
+    ? Math.min(fb.maxMultiplier, scn.multiplier + fb.severitySlope * Math.max(0, tightening - fb.severityThreshold))
+    : scn.multiplier;
+  const gdpGap = (multiplierUsed * primaryChange) / manual.gdpB.value;
   const staticReceipts = sum(receipts, 'value');
   for (const r of receipts) r.value *= 1 + manual.feedback.revenueElasticity * gdpGap;
   const totalReceipts = sum(receipts, 'value');
@@ -97,7 +104,7 @@ export function computeBudget(scn: Scenario, base: Scenario): Budget {
     receipts, outlays, policyLines, netInterest: ni, totalReceipts, totalOutlays, oneTime,
     inflationInterest: inflationInterest(scn), repricing1: repricingShare(), inflationShock: scn.inflationShock,
     nominalGrowth: scn.realGrowth + baselineInflation + scn.inflationShock,
-    gdpGap, feedbackB: staticReceipts - totalReceipts,
+    gdpGap, multiplierUsed, feedbackB: staticReceipts - totalReceipts,
     deficit: totalOutlays - totalReceipts - policyNet,
     baseDeficit: sum(outlays, 'base') - sum(receipts, 'base'),
   };

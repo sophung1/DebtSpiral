@@ -133,7 +133,8 @@ describe('Social Security cash flow', () => {
 
 describe('OBBBA rollback', () => {
   const d0 = computeBudget(base, base).deficit;
-  const rolled = () => { const s = currentLaw(); setPolicy(s, 'obbba_rollback', true); return s; };
+  // Static scoring (multiplier 0) so the CBO total can be checked exactly.
+  const rolled = () => { const s = currentLaw(); s.multiplier = 0; setPolicy(s, 'obbba_rollback', true); return s; };
   it('cuts the deficit by CBO\'s FY2026 total, split between modeled taxes and a lump sum', () => {
     const s = rolled();
     expect(d0 - computeBudget(s, base).deficit).toBeCloseTo(manual.tax.preObbba.cboFy2026DeficitIncreaseB, 6);
@@ -152,7 +153,7 @@ describe('OBBBA rollback', () => {
     expect(computeHousehold(top, s).incomeTax).toBeGreaterThan(computeHousehold(top, base).incomeTax);
   });
   it('turning it back off restores current law exactly', () => {
-    const s = rolled(); setPolicy(s, 'obbba_rollback', false);
+    const s = rolled(); setPolicy(s, 'obbba_rollback', false); s.multiplier = base.multiplier;
     expect(s).toEqual(base);
   });
 });
@@ -161,7 +162,11 @@ describe('presets', () => {
   it('each preset does what its name claims', async () => {
     const { PRESETS } = await import('./presets');
     const run = (id: string) => { const b = computeBudget(PRESETS.find((p) => p.id === id)!.build(), base); return { b, o: computeOutcomes(b) }; };
-    expect(run('hawk').b.deficit).toBeLessThanOrEqual(0);
+    // Hawk balances on a static score; with severity-scaled feedback the slump leaves a deficit.
+    const hawkStatic = PRESETS.find((p) => p.id === 'hawk')!.build(); hawkStatic.multiplier = 0;
+    expect(computeBudget(hawkStatic, base).deficit).toBeLessThanOrEqual(0);
+    expect(run('hawk').b.multiplierUsed).toBeGreaterThan(0.8);
+    expect(run('hawk').b.gdpGap).toBeLessThan(-0.05);
     const bal = run('balanced');
     expect(bal.o.debtToGdp10).toBeLessThan(bal.o.debtToGdpNow);
     expect(run('socialism').b.totalOutlays).toBeGreaterThan(computeBudget(base, base).totalOutlays * 1.1);
@@ -172,7 +177,7 @@ describe('presets', () => {
 describe('debt, inflation & wild ideas', () => {
   const b0 = computeBudget(base, base);
   it('a one-time item adds to year 1 only; a recurring one every year', () => {
-    const s = currentLaw(); s.stimulusPerAdult = 5000;
+    const s = currentLaw(); s.multiplier = 0; s.stimulusPerAdult = 5000;
     const one = projection(computeBudget(s, base));
     s.stimulusRecurring = true;
     const rec = projection(computeBudget(s, base));
@@ -196,7 +201,7 @@ describe('debt, inflation & wild ideas', () => {
     expect(computeOutcomes(b).inflationToHoldRatio).toBeLessThan(computeOutcomes(b0).inflationToHoldRatio);
   });
   it('one-time policies are flagged and excluded from later years', () => {
-    const s = currentLaw(); setPolicy(s, 'student_debt', true);
+    const s = currentLaw(); s.multiplier = 0; setPolicy(s, 'student_debt', true);
     const p = projection(computeBudget(s, base)), p0 = projection(b0);
     expect(p[1].deficit! - p0[1].deficit!).toBeCloseTo(400, 0);
     expect(p[3].deficit! - p0[3].deficit!).toBeLessThan(40);
@@ -212,7 +217,8 @@ describe('economic feedback (fiscal multiplier)', () => {
     expect(s15.deficit).toBeGreaterThan(s0.deficit + 300);
     expect(projection(s15)[1].debt / projection(s15)[1].gdp).toBeGreaterThan(projection(s0)[1].debt / projection(s0)[1].gdp);
   });
-  it('a multiplier of 0 is static scoring; current law has no gap at any multiplier', () => {
+  it('defaults to 0.5; current law has no gap at any multiplier', () => {
+    expect(currentLaw().multiplier).toBe(0.5);
     const s = currentLaw(); s.multiplier = 1.5;
     const b = computeBudget(s, base);
     expect(b.gdpGap).toBeCloseTo(0, 9);
@@ -238,5 +244,18 @@ describe('money flows', () => {
       expect(sum(f.inflows)).toBeCloseTo(sum(f.outflows), 6);
       expect(f.inflows.every((x) => x.value >= 0) && f.outflows.every((x) => x.value >= 0)).toBe(true);
     }
+  });
+});
+
+describe('severity-scaled multiplier', () => {
+  it('small changes use the slider value; big austerity scales up; the toggle hard-sets it', () => {
+    const small = currentLaw(); small.programs.defense = 0.95;
+    expect(computeBudget(small, base).multiplierUsed).toBeCloseTo(0.5, 9);
+    const big = currentLaw(); for (const k of Object.keys(big.programs)) big.programs[k] = 0.6;
+    const b = computeBudget(big, base);
+    expect(b.multiplierUsed).toBeGreaterThan(1.0); // ~8% of GDP squeeze → ~1.1×
+    expect(b.multiplierUsed).toBeLessThanOrEqual(2);
+    big.multiplierScales = false;
+    expect(computeBudget(big, base).multiplierUsed).toBeCloseTo(0.5, 9);
   });
 });

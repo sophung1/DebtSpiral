@@ -90,7 +90,7 @@ export function Outlook() {
     { title: 'Debt held by the public', pick: (p) => p.debt, fmt: (v) => fmtB(v), axisFmt: axis$, zero: true },
   ];
   return (
-    <Panel title="10-year outlook" className="outlook"
+    <Panel id="outlook" title="10-year outlook" className="outlook"
       right={<span className="legend"><span><i className="sw plan" />Your plan</span><span><i className="sw base" />Current law</span></span>}>
       <div className="charts">
         {charts.map((c) => <Chart key={c.title} {...c} base={base} plan={plan} />)}

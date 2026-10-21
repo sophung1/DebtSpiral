@@ -49,13 +49,13 @@ export const PRESETS: Preset[] = [
   {
     id: 'hawk',
     name: 'Fiscal hawk: balance now',
-    blurb: 'Close the whole deficit in one year with broad spending cuts plus a VAT and higher top rates.',
+    blurb: 'Close the whole deficit in one year on paper, with broad cuts plus a VAT and higher top rates. With economic feedback on, the slump it causes eats part of the savings (the Greece effect).',
     build: make((s) => {
-      on(s, 'vat5', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'drug_neg', 'farm', 'fed_pay', 'irs_enforce', 'salt10', 'tips_ot_repeal');
+      on(s, 'vat5', 'carbon25', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'drug_neg', 'farm', 'fed_pay', 'irs_enforce', 'salt10', 'tips_ot_repeal');
       s.brackets.rates = [0.10, 0.12, 0.24, 0.26, 0.35, 0.40, 0.45];
       s.ssWageBase = 400000;
       s.corporateRate = 0.25;
-      progs(s, { social_security: 0.88, medicare: 0.8, medicaid: 0.85, aca: 0.7, snap: 0.85, nondefense: 0.65, defense: 0.8, fed_retirement: 0.9, other_mandatory: 0.8 });
+      progs(s, { social_security: 0.88, medicare: 0.78, medicaid: 0.8, aca: 0.7, snap: 0.85, nondefense: 0.6, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
     }),
   },
   {

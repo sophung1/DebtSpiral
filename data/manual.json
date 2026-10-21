@@ -566,6 +566,11 @@
   "feedback": {
     "revenueElasticity": 1.2,
     "persistence": 0.7,
-    "source": "Revenue moves ~1.2% per 1% change in GDP (CBO budget sensitivities). The GDP gap shrinks 30%/yr. Multiplier evidence: ~0.5 in normal times; 0.9-1.7 in Europe's 2010-13 austerity (Blanchard & Leigh, IMF 2013)."
+    "source": "Revenue moves ~1.2% per 1% change in GDP (CBO budget sensitivities). The GDP gap shrinks 30%/yr. Multiplier evidence: ~0.5 in normal times; 0.9-1.7 in Europe's 2010-13 austerity (Blanchard & Leigh, IMF 2013).",
+    "defaultMultiplier": 0.5,
+    "severityThreshold": 0.02,
+    "severitySlope": 10,
+    "maxMultiplier": 2,
+    "severityNote": "Scale with severity: above a 2%-of-GDP tightening, the multiplier rises 0.1 per extra point of GDP (capped at 2). A Greece-sized 13% consolidation gets ~1.6, near the 0.9-1.7 Blanchard & Leigh found."
   }
 }
