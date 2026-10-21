@@ -4,6 +4,8 @@ import { useResults } from '../state/results';
 import { programs, policies, live, manual } from '../model/data';
 import { BUCKETS, bucketDelta, ssCashFlow } from '../model/buckets';
 import { baselineInflation } from '../model/budget';
+import { regimeOf, regimeEffects } from '../model/monetary';
+import { CONDITIONS, activeConditions } from '../model/presets';
 import { setPolicy, lawFor } from '../model/scenario';
 import { polls } from '../model/popularity';
 import { BracketEditor } from './BracketEditor';
@@ -198,6 +200,7 @@ function DebtInflation() {
   const set = useStore((s) => s.set);
   const debt = live.debtHeldByPublicB.value;
   const baseInfl = baselineInflation;
+  const reg = regimeOf(scn.monetary), effects = regimeEffects(reg);
   return (
     <Bucket id="debt">
       <div className="ledger">
@@ -207,6 +210,11 @@ function DebtInflation() {
         <div className={budget.inflationShock > 0.0005 ? 'neg' : ''}><span>Inflation this year</span><strong>{pct(baseInfl + budget.inflationShock, 1)}{Math.abs((budget.policyInflation + budget.priceBump + budget.dominanceInflation + budget.monetizedInflation)) >= 0.0005 && <small> ({(budget.policyInflation + budget.priceBump + budget.dominanceInflation + budget.monetizedInflation) > 0 ? '+' : '−'}{pct(Math.abs((budget.policyInflation + budget.priceBump + budget.dominanceInflation + budget.monetizedInflation)), 1)} from your plan{budget.priceBump ? `, incl. ${pct(budget.priceBump, 1)} tariff price jump` : ''})</small>}</strong></div>
         <div className={budget.premium > 0.00005 ? 'neg' : budget.premium < -0.00005 ? 'pos' : ''}><span>Market risk premium</span><strong>{Math.abs(budget.premium) < 0.00005 ? 'none' : `${budget.premium > 0 ? '+' : '−'}${Math.round(Math.abs(budget.premium) * 1e4)} bp on long yields`}</strong></div>
       </div>
+      <p className="hint regime-note">
+        Set at the top: economy <strong>{CONDITIONS.find((c) => c.id === activeConditions(scn))?.name ?? 'Custom'}</strong> · monetary regime <strong>{reg.name}</strong>.
+        {effects.length > 0 && <> The regime works on top of the sliders below: {effects.join(', ')}.</>}
+        {reg.trendPi < 0 && <> Interest is cheaper this year, but nothing inflates away: debt-to-GDP in 10 years is {pct(o.debtToGdp10, 0)}.</>}
+      </p>
       <YieldCurve plan={budget.yields} />
       <p className="hint">Yields: 2-yr {pct(live.yield2y.value, 2)} · 10-yr {pct(live.yield10y.value, 2)} · 30-yr {pct(live.yield30y.value, 2)} · average on all debt {pct(live.avgInterestRate.value, 2)}</p>
       <div className="debt-cols">
@@ -232,7 +240,7 @@ function DebtInflation() {
           How much your plan's boost (or drag) to the economy shows up as inflation: ~{manual.macro.phillipsUp} pts per 1% of GDP the economy runs hot, ~{manual.macro.phillipsDown} when it runs cold. 2× is a tight economy like 2021, when stimulus met supply shortages. The Fed answers with higher short rates (Taylor rule), and inflation erodes paychecks in the household cards. 0 = static.</>} />
       <Slider label="Bond market fear" value={scn.marketFear} base={BASE.marketFear}
         min={0} max={3} step={0.1} format={(v) => (v ? `${v.toFixed(1)}×` : 'off')} onChange={(v) => set((s) => { s.marketFear = v; })}
-        hint={<>{budget.premium !== 0 && <strong className={budget.premium > 0 ? 'neg' : 'pos'}>Now: markets {budget.premium > 0 ? 'add' : 'take off'} {Math.round(Math.abs(budget.premium) * 1e4)} bp{budget.inflationRiskPremium > 0.00005 ? ` (deficits ${budget.fiscalPremium >= 0 ? '+' : '−'}${Math.round(Math.abs(budget.fiscalPremium) * 1e4)}, inflation +${Math.round(budget.inflationRiskPremium * 1e4)})` : ''}. </strong>}
+        hint={<>{Math.abs(budget.premium) >= 0.00005 && <strong className={budget.premium > 0 ? 'neg' : 'pos'}>Now: markets {budget.premium > 0 ? 'add' : 'take off'} {Math.round(Math.abs(budget.premium) * 1e4)} bp{budget.inflationRiskPremium > 0.00005 ? ` (deficits ${budget.fiscalPremium >= 0 ? '+' : '−'}${Math.round(Math.abs(budget.fiscalPremium) * 1e4)}, inflation +${Math.round(budget.inflationRiskPremium * 1e4)})` : ''}. </strong>}
           Investors demand higher long yields when deficits and debt run above the current-law path, and when inflation runs above ~{pct(manual.macro.inflationRiskFloor, 1)} (+{manual.macro.inflationRiskPerPt * 100} bp per point; the late-1970s inflation risk premium reached 2–4 pts): ~{Math.round(manual.macro.premiumPerDeficitPt * 1e4)} bp per point of GDP of extra deficit and ~{Math.round(manual.macro.premiumPerDebtPt * 1e4)} bp per point of debt (Laubach 2009). Cutting the deficit lowers rates the same way. Higher rates raise interest, which raises the deficit, which raises rates: that loop is how a debt spiral starts. 3× is stressed markets (the UK's 2022 gilt crisis); capped at +{manual.macro.premiumCap * 100} pts since the U.S. borrows in its own reserve currency. 0 = off.</>} />
       <Toggle label="Scale with severity (Greece effect)" checked={scn.multiplierScales} onChange={(v) => set((s) => { s.multiplierScales = v; })}
         aside={<span className="hint">{scn.multiplierScales && budget.multiplierUsed > scn.multiplier + 0.005 && <strong className="neg">Your plan's austerity raises it to {budget.multiplierUsed.toFixed(2)}×. </strong>}

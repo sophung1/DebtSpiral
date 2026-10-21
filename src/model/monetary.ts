@@ -51,3 +51,26 @@ export const REGIMES: Regime[] = [
 ];
 
 export const regimeOf = (id: string | undefined): Regime => REGIMES.find((x) => x.id === id) ?? REGIMES[0];
+
+const signedPts = (v: number) => `${v > 0 ? '+' : '−'}${+(Math.abs(v) * 100).toFixed(2)} pt${Math.abs(v) === 0.01 ? '' : 's'}`;
+const bp = (v: number) => `${v > 0 ? '+' : '−'}${Math.round(Math.abs(v) * 1e4)} bp`;
+
+/** Plain-language list of what a regime changes, for the Debt card ("Today's Fed" changes nothing). */
+export function regimeEffects(g: Regime): string[] {
+  const e: string[] = [];
+  if (g.trendPi) e.push(`inflation ${signedPts(g.trendPi)}/yr`);
+  if (g.realShock) e.push(`real rates ${signedPts(g.realShock)}`);
+  if (g.taylorScale === 0) e.push('no rate cuts in a slump');
+  if (g.multiplierAdd) e.push(`cuts hit the economy harder (multiplier +${g.multiplierAdd})`);
+  if (g.y10Cap !== null) e.push(`10-yr yield capped at ${+(g.y10Cap * 100).toFixed(2)}%`);
+  if (g.monetizeAbove !== null) e.push(`deficits above ${+(g.monetizeAbove * 100).toFixed(1)}% of GDP paid with new money`);
+  if (g.sensitivityScale !== 1) e.push(`inflation reacts ${g.sensitivityScale}×`);
+  if (g.fearScale === 0) e.push("bond markets can't punish deficits");
+  else if (g.fearScale !== 1) e.push(`markets ${g.fearScale}× jumpier`);
+  if (g.billsShift && g.billsShift === g.longShift) e.push(`yields ${bp(g.billsShift)}`);
+  else {
+    if (g.billsShift) e.push(`bill yields ${bp(g.billsShift)}`);
+    if (g.longShift) e.push(`long yields ${bp(g.longShift)}`);
+  }
+  return e;
+}
