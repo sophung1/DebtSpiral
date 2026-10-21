@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../state/store';
 import { useResults } from '../state/results';
 import { live, manual } from '../model/data';
@@ -26,6 +26,8 @@ export function Scoreboard() {
   const preset = activePreset(scn);
   const cond = activeConditions(scn);
   const [copied, setCopied] = useState(false);
+  // Screen readers hear the new deficit once changes settle, not on every slider tick.
+  const [spoken, setSpoken] = useState('');
   const deficit = budget.deficit;
   const change = budget.baseDeficit - deficit;
   const onBudget = deficit + ssCashFlow(budget, scn).balance;
@@ -49,6 +51,8 @@ export function Scoreboard() {
   const payoff = o.payoffYears === null ? null : o.payoffYears === Infinity ? 'not within 200 years' : `in ${o.payoffYears} years`;
   const ceiling = o.ceilingMonths === null ? null : o.ceilingMonths === 0 ? 'already at the limit' : o.ceilingMonths > 120 ? 'in 10+ years' : `in ${o.ceilingMonths.toFixed(0)} months`;
 
+  const summary = `${deficit > 0 ? 'Deficit' : 'Surplus'} ${fmtB(Math.abs(deficit))}, ${pct(Math.abs(o.deficitPctGdp))} of GDP; debt ${pct(o.debtToGdp10, 0)} of GDP in 10 years.`;
+  useEffect(() => { const t = setTimeout(() => setSpoken(summary), 800); return () => clearTimeout(t); }, [summary]);
   return (
     <header className="scoreboard">
       <div className="brand">
@@ -92,6 +96,7 @@ export function Scoreboard() {
         sub={`${pct(Math.abs(o.deficitPctGdp))} of GDP · ${Math.abs(change) < 0.5 ? 'current law' : `${change > 0 ? 'cut' : 'added'} ${fmtB(Math.abs(change))}`} · excl. SS ${onBudget > 0 ? '' : '+'}${fmtB(Math.abs(onBudget))}`}>
         <span className="dial-marks">{milestones.map((m, k) => <span key={m.label} title={m.label} className={deficit <= m.value ? 'pos' : ''}>{m.short}{k === 0 ? ' of GDP' : ''} {fmtB(m.value)}{deficit <= m.value && ' ✓'}</span>)}</span>
       </Dial>
+      <p className="sr-only" aria-live="polite">{spoken}</p>
       <div className="badges">
         <Badge ok={o.balanced} title="Balanced budget">{o.balanced ? '✅ Yes!' : `❌ ${fmtB(deficit)} short`}</Badge>
         {payoff && <Badge ok={o.payoffYears !== Infinity} title="Debt paid off">{payoff}</Badge>}

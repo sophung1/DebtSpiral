@@ -16,8 +16,9 @@ export default function App() {
 
   return (
     <>
+      <a className="skip" href="#main">Skip to the budget cards</a>
       <Scoreboard />
-      <main>
+      <main id="main" tabIndex={-1}>
         <div className={`cards ${dragging ? 'is-dragging' : ''}`}>
           {order.map((id) => {
             const Card = CARDS[id];
@@ -36,7 +37,7 @@ export default function App() {
         </p>
         <SourcesDrawer />
       </main>
-      <footer className="site-foot">debtspiral.app · a simplified, one-year model with a 10-year outlook. It's an educational game, not an official score.</footer>
+      <footer className="site-foot">debtspiral.app · a simplified, one-year model with a 10-year outlook. It's an educational simulator, not an official score.</footer>
     </>
   );
 }
