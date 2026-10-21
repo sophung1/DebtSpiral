@@ -30,6 +30,8 @@ export interface Policy {
   who?: string;
   /** a one-time cost or saving: counts in year 1 of the 10-year outlook only */
   oneTime?: boolean;
+  /** one-time jump in the price level (decimal), e.g. from tariffs */
+  priceLevelPts?: number;
 }
 
 export interface Archetype {

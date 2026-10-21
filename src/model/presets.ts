@@ -1,7 +1,7 @@
 import { currentLaw, setPolicy, type Scenario } from './scenario';
 
 /** Economic conditions, separate from policy: these fields are set by the Economy picker, the rest by policy presets. */
-export const CONDITION_KEYS = ['rateShock', 'inflationShock', 'realGrowth', 'gdpShock', 'multiplier'] as const;
+export const CONDITION_KEYS = ['rateShock', 'inflationShock', 'realGrowth', 'gdpShock', 'multiplier', 'inflationSensitivity', 'marketFear'] as const;
 type ConditionKey = (typeof CONDITION_KEYS)[number];
 export type Conditions = Pick<Scenario, ConditionKey>;
 
@@ -20,27 +20,27 @@ const ep = (v: Partial<Conditions>): Conditions => ({ ...NOMINAL, ...v });
 export const CONDITIONS: Condition[] = [
   { id: 'today', name: 'Current (today)', values: NOMINAL,
     blurb: 'Today\'s actual conditions: 10-yr yield ~5.1% (high by historical standards), ~1.8% real growth, ~2.2% inflation, normal feedback (0.5×).' },
-  { id: 'nominal', name: 'Nominal (normal times)', values: ep({ rateShock: -0.01, inflationShock: -0.002 }),
+  { id: 'nominal', name: 'Nominal (normal times)', values: ep({ rateShock: -0.008, inflationShock: -0.002 }),
     blurb: 'A calm long-run economy like CBO\'s long-term projections: 10-yr yield ~4.1% (1 pt below today), 2% inflation, 1.8% real growth, no boom or bust.' },
-  { id: 'roaring20s', name: "Roaring '20s (1922–29)", values: ep({ realGrowth: 0.045, inflationShock: -0.022, rateShock: -0.01, gdpShock: 0.02 }),
+  { id: 'roaring20s', name: "Roaring '20s (1922–29)", values: ep({ realGrowth: 0.045, inflationShock: -0.022, rateShock: 0.012, gdpShock: 0.02 }),
     blurb: '~4.5% real growth with flat prices (no inflation), slightly lower rates, the economy 2% above normal. Flat prices mean no inflation erodes the debt.' },
-  { id: 'depression', name: 'Great Depression (1930s)', values: ep({ realGrowth: 0.01, inflationShock: -0.042, rateShock: -0.01, gdpShock: -0.1, multiplier: 1.5 }),
+  { id: 'depression', name: 'Great Depression (1930s)', values: ep({ inflationSensitivity: 0.5, realGrowth: 0.01, inflationShock: -0.042, rateShock: 0.032, gdpShock: -0.1, multiplier: 1.5 }),
     blurb: 'GDP 10% below normal this year (it actually fell ~26% by 1933, beyond this model), ~1%/yr growth over the decade, prices falling ~2%/yr on average (deflation makes the debt heavier), and high multipliers (1.5×) with rates near zero.' },
-  { id: 'boom', name: 'Post-war boom (1950s–60s)', values: ep({ realGrowth: 0.04, inflationShock: 0.015, rateShock: -0.02, gdpShock: 0.02 }),
+  { id: 'boom', name: 'Post-war boom (1950s–60s)', values: ep({ realGrowth: 0.04, inflationShock: 0.015, rateShock: -0.035, gdpShock: 0.02 }),
     blurb: '4% real growth, ~3.7% inflation, interest rates held 2 pts lower (financial repression), the economy 2% above normal. After WWII this took debt from ~106% to ~25% of GDP, but back then the budget ran primary surpluses.' },
-  { id: 'stagflation', name: "'70s stagflation (1973–82)", values: ep({ realGrowth: 0.02, inflationShock: 0.065, rateShock: 0.04, gdpShock: -0.02, multiplier: 0.7 }),
+  { id: 'stagflation', name: "'70s stagflation (1973–82)", values: ep({ inflationSensitivity: 2, marketFear: 1.5, realGrowth: 0.02, inflationShock: 0.065, rateShock: -0.025, gdpShock: -0.02, multiplier: 0.7 }),
     blurb: '~2% growth, ~8.7% average inflation, 10-yr yields ~4 pts above today, and the 1974–75 recession (GDP 2% below normal).' },
-  { id: 'volcker', name: 'Volcker shock (1980–82)', values: ep({ realGrowth: 0.025, inflationShock: 0.035, rateShock: 0.06, gdpShock: -0.03, multiplier: 0.8 }),
+  { id: 'volcker', name: 'Volcker shock (1980–82)', values: ep({ marketFear: 2, realGrowth: 0.025, inflationShock: 0.035, rateShock: 0.025, gdpShock: -0.03, multiplier: 0.8 }),
     blurb: 'The Fed pushed rates to ~15% to break inflation: 10-yr yields ~6 pts above today, a double-dip recession (GDP 3% below normal), then a decade of ~3% growth with inflation falling from 13% to ~4% (~5.7% average).' },
-  { id: 'nineties', name: "'90s boom (1995–2000)", values: ep({ realGrowth: 0.04, inflationShock: 0.003, rateShock: 0.01, gdpShock: 0.02 }),
+  { id: 'nineties', name: "'90s boom (1995–2000)", values: ep({ realGrowth: 0.04, inflationShock: 0.003, rateShock: 0.007, gdpShock: 0.02 }),
     blurb: '4% real growth from the tech/productivity boom, ~2.5% inflation, rates a bit above today. Booming revenue plus spending restraint produced the last balanced budgets (1998–2001).' },
-  { id: 'great_recession', name: 'Great Recession (2008–09)', values: ep({ realGrowth: 0.014, inflationShock: -0.005, rateShock: -0.025, gdpShock: -0.06, multiplier: 1 }),
+  { id: 'great_recession', name: 'Great Recession (2008–09)', values: ep({ inflationSensitivity: 0.5, realGrowth: 0.014, inflationShock: -0.005, rateShock: -0.02, gdpShock: -0.06, multiplier: 1 }),
     blurb: 'GDP ~6% below normal and revenue collapsing, then a slow ~1.4%/yr recovery with ~1.7% inflation. Rates fell ~2.5 pts as the Fed cut to zero, which is also why multipliers were high (1×).' },
   { id: 'covid', name: 'COVID shock (2020)', values: ep({ realGrowth: 0.025, inflationShock: 0, rateShock: -0.02, gdpShock: -0.04, multiplier: 1 }),
     blurb: 'A sharp, short collapse (GDP ~4% below normal for the year) with rates cut to near zero, then a fast rebound (~2.5% growth).' },
-  { id: 'inflation2021', name: '2021–22 inflation surge', values: ep({ realGrowth: 0.02, inflationShock: 0.025, rateShock: 0.01, gdpShock: 0.01 }),
+  { id: 'inflation2021', name: '2021–22 inflation surge', values: ep({ inflationSensitivity: 2, realGrowth: 0.02, inflationShock: 0.025, rateShock: -0.015, gdpShock: 0.01 }),
     blurb: 'Prices jump (inflation peaked ~9%; ~4.7% averaged over 2021–24), rates rise after them, and the economy runs a little hot.' },
-  { id: 'doomsday', name: 'Doomsday (hypothetical)', values: ep({ rateShock: 0.03, inflationShock: 0.05, realGrowth: -0.015, gdpShock: -0.06, multiplier: 1.5 }),
+  { id: 'doomsday', name: 'Doomsday (hypothetical)', values: ep({ inflationSensitivity: 2, marketFear: 3, rateShock: -0.02, inflationShock: 0.05, realGrowth: -0.015, gdpShock: -0.06, multiplier: 1.5 }),
     blurb: 'Everything at once: 1970s-style inflation (+5 pts/yr), 10-yr yields near 8% (+3 pts), a 2009-sized crash, then a lost decade (−1.5%/yr), with Greece-level feedback (1.5×). Add your own emergency response on top.' },
 ];
 
@@ -244,7 +244,7 @@ export const PRESETS: Preset[] = [
       rates(s, [0.11, 0.14, 0.24, 0.26, 0.35, 0.40, 0.44]);
       s.corporateRate = 0.25;
       s.capGainsTopRate = 0.25;
-      progs(s, { social_security: 0.95, medicare: 0.9, medicaid: 0.88, aca: 0.88, snap: 0.9, defense: 0.85, nondefense: 0.82, veterans: 0.95, fed_retirement: 0.9, other_mandatory: 0.88 });
+      progs(s, { social_security: 0.97, medicare: 0.92, medicaid: 0.9, aca: 0.9, snap: 0.92, defense: 0.88, nondefense: 0.85, veterans: 0.97, fed_retirement: 0.92, other_mandatory: 0.9 });
     }),
   },
   {
@@ -270,7 +270,7 @@ export const PRESETS: Preset[] = [
       s.brackets.rates = [0.10, 0.12, 0.24, 0.26, 0.35, 0.40, 0.45];
       s.ssWageBase = 400000;
       s.corporateRate = 0.25;
-      progs(s, { social_security: 0.94, medicare: 0.84, medicaid: 0.85, aca: 0.75, snap: 0.9, nondefense: 0.68, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
+      progs(s, { social_security: 0.97, medicare: 0.88, medicaid: 0.9, aca: 0.8, snap: 0.95, nondefense: 0.75, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
     }),
   },
 ];

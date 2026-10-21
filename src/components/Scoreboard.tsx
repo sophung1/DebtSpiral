@@ -29,7 +29,7 @@ export function Scoreboard() {
   const change = budget.baseDeficit - deficit;
   const onBudget = deficit + ssCashFlow(budget, scn).balance;
   const pop = popularity(scn);
-  const inflNow = baselineInflation + scn.inflationShock;
+  const inflNow = baselineInflation + budget.inflationShock;
 
   const share = async () => {
     try { await navigator.clipboard.writeText(location.href); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard unavailable */ }
@@ -77,6 +77,11 @@ export function Scoreboard() {
         {ceiling && <Badge ok={(o.ceilingMonths ?? 0) > 24} title="Hits the debt ceiling">{ceiling}</Badge>}
         <Badge ok={o.debtToGdp10 <= o.debtToGdpNow} title="Debt-to-GDP in 10 yrs">{pct(o.debtToGdpNow, 0)} → {pct(o.debtToGdp10, 0)}</Badge>
         <Badge ok={o.interestShareOfRevenue < 0.15} title="Interest share of revenue">{pct(o.interestShareOfRevenue, 0)}</Badge>
+        <Badge ok={o.spiral === 'falling' ? true : o.spiral === 'rising' ? null : false} title="Debt spiral?"
+          hint={`Over 10 years, interest on the debt averages ${pct(o.rate10, 1)} vs ${pct(o.growth10, 1)} nominal GDP growth. When interest outgrows the economy and the budget runs a deficit even before interest, debt-to-GDP snowballs. A spiral is when bond markets join in: higher debt raises rates, which raises interest and the debt again.${o.premium10 > 0.00005 ? ` Markets add ${Math.round(o.premium10 * 1e4)} bp by year 10.` : ''}`}>
+          {{ falling: 'No: debt-to-GDP falling', rising: 'Not yet: debt rising steadily', snowball: 'Snowballing', spiral: 'Yes: spiraling' }[o.spiral]}
+          <small>{o.spiral === 'snowball' ? `interest (${pct(o.rate10, 1)}) outgrows the economy (${pct(o.growth10, 1)})` : o.spiral === 'spiral' ? `markets add +${Math.round(o.premium10 * 1e4)} bp; interest ${pct(o.rate10, 1)} vs growth ${pct(o.growth10, 1)}` : `interest ${pct(o.rate10, 1)} vs growth ${pct(o.growth10, 1)} in year 10`}</small>
+        </Badge>
         <Badge ok={o.inflationToHoldRatio <= 0} title="Inflate it away?"
           hint={`Inflation shrinks old debt, but new deficits add debt in inflated dollars. Inflation also raises interest: short-term bills (~${pct(manual.debtComposition.billsShare, 0)} of the debt) reprice within months, TIPS are inflation-protected, and once markets expect inflation, all new borrowing costs more. That's why it only works as a surprise, and why it stops working as the debt rolls over (average maturity ~${manual.debtComposition.avgMaturityYears} years). Today's inflation already erodes ~${fmtB(o.inflationErosionNow)} of real debt a year, against a ${fmtB(Math.max(0, budget.deficit))} deficit. The U.S. has had ~2-3% inflation for 30 years, and debt-to-GDP still went from ~47% (1995) to over 100%.`}>
           {o.inflationToHoldRatio <= 0
