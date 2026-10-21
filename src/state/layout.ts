@@ -23,6 +23,8 @@ interface Layout {
   over: DropTarget | null;
   setDrag: (dragging: string | null, over: DropTarget | null) => void;
   toggle: (id: string) => void;
+  /** collapse (true) or expand (false) every card */
+  setAll: (collapsed: boolean) => void;
   move: (id: string, to: number) => void;
   reset: () => void;
 }
@@ -56,6 +58,7 @@ export const useLayout = create<Layout>((set, get) => ({
   over: null,
   setDrag: (dragging, over) => set({ dragging, over }),
   setHeader: (header) => { set({ header }); save(get()); },
+  setAll: (c) => { set({ collapsed: Object.fromEntries(DEFAULT_ORDER.map((id) => [id, c])) }); save(get()); },
   toggle: (id) => { set({ collapsed: { ...get().collapsed, [id]: !get().collapsed[id] } }); save(get()); },
   move: (id, to) => {
     const order = get().order.filter((x) => x !== id);
