@@ -105,23 +105,24 @@ export const PRESETS: Preset[] = [
   {
     id: 'trump',
     name: 'Trump agenda',
-    blurb: 'Tariffs stay, mass deportation, no tax on Social Security benefits, a $1.5T defense budget, abolish the Education Department, Gold Card visas, end foreign aid, Trump Accounts, no diesel tax, and the FY2026 budget request\'s ~23% cut to non-defense spending. No deficit target was claimed beyond "tariffs and growth".',
+    blurb: 'Tariffs stay, mass deportation, no tax on Social Security benefits, a $1.5T defense budget, abolish the Education Department, Gold Card visas, end foreign aid, Trump Accounts, no diesel tax, a $2,000 "tariff dividend" check, selling the Fannie/Freddie stakes, ending CHIPS subsidies, and the FY2026 budget request\'s ~23% cut to non-defense spending. No deficit target was claimed beyond "tariffs and growth".',
     build: make((s) => {
-      on(s, 'mass_deportation', 'no_tax_ss', 'defense_15t', 'abolish_ed', 'gold_card', 'end_foreign_aid', 'trump_accounts', 'diesel_zero', 'repeal_clean');
+      on(s, 'mass_deportation', 'no_tax_ss', 'defense_15t', 'abolish_ed', 'gold_card', 'end_foreign_aid', 'trump_accounts', 'diesel_zero', 'repeal_clean', 'gse_sale', 'chips_repeal');
+      s.stimulusPerAdult = 2000; // the proposed $2,000 "tariff dividend" check
       progs(s, { nondefense: 0.77 });
     }),
   },
   {
     id: 'sanders',
     name: 'Progressive (Sanders)',
-    blurb: 'Medicare for All, free public college, universal childcare, paid leave and bigger Social Security checks, paid for with Medicare for All premiums (an 11.5% payroll tax), a wealth tax, a financial transactions tax, no Social Security cap, higher top and corporate rates, and taxing capital gains like wages at the top. Claims to be paid for.',
+    blurb: 'Medicare for All, free public college, universal childcare, paid leave, a Green New Deal, infrastructure, housing, a $15 minimum wage and bigger Social Security checks, plus ending military aid to Israel and overseas bases. Paid for with Medicare for All premiums (an income-based payroll tax), a wealth tax, a billionaire minimum tax, a carbon tax, a financial transactions tax, no Social Security cap, higher top and corporate rates, and taxing capital gains like wages at the top. Claims to be paid for.',
     build: make((s) => {
-      on(s, 'm4a', 'free_college', 'childcare', 'paid_leave', 'wealth_sanders', 'ftt', 'stepup', 'carried', 'obbba_rollback', 'drug_neg', 'irs_enforce', 'buyback_tax4', 'end_iorb');
+      on(s, 'm4a', 'free_college', 'childcare', 'paid_leave', 'wealth_sanders', 'ftt', 'stepup', 'carried', 'obbba_rollback', 'drug_neg', 'irs_enforce', 'buyback_tax4', 'end_iorb', 'gnd_climate', 'renew_iija', 'housing_supply', 'min_wage15', 'end_israel_aid', 'fossil_breaks', 'close_bases', 'carbon25', 'billionaire_min_tax');
       rates(s, [0.10, 0.12, 0.22, 0.24, 0.37, 0.45, 0.52]);
       s.capGainsTopRate = 0.396;
       s.ssWageBase = null;
       // Medicare for All premiums: 7.5% employer + 4% household on income (wider than wages, so slightly more than 11.5 pts here)
-      s.hiRate = 0.16;
+      s.hiRate = 0.2;
       s.corporateRate = 0.35;
       s.estateRate = 0.65;
       s.estateExemption = 3.5e6;
@@ -131,14 +132,15 @@ export const PRESETS: Preset[] = [
   {
     id: 'socialism',
     name: 'Total socialism',
-    blurb: 'Everything in the Sanders plan plus a federal jobs guarantee, much bigger safety-net programs and a smaller military, paid for with very high top rates and every wealth tax on the menu. Built so the new programs are paid for: the deficit ends no higher than current law.',
+    blurb: 'Everything in the Sanders plan plus a jobs guarantee, reparations, baby bonds, restored clean-energy credits, much bigger safety-net programs and a smaller military. Paid for Nordic-style: a 90% top rate, a VAT, a carbon tax, higher payroll taxes and every wealth tax on the menu. Built so the new programs are paid for: the deficit ends no higher than current law.',
     build: make((s) => {
-      on(s, 'obbba_rollback', 'm4a', 'free_college', 'childcare', 'paid_leave', 'jobs_guarantee', 'wealth_sanders', 'ftt', 'carbon25', 'stepup', 'carried', 'irs_enforce', 'ctc_2021', 'prek', 'drug_neg', 'buyback_tax4', 'end_iorb');
-      rates(s, [0.10, 0.15, 0.25, 0.35, 0.50, 0.60, 0.70]);
+      on(s, 'obbba_rollback', 'm4a', 'free_college', 'childcare', 'paid_leave', 'jobs_guarantee', 'wealth_sanders', 'ftt', 'carbon25', 'stepup', 'carried', 'irs_enforce', 'ctc_2021', 'prek', 'drug_neg', 'buyback_tax4', 'end_iorb', 'gnd_climate', 'restore_clean', 'renew_iija', 'baby_bonds', 'housing_supply', 'min_wage15', 'reparations', 'billionaire_min_tax', 'end_israel_aid', 'close_bases', 'fossil_breaks', 'vat5');
+      rates(s, [0.10, 0.20, 0.30, 0.40, 0.60, 0.75, 0.90]);
       s.capGainsTopRate = 0.50;
       s.ssWageBase = null;
-      s.hiRate = 0.2;
-      s.corporateRate = 0.35;
+      s.hiRate = 0.25;
+      s.ssRate = 0.16;
+      s.corporateRate = 0.40;
       s.estateRate = 0.70;
       s.estateExemption = 3.5e6;
       progs(s, { social_security: 1.15, medicaid: 1.2, snap: 1.5, ssi: 1.5, unemployment: 1.5, eitc: 1.5, nondefense: 1.3, defense: 0.75 });
@@ -147,9 +149,9 @@ export const PRESETS: Preset[] = [
   {
     id: 'libertarian',
     name: 'Libertarian minimal state',
-    blurb: 'A flat-ish 15% income tax, no estate tax or tariffs, personal Social Security accounts, and a much smaller federal government: no Education Department, no college or foreign aid, no overseas bases, no clean-energy credits, and deep safety-net cuts. Its claim: smaller government and a falling debt.',
+    blurb: 'A flat-ish 15% income tax, no estate tax or tariffs, personal Social Security accounts, and a much smaller federal government: no Education Department, no college or foreign aid, no overseas bases or aid to Israel, no CHIPS or clean-energy subsidies, the Fannie/Freddie stakes sold, open legal immigration and Gold Card visas, and deep safety-net cuts. Its claim: smaller government and a falling debt.',
     build: make((s) => {
-      on(s, 'tariffs_repeal', 'privatize_ss', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'farm', 'fed_pay', 'abolish_ed', 'end_college_funding', 'end_foreign_aid', 'close_bases', 'repeal_clean', 'fossil_breaks');
+      on(s, 'tariffs_repeal', 'privatize_ss', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'farm', 'fed_pay', 'abolish_ed', 'end_college_funding', 'end_foreign_aid', 'close_bases', 'repeal_clean', 'fossil_breaks', 'chips_repeal', 'gse_sale', 'end_israel_aid', 'immigration_reform', 'gold_card', 'diesel_zero');
       rates(s, [0.10, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]);
       s.capGainsTopRate = 0.15;
       s.corporateRate = 0.15;
@@ -172,7 +174,7 @@ export const PRESETS: Preset[] = [
     name: "Ray Dalio's 3% solution",
     blurb: 'Get the deficit to ~3% of GDP with roughly equal spending cuts and tax increases, across the board. His third lever, lower interest rates, is an outcome he expects once the deficit falls: try it by pairing this with the "Nominal" economy.',
     build: make((s) => {
-      on(s, 'salt10', 'tips_ot_repeal', 'stepup', 'carried', 'irs_enforce');
+      on(s, 'salt10', 'tips_ot_repeal', 'stepup', 'carried', 'irs_enforce', 'ss_means_test', 'site_neutral', 'end_iorb');
       rates(s, [0.11, 0.14, 0.24, 0.26, 0.35, 0.40, 0.44]);
       s.corporateRate = 0.25;
       s.capGainsTopRate = 0.25;
@@ -182,9 +184,9 @@ export const PRESETS: Preset[] = [
   {
     id: 'balanced',
     name: 'Stabilize the debt',
-    blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health and Social Security reforms plus broadening the tax base, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
+    blurb: 'Get debt-to-GDP falling (~3% of GDP deficit) mostly through health and Social Security reforms (including means-testing), immigration reform and broadening the tax base, while still renewing infrastructure funding, with a modestly higher top rate and corporate rate. About half new revenue, half spending.',
     build: make((s) => {
-      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'medicaid_caps', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15');
+      on(s, 'chained_cpi', 'fra70', 'ma_bench', 'site_neutral', 'drug_neg', 'medicaid_caps', 'irs_enforce', 'stepup', 'carried', 'salt10', 'tips_ot_repeal', 'farm', 'carbon25', 'gas15', 'ss_means_test', 'immigration_reform', 'end_iorb', 'buyback_tax4', 'billionaire_min_tax', 'renew_iija');
       rates(s, [0.10, 0.12, 0.22, 0.24, 0.33, 0.39, 0.44]);
       s.capGainsTopRate = 0.28;
       s.ssWageBase = 600000;
@@ -195,14 +197,14 @@ export const PRESETS: Preset[] = [
   {
     id: 'hawk',
     name: 'Fiscal hawk: balance now',
-    blurb: 'Close the whole deficit in one year with broad spending cuts plus a VAT and higher top rates. Assumes a normal economy (0.5× feedback, no severity scaling).',
+    blurb: 'Close the whole deficit in one year: every targeted saving on the menu (means-tested Social Security, health payment reform, no overseas bases or foreign aid, no CHIPS or fossil breaks, a billionaire minimum tax), then broad spending cuts plus a VAT and higher top rates to finish the job. Assumes a normal economy (0.5× feedback, no severity scaling).',
     build: make((s) => {
       s.multiplierScales = false;
-      on(s, 'vat5', 'carbon25', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'drug_neg', 'farm', 'fed_pay', 'irs_enforce', 'salt10', 'tips_ot_repeal');
+      on(s, 'vat5', 'carbon25', 'medicaid_caps', 'ma_bench', 'fra70', 'chained_cpi', 'drug_neg', 'farm', 'fed_pay', 'irs_enforce', 'salt10', 'tips_ot_repeal', 'ss_means_test', 'site_neutral', 'end_iorb', 'chips_repeal', 'close_bases', 'end_foreign_aid', 'fossil_breaks', 'buyback_tax4', 'billionaire_min_tax', 'stepup', 'carried', 'immigration_reform', 'gse_sale');
       s.brackets.rates = [0.10, 0.12, 0.24, 0.26, 0.35, 0.40, 0.45];
       s.ssWageBase = 400000;
       s.corporateRate = 0.25;
-      progs(s, { social_security: 0.88, medicare: 0.78, medicaid: 0.8, aca: 0.7, snap: 0.85, nondefense: 0.6, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
+      progs(s, { social_security: 0.94, medicare: 0.84, medicaid: 0.85, aca: 0.75, snap: 0.9, nondefense: 0.68, defense: 0.75, fed_retirement: 0.9, other_mandatory: 0.8 });
     }),
   },
 ];
