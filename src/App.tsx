@@ -34,13 +34,13 @@ export default function App() {
         <SourcesDrawer />
       </main>
       <footer className="site-foot">
-        <p>debtspiral.app · A simplified educational simulator, not an official estimate. Policy scores are rough first-year figures, mostly from CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10; hover a switch for its source. These may be out of date by the time you read this.</p>
-        <p>Not affiliated with or endorsed by any government agency, party, candidate or organization named here; presets are approximations of their published plans and are not exhaustive.</p>
-        <p>debtspiral.app does not endorse any policy, party or candidate.</p>
+        <p>DebtSpiral.app · A simplified educational simulator, not an official estimate. Policy scores are rough first-year figures, mostly from CBO's <a href={policyMeta.cboUrl} target="_blank" rel="noreferrer">Options for Reducing the Deficit</a> ÷ 10; hover a switch for its source. These may be out of date by the time you read this.</p>
         <p>Not financial, tax or legal advice; household figures are illustrative.</p>
         <p>Data: Treasury, CBO, public polls (dated in Sources). No cookies or tracking.</p>
         <hr />
-        <p className="motto">Bipartisanship is hard. We got here together; we should stand together!</p>
+        <p>Not affiliated with or endorsed by any government agency, party, candidate or organization named here; presets are approximations of their published plans and are not exhaustive.</p>
+        <p>DebtSpiral.app does not endorse any policy, party or candidate.</p>
+        <p className="motto">Bipartisanship is hard. We got here together; now let's blame everyone else!</p>
       </footer>
     </>
   );
