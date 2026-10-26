@@ -1,29 +1,29 @@
 {
-  "updatedAt": "2026-10-20T21:20:38.764Z",
+  "updatedAt": "2026-10-26T19:19:46.514Z",
   "seed": false,
   "totalDebtB": {
-    "value": 40396.40112048505,
-    "asOf": "2026-10-19",
+    "value": 40444.34270938915,
+    "asOf": "2026-10-22",
     "source": "Treasury Fiscal Data: Debt to the Penny"
   },
   "debtHeldByPublicB": {
-    "value": 32533.474452928982,
-    "asOf": "2026-10-19",
+    "value": 32597.66407088023,
+    "asOf": "2026-10-22",
     "source": "Treasury Fiscal Data: Debt to the Penny"
   },
   "intragovDebtB": {
-    "value": 7862.92666755607,
-    "asOf": "2026-10-19",
+    "value": 7846.67863850892,
+    "asOf": "2026-10-22",
     "source": "Treasury Fiscal Data: Debt to the Penny"
   },
   "debtSubjectToLimitB": {
-    "value": 40199.333,
-    "asOf": "2026-10-19",
+    "value": 40244.063,
+    "asOf": "2026-10-22",
     "source": "Treasury Fiscal Data: Daily Treasury Statement, Debt Subject to Limit"
   },
   "debtLimitB": {
     "value": 41103.996,
-    "asOf": "2026-10-19",
+    "asOf": "2026-10-22",
     "source": "Treasury Fiscal Data: Daily Treasury Statement, Debt Subject to Limit"
   },
   "avgInterestRate": {
@@ -32,18 +32,18 @@
     "source": "Treasury Fiscal Data: Average Interest Rates on U.S. Treasury Securities"
   },
   "yield2y": {
-    "value": 0.0479,
-    "asOf": "2026-10-20",
+    "value": 0.046900000000000004,
+    "asOf": "2026-10-23",
     "source": "U.S. Treasury daily par yield curve rates"
   },
   "yield10y": {
-    "value": 0.0512,
-    "asOf": "2026-10-20",
+    "value": 0.05,
+    "asOf": "2026-10-23",
     "source": "U.S. Treasury daily par yield curve rates"
   },
   "yield30y": {
-    "value": 0.0542,
-    "asOf": "2026-10-20",
+    "value": 0.0533,
+    "asOf": "2026-10-23",
     "source": "U.S. Treasury daily par yield curve rates"
   },
   "fytdReceiptsB": {
