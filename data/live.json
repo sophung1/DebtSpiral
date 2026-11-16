@@ -1,29 +1,29 @@
 {
-  "updatedAt": "2026-11-09T22:59:06.645Z",
+  "updatedAt": "2026-11-16T22:54:16.182Z",
   "seed": false,
   "totalDebtB": {
-    "value": 40552.75101909261,
-    "asOf": "2026-11-06",
+    "value": 40616.67882709207,
+    "asOf": "2026-11-13",
     "source": "Treasury Fiscal Data: Debt to the Penny"
   },
   "debtHeldByPublicB": {
-    "value": 32762.92535662947,
-    "asOf": "2026-11-06",
+    "value": 32825.32201432667,
+    "asOf": "2026-11-13",
     "source": "Treasury Fiscal Data: Debt to the Penny"
   },
   "intragovDebtB": {
-    "value": 7789.825662463139,
-    "asOf": "2026-11-06",
+    "value": 7791.356812765401,
+    "asOf": "2026-11-13",
     "source": "Treasury Fiscal Data: Debt to the Penny"
   },
   "debtSubjectToLimitB": {
-    "value": 40354.711,
-    "asOf": "2026-11-06",
+    "value": 40418.867,
+    "asOf": "2026-11-13",
     "source": "Treasury Fiscal Data: Daily Treasury Statement, Debt Subject to Limit"
   },
   "debtLimitB": {
     "value": 41103.996,
-    "asOf": "2026-11-06",
+    "asOf": "2026-11-13",
     "source": "Treasury Fiscal Data: Daily Treasury Statement, Debt Subject to Limit"
   },
   "avgInterestRate": {
@@ -32,33 +32,33 @@
     "source": "Treasury Fiscal Data: Average Interest Rates on U.S. Treasury Securities"
   },
   "yield2y": {
-    "value": 0.045599999999999995,
-    "asOf": "2026-11-09",
+    "value": 0.0483,
+    "asOf": "2026-11-16",
     "source": "U.S. Treasury daily par yield curve rates"
   },
   "yield10y": {
-    "value": 0.048799999999999996,
-    "asOf": "2026-11-09",
+    "value": 0.0512,
+    "asOf": "2026-11-16",
     "source": "U.S. Treasury daily par yield curve rates"
   },
   "yield30y": {
-    "value": 0.0526,
-    "asOf": "2026-11-09",
+    "value": 0.0546,
+    "asOf": "2026-11-16",
     "source": "U.S. Treasury daily par yield curve rates"
   },
   "fytdReceiptsB": {
-    "value": 5403.3267589608095,
-    "asOf": "2026-09-30",
+    "value": 5403.32790559358,
+    "asOf": "2026-10-31",
     "source": "Treasury Fiscal Data: Monthly Treasury Statement, Table 1 (fiscal year to date)"
   },
   "fytdOutlaysB": {
-    "value": 7395.799983313231,
-    "asOf": "2026-09-30",
+    "value": 7395.89687127893,
+    "asOf": "2026-10-31",
     "source": "Treasury Fiscal Data: Monthly Treasury Statement, Table 1 (fiscal year to date)"
   },
   "fytdDeficitB": {
-    "value": 1992.4732243524213,
-    "asOf": "2026-09-30",
+    "value": 1992.5689656853501,
+    "asOf": "2026-10-31",
     "source": "Treasury Fiscal Data: Monthly Treasury Statement, Table 1 (fiscal year to date)"
   }
 }
